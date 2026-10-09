@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Разряд — документация решения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 18mm 18mm 20mm; }
+:root { --blue: #402FFF; --ink: #1B1C21; --mute: #5F5F66; --hair: #D9D9DE; --back: #F3F3F5; }
+* { box-sizing: border-box; }
+body { font: 10.5pt/1.5 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--ink); margin: 0; }
+h1, h2, h3 { font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; font-weight: 500; letter-spacing: -.02em; line-height: 1.2; }
+h1 { font-size: 26pt; margin: 0 0 8pt; }
+h2 { font-size: 15pt; margin: 22pt 0 8pt; padding-top: 8pt; border-top: 2px solid var(--ink); break-after: avoid; }
+h2 .n { color: var(--blue); margin-right: 6pt; }
+h3 { font-size: 11.5pt; margin: 14pt 0 5pt; break-after: avoid; }
+p { margin: 0 0 7pt; }
+ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+li { margin-bottom: 3pt; }
+code { font: 9pt 'JetBrains Mono', Menlo, monospace; background: var(--back); padding: 0 3px; border-radius: 3px; }
+pre { font: 8.5pt/1.45 'JetBrains Mono', Menlo, monospace; background: var(--back); padding: 8pt 10pt; border-radius: 6px; white-space: pre-wrap; break-inside: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 9.2pt; break-inside: auto; }
+th { text-align: left; font: 500 8pt 'JetBrains Mono', Menlo, monospace; text-transform: uppercase; letter-spacing: .04em; color: var(--mute); border-bottom: 1.5px solid var(--ink); padding: 4pt 5pt; }
+td { border-bottom: 1px solid var(--hair); padding: 4pt 5pt; vertical-align: top; }
+tr { break-inside: avoid; }
+.cover { min-height: 245mm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
+.cover .sign { width: 46pt; height: 54pt; }
+.cover .sub { font-size: 13pt; color: var(--mute); max-width: 120mm; }
+.cover dl { display: grid; grid-template-columns: 38mm 1fr; gap: 3pt 10pt; font-size: 10pt; margin: 0; }
+.cover dt { color: var(--mute); }
+.cover dd { margin: 0; }
+.toc ol { columns: 2; column-gap: 12mm; }
+.note { background: var(--back); border-left: 3px solid var(--blue); padding: 6pt 10pt; margin: 6pt 0 10pt; border-radius: 0 6px 6px 0; break-inside: avoid; }
+.flow { display: flex; flex-wrap: wrap; gap: 4pt; align-items: stretch; margin: 6pt 0 10pt; }
+.flow div { flex: 1 1 0; min-width: 28mm; border: 1px solid var(--ink); border-radius: 6px; padding: 5pt 6pt; font-size: 8.6pt; }
+.flow div b { display: block; font: 500 8.5pt 'JetBrains Mono', Menlo, monospace; color: var(--blue); margin-bottom: 2pt; }
+.arch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6pt; margin: 6pt 0 10pt; break-inside: avoid; }
+.arch > div { border: 1px solid var(--ink); border-radius: 6px; padding: 6pt 8pt; font-size: 8.8pt; }
+.arch > div b { display: block; font: 500 9pt 'JetBrains Mono', Menlo, monospace; margin-bottom: 3pt; }
+.arch .wide { grid-column: 1 / -1; background: var(--back); border-style: dashed; }
+.mark { display: inline-block; font: 500 7.5pt 'JetBrains Mono', Menlo, monospace; text-transform: uppercase; padding: 0 4pt; border-radius: 3px; border: 1px solid var(--hair); }
+.m-fsp { background: var(--blue); color: #fff; border-color: var(--blue); }
+.m-test { background: #DAD6FF; border-color: #DAD6FF; }
+.m-meet { background: var(--ink); color: #fff; border-color: var(--ink); }
+.small { font-size: 8.8pt; color: var(--mute); }
+.num { font-family: 'JetBrains Mono', Menlo, monospace; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <svg class="sign" viewBox="0 0 122 144" aria-hidden="true"><path fill="#402FFF" fill-rule="evenodd" d="M0 0H82V60H0ZM40 30H122V90H40Z"/><path fill="#402FFF" d="M0 90H40V144H0Z"/></svg>
+    <h1 style="margin-top:24pt">Разряд</h1>
+    <p class="sub">Сервис подбора ИТ-специалистов с&nbsp;обратной механикой: кандидат подтверждает грейд тестом, работодатель сам находит категорию и&nbsp;приглашает человека с&nbsp;вилкой зарплаты.</p>
+  </div>
+  <dl>
+    <dt>Задание</dt><dd>Спецтрек Федерации спортивного программирования, «Лидеры цифровой трансформации» 2026</dd>
+    <dt>Документ</dt><dd>Сопроводительная документация к&nbsp;решению</dd>
+    <dt>Стенд</dt><dd>https://d5d5d58b3bosodm1111q.4kscn31j.apigw.yandexcloud.net/</dd>
+    <dt>Репозиторий</dt><dd>https://github.com/a-amik/ltzt-fsp-2026</dd>
+    <dt>Версия</dt><dd>октябрь 2026</dd>
+  </dl>
+</section>
+
+<section class="toc">
+  <h2>Содержание</h2>
+  <ol>
+    <li>Решение в&nbsp;одном экране</li>
+    <li>Функциональная и&nbsp;компонентная архитектура</li>
+    <li>Механика тестирования</li>
+    <li>Механика подбора и&nbsp;категоризация</li>
+    <li>Выход на&nbsp;контакт и&nbsp;предразговор агентов</li>
+    <li>Процедура валидации и&nbsp;результаты</li>
+    <li>Интеграция с&nbsp;реестром ФСП</li>
+    <li>Языковые модели</li>
+    <li>Описание API</li>
+    <li>Библиотеки и&nbsp;компоненты</li>
+    <li>Сборка, развёртывание и&nbsp;запуск</li>
+    <li>Безопасность и&nbsp;152-ФЗ</li>
+    <li>Концепция развития: защита от&nbsp;фиктивных вакансий, ATS, иерархия доверия</li>
+  </ol>
+</section>
+
+<h2><span class="n">1</span>Решение в&nbsp;одном экране</h2>
+<p>Резюме кандидат не&nbsp;рассылает. Он&nbsp;проходит опрос по&nbsp;специализации, сам выбирает грейд и&nbsp;сдаёт адаптивный тест на&nbsp;него. Итог теста определяет категорию «специализация&nbsp;× грейд», которую видит работодатель. Работодатель пишет потребность своими словами, получает категории с&nbsp;числом кандидатов и&nbsp;ранжированный список с&nbsp;объяснением, запускает предразговор агентов со&nbsp;всей категорией и&nbsp;сам отправляет приглашение конкретному человеку. Вилка зарплаты «от&nbsp;— до» в&nbsp;приглашении обязательна. Контакты кандидата открываются, когда он&nbsp;принял приглашение или откликнулся сам.</p>
+<div class="flow">
+  <div><b>1. Вход</b>Почта с&nbsp;кодом или ФСП&nbsp;ID; достижения подтягиваются из&nbsp;реестра</div>
+  <div><b>2. Опрос</b>Специализация, стек, формат, ожидания, заявленный грейд</div>
+  <div><b>3. Тест</b>Адаптивный, 6—12 заданий; экспресс&nbsp;— 3—4</div>
+  <div><b>4. Категория</b>Специализация × грейд, место по&nbsp;силе профиля</div>
+  <div><b>5. Подборка</b>Потребность → категории → список с&nbsp;обоснованием</div>
+  <div><b>6. Предразговор</b>Агенты сторон по&nbsp;критериям, общий протокол</div>
+  <div><b>7. Приглашение</b>Вилка, статусы, контакты после «да»</div>
+</div>
+<p>У&nbsp;каждого факта профиля есть происхождение, и&nbsp;работодатель его видит: <span class="mark m-fsp">ФСП</span>&nbsp;— подтверждено реестром федерации, <span class="mark m-meet">встреча</span>&nbsp;— подтверждено работодателем после интервью, <span class="mark m-test">тест</span>&nbsp;— подтверждено тестом платформы, <span class="mark">со&nbsp;слов</span>&nbsp;— не&nbsp;проверено. Отсюда название: разряд в&nbsp;спорте присваивают за&nbsp;подтверждённый результат.</p>
+
+<h2><span class="n">2</span>Функциональная и&nbsp;компонентная архитектура</h2>
+<h3>Функции по&nbsp;ролям</h3>
+<table>
+  <tr><th>Кабинет</th><th>Что есть в&nbsp;MVP</th></tr>
+  <tr><td>Кандидат</td><td>Регистрация по&nbsp;почте с&nbsp;кодом или ФСП&nbsp;ID; опрос; загрузка резюме (PDF или текст) с&nbsp;распознаванием полей; адаптивный тест на&nbsp;грейд и&nbsp;экспресс-тест; категория и&nbsp;история тестов с&nbsp;разбором по&nbsp;навыкам; повтор теста на&nbsp;ступень ниже сразу, на&nbsp;ту&nbsp;же или выше&nbsp;— через 90&nbsp;дней; входящие приглашения с&nbsp;вилкой: принять, отклонить с&nbsp;причиной, спросить агента компании; вакансии и&nbsp;отклики; регулярные задания работодателей; «как меня видят», место в&nbsp;выдаче и&nbsp;что его изменит; настройки приватности, согласия, привязка ФСП&nbsp;ID; стандартизированный профиль.</td></tr>
+  <tr><td>Работодатель</td><td>Профиль компании; потребность своими словами с&nbsp;разбором в&nbsp;поля; подборка: категории с&nbsp;числом кандидатов, список с&nbsp;обоснованием и&nbsp;разбором балла; переговоры агентов со&nbsp;всей категорией и&nbsp;протокол по&nbsp;каждому; поиск по&nbsp;банку с&nbsp;фильтрами (специализация, грейд, стек, формат, ФСП, только подтверждённые); приглашения одному или нескольким с&nbsp;обязательной вилкой и&nbsp;статусами; итог встречи как факт профиля; вакансии и&nbsp;отклики; регулярные задания категории и&nbsp;их&nbsp;оценка; статистика найма.</td></tr>
+  <tr><td>Общее</td><td>Страница «Как это работает» с&nbsp;живыми параметрами механик; два стиля оформления (собственный и&nbsp;в&nbsp;цветах ФСП) в&nbsp;светлой и&nbsp;тёмной теме; адаптивная вёрстка до&nbsp;390&nbsp;px.</td></tr>
+</table>
+
+<h3>Компоненты</h3>
+<div class="arch">
+  <div><b>Фронт</b>React&nbsp;19, Vite&nbsp;8. Одно приложение для двух ролей; токены ролей хранятся раздельно, в&nbsp;демо оба кабинета открыты в&nbsp;одном браузере.</div>
+  <div><b>API</b>FastAPI, Pydantic&nbsp;2. Маршруты: <code>auth</code>, <code>candidate</code>, <code>test</code>, <code>employer</code>, <code>tasks</code>, <code>fsp</code>, <code>catalog</code>. OpenAPI&nbsp;— автоматически.</div>
+  <div><b>Хранение</b>SQLAlchemy&nbsp;2: PostgreSQL&nbsp;16 в&nbsp;Docker, SQLite на&nbsp;стенде и&nbsp;в&nbsp;разработке. Таблицы: пользователи, кандидаты, сессии теста, работодатели, вакансии, потребности, приглашения, отклики, задания, достижения ФСП.</div>
+  <div class="wide"><b>Ядро — <code>backend/razryad/core</code>, без зависимостей от&nbsp;веба</b><code>irt</code>&nbsp;— адаптивный тест; <code>bank</code>&nbsp;— банк шаблонов заданий; <code>scoring</code>&nbsp;— категории, ранжирование, объяснение, разбор потребности; <code>agents</code>&nbsp;— предразговор; <code>fsp_mock</code>&nbsp;— провайдер ФСП&nbsp;ID по&nbsp;OIDC и&nbsp;реестр достижений; <code>llm</code>&nbsp;— слой провайдера языковой модели с&nbsp;заглушкой на&nbsp;правилах. Тот&nbsp;же код запускает процедура валидации <code>razryad/validate.py</code>.</div>
+</div>
+<p>Архитектура&nbsp;— монолит с&nbsp;явным разделением слоёв: фронт ходит только в&nbsp;API, API&nbsp;— в&nbsp;ядро и&nbsp;хранилище, ядро не&nbsp;знает о&nbsp;вебе и&nbsp;базе. Ядро тестируется и&nbsp;валидируется отдельно. Провайдеры ФСП&nbsp;ID и&nbsp;языковой модели подключаются настройкой, без правки кода маршрутов.</p>
+
+<h2><span class="n">3</span>Механика тестирования</h2>
+<h3>Шаблон, а&nbsp;не&nbsp;задача</h3>
+<p>Задание в&nbsp;банке&nbsp;— шаблон: условие с&nbsp;параметрами, генератор данных и&nbsp;эталон ответа. Из&nbsp;одного шаблона собираются сотни вариантов: другие числа, имена, сюжет, порядок вариантов ответа. Трудность у&nbsp;всех вариантов одна, и&nbsp;она откалибрована у&nbsp;шаблона. Эталон ответа не&nbsp;покидает сервер.</p>
+<p>В&nbsp;банке 41&nbsp;шаблон: 22&nbsp;с&nbsp;выбором ответа, 12&nbsp;на&nbsp;вычисление, 5&nbsp;«разборов» и&nbsp;2&nbsp;открытых вопроса. На&nbsp;специализацию приходится от&nbsp;12 до&nbsp;26 шаблонов. «Разбор»&nbsp;— формат, который проверяет суждение, а&nbsp;не&nbsp;память: найти ошибку в&nbsp;коде, объяснить последствие, выбрать исправление при ограничении, проверить ответ, предложенный моделью. На&nbsp;открытых вопросах ИИ-помощник разрешён и&nbsp;помечен.</p>
+
+<h3>Модель и&nbsp;адаптивный показ</h3>
+<p>У&nbsp;шаблона два параметра модели IRT 2PL: трудность <i>b</i> и&nbsp;различающая сила <i>a</i>. Вероятность верного ответа кандидата с&nbsp;уровнем θ&nbsp;— <span class="num">1 / (1 + e<sup>−a(θ−b)</sup>)</span>. Оценка θ&nbsp;— апостериорное среднее на&nbsp;сетке (EAP) с&nbsp;нормальным априорным распределением, центрированным на&nbsp;заявленном грейде; погрешность&nbsp;— стандартное отклонение апостериорного распределения.</p>
+<ul>
+  <li><b>Следующее задание</b>&nbsp;— из&nbsp;ещё не&nbsp;показанных берутся три самых информативных в&nbsp;текущей оценке, из&nbsp;них одно случайно. Так тест короче при той&nbsp;же точности, и&nbsp;один шаблон не&nbsp;достаётся всем.</li>
+  <li><b>Остановка</b>&nbsp;— полный тест: не&nbsp;меньше 6 и&nbsp;не&nbsp;больше 12 заданий, стоп при погрешности ≤&nbsp;0,38. Экспресс: 3—4 задания, для жюри и&nbsp;быстрой проверки.</li>
+  <li><b>Открытые ответы</b>&nbsp;— оцениваются по&nbsp;рубрике; неуверенная оценка помечается для эксперта.</li>
+  <li><b>Протокол поведения</b>&nbsp;— вставки из&nbsp;буфера и&nbsp;уходы со&nbsp;вкладки записываются и&nbsp;видны работодателю в&nbsp;карточке. Штрафа нет: это сведения, не&nbsp;приговор.</li>
+</ul>
+
+<h3>Грейд и&nbsp;его смена</h3>
+<table>
+  <tr><th>Грейд</th><th>Отрезок шкалы θ</th></tr>
+  <tr><td>Стажёр · Intern</td><td class="num">θ &lt; −1,5</td></tr>
+  <tr><td>Младший · Junior</td><td class="num">−1,5 … −0,5</td></tr>
+  <tr><td>Средний · Middle</td><td class="num">−0,5 … 0,5</td></tr>
+  <tr><td>Старший · Senior</td><td class="num">0,5 … 1,5</td></tr>
+  <tr><td>Ведущий · Lead</td><td class="num">θ ≥ 1,5</td></tr>
+</table>
+<ul>
+  <li>Оценка попала в&nbsp;заявленный грейд или выше&nbsp;— грейд подтверждён. Если она уверенно выше границы, кандидату предлагается отдельный тест на&nbsp;ступень выше; сам грейд не&nbsp;растёт.</li>
+  <li>Оценка ниже&nbsp;— принудительного понижения нет: тест на&nbsp;ступень ниже доступен сразу. Пока кандидат его не&nbsp;сдал, он&nbsp;виден работодателю в&nbsp;своей категории с&nbsp;меткой «грейд не&nbsp;подтверждён» и&nbsp;ниже всех подтверждённых.</li>
+  <li>Повтор теста на&nbsp;тот&nbsp;же или более высокий грейд&nbsp;— не&nbsp;чаще раза в&nbsp;90&nbsp;дней (<code>RZ_GRADE_COOLDOWN_DAYS</code>).</li>
+</ul>
+
+<h3>Почему механика устойчива к&nbsp;распространению заданий</h3>
+<ol>
+  <li><b>Вариант уникален.</b> Разошедшийся ответ подходит к&nbsp;одному варианту из&nbsp;сотен; другому кандидату достанется другой.</li>
+  <li><b>Набор у&nbsp;каждого свой.</b> Адаптивный показ и&nbsp;случайный выбор среди трёх лучших дают разные последовательности даже кандидатам одного уровня.</li>
+  <li><b>Трудность сопоставима.</b> Она калибруется у&nbsp;шаблона, а&nbsp;не&nbsp;у&nbsp;варианта, поэтому уникальные задания не&nbsp;ломают сравнение кандидатов&nbsp;— именно этого не&nbsp;гарантирует генерация каждого задания нейросетью (раздел&nbsp;6, опыт&nbsp;5).</li>
+  <li><b>Оценка не&nbsp;по&nbsp;числу верных.</b> θ считается по&nbsp;параметрам решённых шаблонов; знание ответов на&nbsp;лёгкие задания уровень почти не&nbsp;поднимает.</li>
+</ol>
+<div class="note">Предел онлайн-теста мы называем прямо: без надзора тест не&nbsp;отличает человека от&nbsp;человека с&nbsp;моделью. Поэтому тест в&nbsp;«Разряде»&nbsp;— входной билет и&nbsp;проверка заявленного грейда, а&nbsp;сильнее него в&nbsp;профиле стоят реестр ФСП (очные соревнования с&nbsp;надзором) и&nbsp;итог встречи с&nbsp;работодателем (раздел&nbsp;13).</div>
+
+<h2><span class="n">4</span>Механика подбора и&nbsp;категоризация</h2>
+<h3>Справочник</h3>
+<p>Шесть специализаций: бэкенд, фронтенд, мобильная разработка, анализ данных, машинное обучение, DevOps; у&nbsp;каждой&nbsp;— свой стек в&nbsp;справочнике и&nbsp;пять навыков, по&nbsp;которым раскладывается тест. Пять грейдов&nbsp;— таблица в&nbsp;разделе&nbsp;3. Категория&nbsp;— пара «специализация × грейд»: например, «Бэкенд · Средний».</p>
+<h3>Два шага выдачи</h3>
+<ol>
+  <li><b>Жёсткий отбор категории</b> по&nbsp;специализации и&nbsp;грейду из&nbsp;теста, а&nbsp;не&nbsp;из&nbsp;резюме. Работодатель видит все грейды специализации с&nbsp;числом кандидатов и&nbsp;может добавить соседние.</li>
+  <li><b>Ранжирование внутри категории</b>:
+<pre>балл = 0,60 · положение θ внутри отрезка грейда
+     + 0,20 · доля запрошенного стека у кандидата
+     + 0,10 · результативность в соревнованиях ФСП
+     + 0,10 · свежесть: задания работодателей за 90 дней и их оценки</pre>
+  Неподтверждённые кандидаты стоят после подтверждённых.</li>
+</ol>
+<ul>
+  <li><b>ФСП</b>&nbsp;— все соревнования равны, считается результативность, а&nbsp;не&nbsp;участие: <span class="num">1 − (место − 1) / число участников</span> по&nbsp;лучшему результату, плюс 0,1 за&nbsp;каждый следующий результативный старт, коэффициент 0,8 для старше трёх лет. Кандидат без истории ФСП получает по&nbsp;этой строке ноль, а&nbsp;не&nbsp;штраф: при равном тесте ФСП решает порядок, при разнице теста больше 0,3&nbsp;— нет.</li>
+  <li><b>Объяснение</b>&nbsp;— к&nbsp;каждой позиции выдачи строки «почему здесь» со&nbsp;ссылкой на&nbsp;факт и&nbsp;его источник и&nbsp;четыре столбика слагаемых балла. Предупреждения (ожидания выше вилки, грейд не&nbsp;подтверждён) выделены.</li>
+  <li><b>Уточнение без потери подборки</b>&nbsp;— фильтры (соседние грейды, только с&nbsp;ФСП, только подтверждённые, весь стек обязателен, формат) пересчитывают список, а&nbsp;отмеченные кандидаты остаются в&nbsp;отборе.</li>
+  <li><b>Разбор потребности</b>&nbsp;— текст работодателя раскладывается в&nbsp;специализацию, грейд, стек, вилку и&nbsp;формат; каждое поле можно поправить.</li>
+</ul>
+<h3>Что видит кандидат</h3>
+<p>Своё место в&nbsp;выдаче по&nbsp;типичному запросу к&nbsp;его категории, за&nbsp;счёт чего его обходят те, кто выше, и&nbsp;куда он&nbsp;встанет, если сделает одно действие: решит задание работодателя, привяжет ФСП&nbsp;ID, пересдаст тест.</p>
+
+<h2><span class="n">5</span>Выход на&nbsp;контакт и&nbsp;предразговор агентов</h2>
+<p>Инициатива у&nbsp;работодателя. Он&nbsp;видит имя, места работы и&nbsp;подтверждённый профиль кандидата; почта и&nbsp;телефон закрыты до&nbsp;согласия кандидата.</p>
+<h3>Предразговор</h3>
+<p>Перед приглашением агент работодателя проходит один сценарий со&nbsp;всей категорией. Агент кандидата отвечает только фактами, которые кандидат разрешил показывать; на&nbsp;остальное&nbsp;— «уточнит сам». Каждая реплика закрывает критерий:</p>
+<table>
+  <tr><th>Критерий</th><th>Совпадает</th><th>С&nbsp;оговоркой</th><th>Расхождение</th></tr>
+  <tr><td>Стек</td><td>не&nbsp;меньше двух третей запрошенного</td><td>есть часть</td><td>ничего</td></tr>
+  <tr><td>Грейд</td><td>не&nbsp;ниже требуемого</td><td>на&nbsp;ступень ниже</td><td>ниже на&nbsp;две</td></tr>
+  <tr><td>Деньги</td><td>ожидания в&nbsp;вилке</td><td>выше до&nbsp;10&nbsp;%</td><td>выше больше чем на&nbsp;10&nbsp;%</td></tr>
+  <tr><td>Формат</td><td>совпал или удалённо</td><td>обсуждаемо</td><td>удалённо против офиса</td></tr>
+  <tr><td>Роль, мотивация</td><td>совпала</td><td>частично</td><td>—</td></tr>
+</table>
+<p>Итог&nbsp;— протокол, одинаковый для обеих сторон, и&nbsp;вердикт: «совпадает», «совпадает с&nbsp;оговорками» или «расхождение». Работодатель видит таблицу по&nbsp;категории, где у&nbsp;каждого кандидата пять отметок, выбирает тех, с&nbsp;кем совпало, и&nbsp;пишет им&nbsp;одним приглашением. Над таблицей&nbsp;— где расходимся чаще всего и&nbsp;сколько кандидатов добавится, если поднять верх вилки на&nbsp;10&nbsp;%. Агенты&nbsp;— эмуляция по&nbsp;сценарию, а&nbsp;не&nbsp;самостоятельные агенты: решение за&nbsp;людьми.</p>
+<h3>Приглашение</h3>
+<ul>
+  <li>Компания, предложение, вилка «от&nbsp;— до» в&nbsp;рублях, способ связи; вакансия необязательна. Без вилки приглашение не&nbsp;отправляется; если вилка ниже ожиданий, система предупреждает до&nbsp;отправки.</li>
+  <li>Статусы видят обе стороны: отправлено → просмотрено → принято или отклонено с&nbsp;причиной («мало денег», «не&nbsp;тот стек», «формат»…). Причины отказов собираются в&nbsp;статистику работодателя.</li>
+  <li>После встречи работодатель отмечает, подтвердился&nbsp;ли грейд. Итог становится фактом профиля с&nbsp;меткой <span class="mark m-meet">встреча</span>&nbsp;— он&nbsp;весомее теста.</li>
+</ul>
+<h3>Дополнительные сценарии</h3>
+<p>Кандидат, пока не&nbsp;получил приглашений, может откликнуться на&nbsp;опубликованную вакансию; отклик сам раскрывает его контакты компании. Работодатель рассылает категории короткое задание из&nbsp;своего бэклога, оценивает ответы без имён («слабо / годно / сильно»), и&nbsp;оценённые поднимаются в&nbsp;его выдаче.</p>
+
+<h2><span class="n">6</span>Процедура валидации и&nbsp;результаты</h2>
+<p>Готовых данных и&nbsp;разметки у&nbsp;задания нет, поэтому валидация&nbsp;— на&nbsp;синтетике с&nbsp;известной истиной. Процедура запускается одной командой (<code>uv run python -m razryad.validate</code>), работает на&nbsp;коде сервиса и&nbsp;пишет <code>backend/validation/report.json</code> и&nbsp;<code>REPORT.md</code>. Чтобы проверка не&nbsp;была замкнута на&nbsp;себя, ответы порождает модель с&nbsp;«истинными» параметрами шаблонов, которые отличаются от&nbsp;калиброванных: сдвиг трудности σ&nbsp;=&nbsp;0,25, различающей силы ±&nbsp;15&nbsp;%, разброс трудности вариантов σ&nbsp;=&nbsp;0,15. Тест считает по&nbsp;калиброванным значениям, как в&nbsp;жизни. Четверть кандидатов заявляет грейд на&nbsp;ступень выше настоящего.</p>
+
+<h3>1. Точность грейда</h3>
+<table>
+  <tr><th>Режим</th><th>Кандидатов</th><th>Совпал</th><th>Ошибка на&nbsp;ступень</th><th>На&nbsp;две и&nbsp;больше</th><th>Не&nbsp;подтверждён</th><th>Заданий</th></tr>
+  <tr><td>Полный</td><td class="num">1000</td><td class="num">75,7&nbsp;%</td><td class="num">20,4&nbsp;%</td><td class="num">0&nbsp;%</td><td class="num">3,9&nbsp;%</td><td class="num">15,2</td></tr>
+  <tr><td>Экспресс</td><td class="num">1000</td><td class="num">72,1&nbsp;%</td><td class="num">23,6&nbsp;%</td><td class="num">0&nbsp;%</td><td class="num">4,3&nbsp;%</td><td class="num">5,2</td></tr>
+</table>
+<p class="small">Заданий&nbsp;— с&nbsp;учётом теста на&nbsp;ступень ниже, если заявленный не&nbsp;подтвердился. Ошибок больше чем на&nbsp;ступень нет.</p>
+
+<h3>2. Повторное прохождение</h3>
+<p>Тот&nbsp;же кандидат сдаёт тест дважды независимыми наборами.</p>
+<table>
+  <tr><th>Режим</th><th>Пар</th><th>Корреляция оценок</th><th>Тот&nbsp;же грейд</th><th>В&nbsp;пределах ступени</th><th>Каппа Коэна</th></tr>
+  <tr><td>Полный</td><td class="num">500</td><td class="num">0,86</td><td class="num">74,4&nbsp;%</td><td class="num">93,4&nbsp;%</td><td class="num">0,67</td></tr>
+  <tr><td>Экспресс</td><td class="num">500</td><td class="num">0,81</td><td class="num">65,4&nbsp;%</td><td class="num">90,4&nbsp;%</td><td class="num">0,56</td></tr>
+</table>
+
+<h3>3. Разделяющая сила заданий</h3>
+<p>Калибровочная форма: 500 кандидатов на&nbsp;специализацию решают все её&nbsp;шаблоны. Средняя точечно-бисериальная корреляция ответа с&nbsp;суммой остальных&nbsp;— 0,44; ниже порога 0,3&nbsp;— один шаблон из&nbsp;41 (T10, самый трудный открытый вопрос): его стоит переработать. Разница доли верных у&nbsp;верхних и&nbsp;нижних 27&nbsp;% кандидатов&nbsp;— по&nbsp;каждому шаблону в&nbsp;<code>REPORT.md</code>.</p>
+
+<h3>4. Утечка заданий</h3>
+<p>Половина кандидатов получила ответы на&nbsp;30&nbsp;% заданий. При общем наборе «списавший» знает ответ; в&nbsp;нашем банке вариант уникален, и&nbsp;знание идеи шаблона добавляет 30&nbsp;% к&nbsp;шансу ответить верно (допущение).</p>
+<table>
+  <tr><th>Подход</th><th>Прирост оценки θ</th><th>Грейд вырос у</th><th>Самое частое задание видят</th></tr>
+  <tr><td>Общий набор заданий</td><td class="num">0,52</td><td class="num">24,4&nbsp;%</td><td class="num">100&nbsp;%</td></tr>
+  <tr><td>Банк шаблонов, адаптивный показ</td><td class="num">0,15</td><td class="num">9,0&nbsp;%</td><td class="num">78,2&nbsp;%</td></tr>
+</table>
+<p class="small">Частота показа шаблона высока, потому что в&nbsp;банке 12—26 шаблонов на&nbsp;специализацию; варианты при этом уникальны. Рост банка&nbsp;— первая доработка.</p>
+
+<h3>5. Уникальные задания без калибровки</h3>
+<p>Довод задания против генерации каждого задания нейросетью проверен парным сравнением на&nbsp;одних и&nbsp;тех&nbsp;же 1000 кандидатах.</p>
+<table>
+  <tr><th>Задания</th><th>Грейд совпал</th></tr>
+  <tr><td>Калиброванные шаблоны</td><td class="num">78,8&nbsp;%</td></tr>
+  <tr><td>Без калибровки: трудность гуляет случайно (σ&nbsp;=&nbsp;0,7)</td><td class="num">75,3&nbsp;%</td></tr>
+  <tr><td>Без калибровки: весь набор кандидата легче или тяжелее (σ&nbsp;=&nbsp;0,5)</td><td class="num">69,7&nbsp;%</td></tr>
+</table>
+<p>Случайный разброс тест почти поглощает: ошибки отдельных заданий усредняются. Систематический&nbsp;— нет: кандидату с&nbsp;лёгким набором тест завышает грейд, с&nbsp;тяжёлым&nbsp;— занижает.</p>
+
+<h3>6. Качество подбора</h3>
+<p>1200 кандидатов, 20 потребностей, 5&nbsp;независимых прогонов. Эталон&nbsp;— разметка команды по&nbsp;истинным свойствам кандидата, которых не&nbsp;видит ни&nbsp;одна система: истинный грейд, настоящий стек, деньги. Оценка 0—3; релевантен&nbsp;— 2 или&nbsp;3. Кандидат слабее запроса нерелевантен; сильнее на&nbsp;ступень&nbsp;— релевантен, если укладывается в&nbsp;вилку. В&nbsp;резюме грейд завышают чаще, чем в&nbsp;тесте, а&nbsp;стек дописывают.</p>
+<table>
+  <tr><th>Ранжирование</th><th>P@10</th><th>nDCG@10</th><th>Слабее запроса в&nbsp;первой десятке</th></tr>
+  <tr><td>Разряд: категория по&nbsp;тесту, балл</td><td class="num">0,74 ± 0,06</td><td class="num">0,67 ± 0,05</td><td class="num">2,5&nbsp;%</td></tr>
+  <tr><td>Поиск по&nbsp;ключевым словам резюме</td><td class="num">0,73 ± 0,03</td><td class="num">0,68 ± 0,03</td><td class="num">26,4&nbsp;%</td></tr>
+</table>
+<p>Точность первой десятки близка: стек у&nbsp;обоих подходов&nbsp;— самоописание. Разница в&nbsp;том, кого получает работодатель: поиск по&nbsp;резюме приводит каждого четвёртого слабее запроса, тест отсекает почти всех. Сильнее запроса у&nbsp;нас оказываются честные кандидаты, не&nbsp;дотянувшие свою ступень на&nbsp;тесте.</p>
+
+<h3>Ограничения</h3>
+<ul>
+  <li>Данные синтетические, разметку построила команда по&nbsp;правилу. Следующий шаг&nbsp;— прогон на&nbsp;людях и&nbsp;сверка с&nbsp;оценкой их&nbsp;руководителей.</li>
+  <li>Модель ответа&nbsp;— IRT&nbsp;2PL с&nbsp;шумом калибровки; поведение людей сложнее.</li>
+  <li>Эффект знания идеи шаблона задан допущением; его стоит измерить.</li>
+  <li>Параметры шаблонов заданы экспертно. В&nbsp;работе они пересчитываются по&nbsp;накопленным ответам, шаблоны с&nbsp;низкой разделяющей силой уходят в&nbsp;доработку, а&nbsp;итоги встреч с&nbsp;работодателем служат внешней меткой для калибровки.</li>
+</ul>
+
+<h2><span class="n">7</span>Интеграция с&nbsp;реестром ФСП</h2>
+<p>Ни&nbsp;API, ни&nbsp;структуры данных ФСП в&nbsp;задании нет, поэтому в&nbsp;сервисе&nbsp;— мок по&nbsp;протоколу OIDC и&nbsp;наша схема реестра как черновик интеграции. Замена мока на&nbsp;настоящий провайдер&nbsp;— настройка <code>RZ_FSP_OIDC_ISSUER</code>.</p>
+<pre>Кандидат ── «Войти через ФСП ID» ──► ФСП ID (OIDC, Keycloak)
+   │                                     │  authorize → code
+   │◄──────────── redirect с code ───────┘
+Разряд API ── code → token → userinfo (sub, имя, почта, регион)
+   │
+   └── GET реестр/{sub}/achievements ──► достижения с меткой ФСП
+        кандидат может скрыть достижение, но не изменить</pre>
+<table>
+  <tr><th>Поле достижения</th><th>Что это</th></tr>
+  <tr><td><code>event</code>, <code>discipline</code>, <code>level</code></td><td>Соревнование, дисциплина (продуктовое, алгоритмическое, БАС, ИБ…), уровень: региональное, всероссийское, международное</td></tr>
+  <tr><td><code>year</code>, <code>place</code>, <code>participants</code></td><td>Год, место, число участников или команд&nbsp;— из&nbsp;них считается результативность</td></tr>
+  <tr><td><code>team</code>, <code>rank</code></td><td>Команда и&nbsp;спортивный разряд</td></tr>
+</table>
+<p>Работодатель видит расшифровку («3 место из&nbsp;212, всероссийские соревнования, 2025»), а&nbsp;не&nbsp;балл. Случай без истории ФСП обработан: профиль работает, порядок в&nbsp;категории решает тест, строка ФСП&nbsp;— ноль. Отвязка ФСП&nbsp;ID убирает достижения из&nbsp;профиля. Методы мока&nbsp;— <code>/api/fsp-id/*</code> и&nbsp;<code>/api/fsp-registry/{sub}/achievements</code>; когда ФСП поднимет тестовый стенд ФСП&nbsp;ID, вход через него подключается адресом провайдера.</p>
+
+<h2><span class="n">8</span>Языковые модели</h2>
+<p>В&nbsp;MVP сервис не&nbsp;вызывает ни&nbsp;одной языковой модели: всё, что могло&nbsp;бы её&nbsp;потребовать, делают правила, и&nbsp;сервис полностью работает без ключей и&nbsp;GPU. Места подключения собраны в&nbsp;одном слое (<code>core/llm.py</code>, настройка <code>RZ_LLM_PROVIDER</code>), у&nbsp;каждого есть заглушка:</p>
+<table>
+  <tr><th>Задача</th><th>Сейчас</th><th>С&nbsp;моделью</th></tr>
+  <tr><td>Разбор потребности работодателя</td><td>словари специализаций, грейдов, стека, числа вилки</td><td>структурированный вывод по&nbsp;той&nbsp;же схеме полей</td></tr>
+  <tr><td>Распознавание резюме</td><td>стек, стаж, почта, телефон по&nbsp;шаблонам</td><td>роли, проекты, места работы; всё&nbsp;— с&nbsp;меткой «со&nbsp;слов»</td></tr>
+  <tr><td>Оценка открытых ответов</td><td>пункты рубрики по&nbsp;ключевым словам</td><td>оценка по&nbsp;той&nbsp;же рубрике, неуверенная&nbsp;— эксперту</td></tr>
+  <tr><td>Реплики агентов</td><td>сценарий</td><td>живее формулировки; факты&nbsp;— из&nbsp;того&nbsp;же протокола, после генерации сверка с&nbsp;профилем</td></tr>
+</table>
+<p>Персональные данные кандидата в&nbsp;модель не&nbsp;передаются; для реплик агентов уходят только факты, которые кандидат одобрил к&nbsp;показу. Предпочтение&nbsp;— открытым моделям адекватного размера, запускаемым без GPU, или отечественным провайдерам по&nbsp;ключу.</p>
+
+<h2><span class="n">9</span>Описание API</h2>
+<p>Все методы описаны спецификацией OpenAPI&nbsp;3.1: запросы, ответы, коды ошибок. Интерактивная документация&nbsp;— <code>/docs</code>, спецификация&nbsp;— <code>/openapi.json</code>. Авторизация&nbsp;— токен в&nbsp;заголовке <code>Authorization: Bearer</code>, который выдаёт <code>/api/auth/confirm</code>; права разграничены по&nbsp;ролям, кандидат видит только своё.</p>
+<table>
+  <tr><th>Группа</th><th>Методы</th></tr>
+  <tr><td>auth</td><td><code>POST /api/auth/start</code> код подтверждения · <code>POST /api/auth/confirm</code> токен · <code>GET /api/auth/me</code> · <code>POST /api/auth/logout</code></td></tr>
+  <tr><td>catalog</td><td><code>GET /api/catalog</code> справочник · <code>/catalog/mechanics</code> веса и&nbsp;правила · <code>/catalog/templates</code> банк без эталонов · <code>/catalog/fsp-pair</code></td></tr>
+  <tr><td>candidate</td><td><code>GET|PATCH /api/candidate/profile</code> · <code>POST /candidate/facts</code>, <code>PATCH /candidate/facts/{k}</code> · <code>POST /candidate/resume</code>, <code>GET /candidate/resume.txt</code> · <code>PATCH /candidate/fsp/{id}</code> · <code>GET /candidate/invites</code>, <code>POST /candidate/invites/{id}</code> · <code>GET /candidate/vacancies</code>, <code>POST /candidate/vacancies/{id}/respond</code>, <code>GET /candidate/responses</code> · <code>GET /candidate/rank</code>, <code>/candidate/stats</code>, <code>/candidate/employers/{id}</code></td></tr>
+  <tr><td>test</td><td><code>POST /api/test/start</code> · <code>GET /api/test/current</code> · <code>POST /api/test/answer</code> · <code>GET /api/test/history</code></td></tr>
+  <tr><td>fsp-id</td><td><code>/api/fsp-id/.well-known/openid-configuration</code> · <code>/fsp-id/authorize</code> · <code>/fsp-id/token</code> · <code>/fsp-id/userinfo</code> · <code>/fsp-registry/{sub}/achievements</code> · <code>POST|DELETE /api/candidate/fsp/link</code></td></tr>
+  <tr><td>employer</td><td><code>GET|PATCH /api/employer/company</code> · <code>POST /employer/needs</code>, <code>PATCH /employer/needs/{id}</code>, <code>GET /employer/needs/{id}/selection</code> · <code>GET /employer/candidates</code>, <code>/employer/candidates/{id}</code>, <code>POST /employer/candidates/{id}/talk</code> · <code>POST|GET /employer/invites</code>, <code>POST /employer/invites/{id}/feedback</code> · вакансии и&nbsp;отклики · задания и&nbsp;оценка ответов · <code>GET /employer/stats</code></td></tr>
+  <tr><td>tasks</td><td><code>GET /api/candidate/tasks</code> · <code>POST /api/candidate/tasks/{id}/answer</code></td></tr>
+</table>
+<p class="small">Коды ошибок: 401&nbsp;— нет или недействителен токен, 403&nbsp;— метод другой роли, 404&nbsp;— нет записи или она чужая, 409&nbsp;— повторное действие (отклик, ответ на&nbsp;задание, решение по&nbsp;приглашению), 422&nbsp;— не&nbsp;прошла проверка полей (например, приглашение без вилки или регистрация без согласия), 429&nbsp;— повторный тест на&nbsp;грейд раньше срока.</p>
+
+<h2><span class="n">10</span>Библиотеки и&nbsp;компоненты</h2>
+<table>
+  <tr><th>Компонент</th><th>Версия</th><th>Лицензия</th><th>Зачем</th></tr>
+  <tr><td>Python</td><td class="num">3.12</td><td>PSF</td><td>сервер</td></tr>
+  <tr><td>FastAPI</td><td class="num">0.142.2</td><td>MIT</td><td>API и&nbsp;OpenAPI</td></tr>
+  <tr><td>Uvicorn</td><td class="num">0.54.0</td><td>BSD</td><td>сервер ASGI</td></tr>
+  <tr><td>Pydantic, pydantic-settings</td><td class="num">2.13.5, 2.15.0</td><td>MIT</td><td>схемы, настройки</td></tr>
+  <tr><td>SQLAlchemy</td><td class="num">2.1.3</td><td>MIT</td><td>хранилище</td></tr>
+  <tr><td>psycopg</td><td class="num">3.3.6</td><td>LGPL</td><td>драйвер PostgreSQL</td></tr>
+  <tr><td>httpx</td><td class="num">0.28.1</td><td>BSD</td><td>клиент HTTP, тесты</td></tr>
+  <tr><td>PostgreSQL</td><td class="num">16</td><td>PostgreSQL</td><td>база в&nbsp;Docker</td></tr>
+  <tr><td>SQLite</td><td class="num">3</td><td>public domain</td><td>база стенда и&nbsp;разработки</td></tr>
+  <tr><td>React, react-dom</td><td class="num">19.2</td><td>MIT</td><td>фронт</td></tr>
+  <tr><td>Vite</td><td class="num">8.3</td><td>MIT</td><td>сборка фронта</td></tr>
+  <tr><td>Node.js</td><td class="num">22</td><td>MIT</td><td>сборка фронта</td></tr>
+  <tr><td>nginx</td><td class="num">1.24+</td><td>BSD</td><td>раздача фронта, прокси API</td></tr>
+  <tr><td>pytest, ruff, oxlint</td><td>—</td><td>MIT</td><td>тесты и&nbsp;проверка кода</td></tr>
+</table>
+<p class="small">Точные версии зависимостей зафиксированы в&nbsp;<code>backend/uv.lock</code> и&nbsp;<code>web/package-lock.json</code>. Шрифты Inter и&nbsp;JetBrains Mono&nbsp;— SIL Open Font License.</p>
+
+<h2><span class="n">11</span>Сборка, развёртывание и&nbsp;запуск</h2>
+<h3>Docker</h3>
+<pre>git clone https://github.com/a-amik/ltzt-fsp-2026.git && cd ltzt-fsp-2026
+docker compose up --build -d
+docker compose exec api uv run python -m razryad.seed --n 600
+# фронт: http://localhost:5173   API: http://localhost:8000/docs</pre>
+<h3>Без Docker</h3>
+<pre># сервер: Python 3.12 и uv
+cd backend && uv sync
+uv run python -m razryad.seed --n 600
+uv run python main.py                     # http://localhost:8000/docs, база SQLite
+
+# фронт: Node.js 22
+cd web && npm ci && npm run dev           # http://localhost:5173</pre>
+<h3>Проверка</h3>
+<pre>cd backend
+uv run pytest                             # ядро и сквозной сценарий
+uv run python -m razryad.validate         # валидация → backend/validation/</pre>
+<h3>Стенд</h3>
+<p>Машина в&nbsp;Yandex Cloud (Ubuntu 24.04): API&nbsp;— служба systemd под uvicorn с&nbsp;двумя процессами, фронт&nbsp;— статика nginx, база&nbsp;— SQLite. Снаружи стенд виден через API Gateway: адреса шлюза открыты из&nbsp;любой страны. Требования скромные: стенд работает на&nbsp;2&nbsp;ядрах и&nbsp;4&nbsp;ГБ памяти, GPU не&nbsp;нужен.</p>
+<h3>Демо-доступ</h3>
+<p>Работодатель&nbsp;— <code>hr@transcode.example</code>; кандидат&nbsp;— любая почта или ФСП&nbsp;ID. Код подтверждения в&nbsp;демо-режиме показывается на&nbsp;экране. В&nbsp;базе 600 синтетических кандидатов.</p>
+
+<h2><span class="n">12</span>Безопасность и&nbsp;152-ФЗ</h2>
+<ul>
+  <li><b>Согласие</b> на&nbsp;обработку и&nbsp;на&nbsp;показ профиля даётся при регистрации и&nbsp;хранится с&nbsp;датой; кандидат может скрыть профиль из&nbsp;банка.</li>
+  <li><b>Приватность</b>: кандидат решает, видны&nbsp;ли ожидания по&nbsp;зарплате, город, достижения ФСП и&nbsp;каждый факт «со&nbsp;слов». Контакты закрыты до&nbsp;его согласия.</li>
+  <li><b>Роли и&nbsp;доступ</b>: токены ролей раздельны, каждый метод проверяет роль и&nbsp;владельца записи; кандидат не&nbsp;видит данных других кандидатов.</li>
+  <li><b>Пароли не&nbsp;хранятся</b>: вход по&nbsp;одноразовому коду на&nbsp;почту или через ФСП&nbsp;ID. Токен сессии&nbsp;— случайная 256-битная строка, которая хранится на&nbsp;сервере; выход отзывает токен.</li>
+  <li><b>Языковые модели</b> персональных данных не&nbsp;получают (раздел&nbsp;8).</li>
+  <li><b>Стенд</b> закрыт от&nbsp;индексации; данные на&nbsp;нём синтетические.</li>
+</ul>
+
+<h2><span class="n">13</span>Концепция развития</h2>
+<h3>Иерархия доверия</h3>
+<table>
+  <tr><th>Источник</th><th>Что подтверждает</th><th>В&nbsp;MVP</th></tr>
+  <tr><td>Реестр ФСП</td><td>Результаты очных соревнований под надзором</td><td>метка ФСП, вес в&nbsp;ранжировании</td></tr>
+  <tr><td>Встреча с&nbsp;работодателем</td><td>Подтвердился&nbsp;ли грейд на&nbsp;интервью</td><td>итог встречи как факт профиля</td></tr>
+  <tr><td>Код из&nbsp;репозиториев</td><td>Технологии и&nbsp;решения со&nbsp;ссылкой на&nbsp;коммит</td><td>после MVP</td></tr>
+  <tr><td>Тест с&nbsp;открытым ИИ</td><td>Суждение: найти ошибку, проверить ответ модели</td><td>формат «разбор», 5 шаблонов</td></tr>
+  <tr><td>Тест на&nbsp;грейд</td><td>Знание стека и&nbsp;основ</td><td>категория</td></tr>
+</table>
+<h3>Защита от&nbsp;фиктивных вакансий и&nbsp;недобросовестных работодателей</h3>
+<ul>
+  <li>Сверка компании по&nbsp;ИНН с&nbsp;ЕГРЮЛ и&nbsp;подтверждение почты на&nbsp;домене компании.</li>
+  <li>Репутация из&nbsp;поведения на&nbsp;платформе&nbsp;— её&nbsp;уже видит кандидат: доля откликов с&nbsp;ответом, медиана ответа, доля принятых приглашений, вилки против рынка, причины отказов.</li>
+  <li>Лимит приглашений в&nbsp;день для новых компаний; жалоба кандидата приостанавливает рассылку до&nbsp;проверки.</li>
+  <li>Вилка обязательна, а&nbsp;итог встречи сравнивается с&nbsp;вилкой из&nbsp;приглашения: систематический разрыв снижает репутацию.</li>
+</ul>
+<h3>Интеграция с&nbsp;ATS</h3>
+<p>Принятое приглашение и&nbsp;отклик уходят в&nbsp;ATS работодателя (Huntflow, Поток, FriendWork) карточкой кандидата через вебхук: профиль с&nbsp;метками происхождения, протокол предразговора, вилка, статус. Обратно приходят статусы этапов воронки и&nbsp;итог интервью&nbsp;— это и&nbsp;есть метка «встреча» для калибровки теста.</p>
+<h3>Ближайшие доработки</h3>
+<ul>
+  <li>Банк до&nbsp;сотен шаблонов и&nbsp;пересчёт их&nbsp;параметров по&nbsp;накопленным ответам.</li>
+  <li>Задания с&nbsp;кодом в&nbsp;изолированной песочнице со&nbsp;скрытыми тестами.</li>
+  <li>Подключение языковой модели к&nbsp;разбору потребности и&nbsp;резюме.</li>
+  <li>Вход через тестовый стенд ФСП&nbsp;ID.</li>
+</ul>
+
+</body>
+</html>

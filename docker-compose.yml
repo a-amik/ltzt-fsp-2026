@@ -1,0 +1,41 @@
+# Разряд: api (FastAPI), web (статика прототипа через nginx), db (PostgreSQL).
+# Запуск: docker compose up --build; API — http://localhost:8000/docs, фронт — http://localhost:5173.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: razryad
+      POSTGRES_PASSWORD: razryad
+      POSTGRES_DB: razryad
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U razryad"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      RZ_DATABASE_URL: postgresql+psycopg://razryad:razryad@db:5432/razryad
+      RZ_MAIL_MODE: ${RZ_MAIL_MODE:-screen}
+      RZ_LLM_PROVIDER: ${RZ_LLM_PROVIDER:-stub}
+      RZ_LLM_API_KEY: ${RZ_LLM_API_KEY:-}
+      RZ_FSP_OIDC_ISSUER: ${RZ_FSP_OIDC_ISSUER:-internal}
+      RZ_CORS_ORIGINS: ${RZ_CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

@@ -1,0 +1,300 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Бренд-кит «Разряд» — отраслевой подбор ИТ-специалистов, задача ФСП.
+
+   Откуда стиль. Форма взята у Gumroad: жёсткая рамка, смещённая тень без
+   размытия, нулевое скругление, плоская заливка, очень крупный заголовок.
+   Краска своя: фирменный синий amik.am (#0000FF, home/home.css, --blue).
+   Моноширинный — JetBrains Mono, тот же, которым набран сайт ФСП: цифры,
+   разряды и коды на экране обязаны читаться языком федерации.
+
+   Три вещи, которые нельзя ломать:
+   1. Тень — часть кромки, а не украшение. Всё, что можно нажать, лежит
+      на тени и под нажатием садится на неё: смещение равно --r-drop.
+      Размытой тени в ките нет вовсе.
+   2. Заливка метки говорит, кто подтвердил факт: синяя — федерация,
+      жёлтая — код репозитория, пустая — никто. Четвёртой краски
+      не заводят: заведётся — метки перестанут читаться шкалой.
+   3. Цвет объявляет только .kit. Внутри компонентов литеральных красок
+      нет: лист переключают одним атрибутом data-kit="night".
+
+   Файл самостоятельный: ничего не подключает и ни от чего не зависит.
+   Шрифты в приложении кладут к себе, в стенде они приезжают с Google Fonts.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.kit {
+  /* ── Лист и перо ── */
+  --r-paper:   #FFFFFF;
+  --r-back:    #EDEDED;
+  --r-ink:     #111114;
+  --r-mute:    #6E6E76;
+  --r-hair:    rgba(17, 17, 20, .16);
+
+  /* ── Краски ── */
+  --r-blue:    #402FFF;   --r-on-blue: #FFFFFF;
+  --r-sun:     #FFD400;   --r-on-sun:  #111114;
+  --r-green:   #00A870;   --r-on-green:#FFFFFF;
+  --r-alarm:   #EC1D35;   --r-on-alarm:#FFFFFF;
+  /* Заливка и перо у зелёного с оранжевым разные: на белом сами краски дают
+     3,1 и 3,4 : 1, то есть годятся под плашку и не годятся под текст. */
+  --r-green-ink: #00845A;
+  --r-alarm-ink: #C8102A;
+  --r-night:   #1B1C21;
+  --r-night-2: #26272E;
+
+  /* ── Геометрия ── */
+  --r-edge:   2px;   /* рамка, одна на весь кит */
+  --r-drop:   5px;   /* смещение тени и глубина нажатия */
+  --r-step:   8px;   /* шаг отступов: всё кратно ему */
+  --r-radius: 0;     /* скругления нет нигде, кроме аватара */
+
+  /* ── Гарнитуры ── */
+  --r-display: 'Unbounded', 'Inter', system-ui, sans-serif;
+  --r-font:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --r-fast: 90ms;
+  --r-shadow: var(--r-drop) var(--r-drop) 0 var(--r-ink);
+
+  /* Кит меряет себя, а не окно: раскладка переключается по ширине самого
+     блока (@container), поэтому рамка телефона на стенде показывает ровно
+     то, что увидит телефон. Медиазапрос здесь врал бы: на экране 1280
+     кит в рамке 390 оставался бы десктопным. */
+  container-type: inline-size;
+  container-name: kit;
+  color: var(--r-ink);
+  background: var(--r-back);
+  font: 400 17px/1.5 var(--r-font);
+  font-variant-numeric: tabular-nums;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Тёмный лист берёт бумагу ФСП. Тень здесь цвета пера: синюю мы примерили
+   и сняли — #0000FF на #1B1C21 даёт 1,98 : 1, и кромки не видно вовсе.
+   Из того же промера следует запрет: на тёмном синий живёт только заливкой
+   под белым текстом и никогда не становится текстом сам. */
+.kit[data-kit="night"] {
+  --r-paper: #26272E;
+  --r-back:  #1B1C21;
+  --r-ink:   #F2F2F4;
+  --r-mute:  #9B9BA6;
+  --r-hair:  rgba(242, 242, 244, .18);
+  --r-green-ink: #00A870;
+  --r-alarm-ink: #FF4A1C;
+}
+
+.kit *, .kit *::before, .kit *::after { box-sizing: border-box; }
+.kit p { margin: 0 0 calc(var(--r-step) * 2); max-width: 62ch; }
+.kit a { color: inherit; text-underline-offset: 3px; }
+
+/* ── Кегли ─────────────────────────────────────────────────────────────
+   Заголовок первого экрана набирают дисплейной гарнитурой, всё остальное —
+   Inter. Дисплейная в интерфейсе не появляется: у неё очко шире и строка
+   в таблице от неё разъезжается. */
+.r-hero  { font: 800 clamp(40px, 8vw, 96px)/.95 var(--r-display); letter-spacing: -.03em; margin: 0 0 calc(var(--r-step) * 3); }
+.r-h1    { font: 700 clamp(30px, 4vw, 48px)/1.1 var(--r-font); letter-spacing: -.02em; margin: 0 0 calc(var(--r-step) * 2); }
+.r-h2    { font: 700 clamp(22px, 2.6vw, 32px)/1.2 var(--r-font); letter-spacing: -.01em; margin: 0 0 calc(var(--r-step) * 2); }
+.r-h3    { font: 600 22px/1.3 var(--r-font); margin: 0 0 var(--r-step); }
+.r-small { font-size: 14px; line-height: 1.45; }
+.r-mute  { color: var(--r-mute); }
+.r-micro { font: 500 12px/1.2 var(--r-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--r-mute); }
+.r-num   { font-family: var(--r-mono); font-variant-numeric: tabular-nums; }
+
+/* ── Кнопка ────────────────────────────────────────────────────────────
+   Нажатая кнопка садится на свою тень: смещение равно --r-drop, и тень
+   в этот миг исчезает. Ход в обе стороны один и тот же. */
+.r-btn {
+  display: inline-flex; align-items: center; gap: var(--r-step);
+  padding: 10px 18px; min-height: 44px;
+  font: 600 16px/1 var(--r-font); text-decoration: none; white-space: nowrap;
+  color: var(--r-ink); background: var(--r-paper);
+  border: var(--r-edge) solid var(--r-ink); border-radius: var(--r-radius);
+  box-shadow: var(--r-shadow); cursor: pointer;
+  transition: transform var(--r-fast) linear, box-shadow var(--r-fast) linear;
+}
+.r-btn:hover  { transform: translate(-1px, -1px); box-shadow: calc(var(--r-drop) + 1px) calc(var(--r-drop) + 1px) 0 var(--r-ink); }
+.r-btn:active { transform: translate(var(--r-drop), var(--r-drop)); box-shadow: 0 0 0 var(--r-ink); }
+.r-btn:focus-visible { outline: 3px solid var(--r-blue); outline-offset: 3px; }
+.r-btn--main  { background: var(--r-blue); color: var(--r-on-blue); }
+.r-btn--main:focus-visible { outline-color: var(--r-ink); }
+.r-btn--sun   { background: var(--r-sun); color: var(--r-on-sun); }
+.r-btn--sm    { min-height: 34px; padding: 6px 12px; font-size: 14px; --r-drop: 3px; }
+.r-btn--lg    { min-height: 56px; padding: 14px 26px; font-size: 19px; }
+.r-btn--quiet { border-color: transparent; box-shadow: none; background: none; text-decoration: underline; padding-inline: 4px; }
+.r-btn--quiet:hover  { transform: none; box-shadow: none; background: var(--r-hair); }
+.r-btn--quiet:active { transform: none; }
+.r-btn[disabled], .r-btn[aria-disabled="true"] {
+  color: var(--r-mute); background: var(--r-paper); border-color: var(--r-hair);
+  box-shadow: none; transform: none; cursor: not-allowed;
+}
+
+/* ── Поле ──────────────────────────────────────────────────────────────
+   У поля тени нет: тень говорит «сюда нажимают», а в поле пишут. */
+.r-field { display: grid; gap: 6px; margin-bottom: calc(var(--r-step) * 2); max-width: 420px; }
+.r-label { font: 600 14px/1.2 var(--r-font); }
+.r-input, .r-select, .r-area {
+  width: 100%; padding: 11px 14px; min-height: 46px;
+  font: 400 16px/1.3 var(--r-font); color: var(--r-ink);
+  background: var(--r-paper); border: var(--r-edge) solid var(--r-ink);
+  border-radius: var(--r-radius); appearance: none;
+}
+.r-area { min-height: 96px; resize: vertical; }
+.r-input::placeholder, .r-area::placeholder { color: var(--r-mute); }
+.r-input:focus-visible, .r-select:focus-visible, .r-area:focus-visible {
+  outline: 3px solid var(--r-blue); outline-offset: 2px;
+}
+.r-select { background-image: linear-gradient(45deg, transparent 49%, currentColor 49% 56%, transparent 56%),
+                              linear-gradient(-45deg, transparent 49%, currentColor 49% 56%, transparent 56%);
+  background-size: 9px 9px; background-position: right 18px top 52%, right 26px top 52%; background-repeat: no-repeat; padding-right: 44px; }
+.r-hint { font-size: 13px; color: var(--r-mute); }
+.r-field[data-state="bad"] .r-input { border-color: var(--r-alarm); box-shadow: inset 0 0 0 1px var(--r-alarm); }
+.r-field[data-state="bad"] .r-hint { color: var(--r-alarm-ink); font-weight: 600; }
+
+/* ── Чип фильтра ───────────────────────────────────────────────────── */
+.r-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; min-height: 32px;
+  font: 500 14px/1 var(--r-font); color: var(--r-ink);
+  background: var(--r-paper); border: var(--r-edge) solid var(--r-ink);
+  border-radius: var(--r-radius); cursor: pointer;
+}
+.r-chip:hover { background: var(--r-hair); }
+.r-chip[aria-pressed="true"] { background: var(--r-ink); color: var(--r-paper); }
+.r-chip:focus-visible { outline: 3px solid var(--r-blue); outline-offset: 2px; }
+.r-chips { display: flex; flex-wrap: wrap; gap: var(--r-step); }
+
+/* ── Метка происхождения ───────────────────────────────────────────────
+   Шкала из трёх ступеней: чем сильнее подтверждение, тем плотнее краска. */
+.r-mark {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; font: 500 12px/1.4 var(--r-mono);
+  letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+  border: var(--r-edge) solid var(--r-ink); border-radius: var(--r-radius);
+}
+.r-mark--fsp  { background: var(--r-blue); color: var(--r-on-blue); }
+.r-mark--code { background: var(--r-sun);  color: var(--r-on-sun); }
+.r-mark--word { background: none; color: var(--r-mute); border-color: var(--r-hair); }
+
+/* ── Карточка ──────────────────────────────────────────────────────── */
+.r-card {
+  padding: calc(var(--r-step) * 3);
+  background: var(--r-paper); border: var(--r-edge) solid var(--r-ink);
+  border-radius: var(--r-radius); box-shadow: var(--r-shadow);
+}
+.r-card--flat { box-shadow: none; }
+.r-card--blue { background: var(--r-blue); color: var(--r-on-blue); border-color: var(--r-ink); }
+.r-card--sun  { background: var(--r-sun); color: var(--r-on-sun); }
+
+/* ── Карточка кандидата в выдаче ───────────────────────────────────── */
+.r-cand { display: grid; grid-template-columns: 56px 1fr auto; gap: calc(var(--r-step) * 2); align-items: start; }
+.r-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center; font: 700 20px/1 var(--r-mono);
+  background: var(--r-sun); color: var(--r-on-sun); border: var(--r-edge) solid var(--r-ink);
+}
+.r-cand__name { font: 700 20px/1.2 var(--r-font); margin: 0 0 2px; }
+.r-cand__role { color: var(--r-mute); font-size: 15px; margin: 0 0 var(--r-step); }
+.r-cand__marks { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--r-step); }
+.r-cand__act { display: grid; gap: var(--r-step); justify-items: stretch; }
+
+/* ── Соответствие: шесть слагаемых, а не один балл ─────────────────────
+   Столбик всегда показан целиком: заполненная доля — синяя, недобранная —
+   штриховка. Голого числа без расшифровки в интерфейсе не бывает. */
+.r-score { display: grid; gap: 6px; }
+.r-score__bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; align-items: end; height: 64px; }
+.r-score__bar {
+  position: relative; height: 100%;
+  border: var(--r-edge) solid var(--r-ink);
+  background-image: repeating-linear-gradient(45deg, var(--r-hair) 0 3px, transparent 3px 7px);
+}
+.r-score__bar i { position: absolute; left: 0; right: 0; bottom: 0; height: var(--r-fill, 0%); background: var(--r-blue); display: block; }
+.r-score__bar[data-gap="true"] i { background: var(--r-sun); }
+.r-score__legend { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.r-score__legend span { font: 500 10px/1.2 var(--r-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--r-mute); text-align: center; }
+
+/* ── Вакансия ──────────────────────────────────────────────────────── */
+.r-vac__pay { font: 700 22px/1.2 var(--r-mono); }
+.r-vac__list { margin: var(--r-step) 0 0; padding-left: 20px; }
+.r-vac__list li { margin-bottom: 4px; }
+
+/* ── Разговор агентов ──────────────────────────────────────────────────
+   Реплика агента кандидата всегда несёт при себе источник: без него
+   агент не отвечает вовсе. */
+.r-talk { display: grid; gap: calc(var(--r-step) * 2); }
+.r-turn { display: grid; gap: 6px; max-width: 78%; }
+.r-turn__who { font: 500 12px/1.2 var(--r-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--r-mute); }
+.r-turn__body { padding: 14px 16px; border: var(--r-edge) solid var(--r-ink); background: var(--r-paper); }
+.r-turn--emp { justify-self: start; }
+.r-turn--emp .r-turn__body { background: var(--r-paper); }
+.r-turn--cand { justify-self: end; text-align: left; }
+.r-turn--cand .r-turn__body { background: var(--r-sun); }
+.r-cite { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--r-step); padding-top: var(--r-step); border-top: 1px dashed var(--r-hair); }
+.r-nodata { border: var(--r-edge) dashed var(--r-ink); padding: 12px 16px; background: none; font-weight: 600; }
+
+/* ── Резюме разговора ──────────────────────────────────────────────── */
+.r-sum { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--r-step) * 2); }
+.r-sum ul { margin: 0; padding-left: 20px; }
+.r-sum li { margin-bottom: 6px; }
+
+/* ── Достижение ФСП ────────────────────────────────────────────────────
+   Разряд стоит крупно и моноширинным, а рядом — что он подтверждает:
+   балла без расшифровки на экране не бывает. */
+.r-ach { display: grid; grid-template-columns: auto 1fr; gap: calc(var(--r-step) * 2); align-items: center; }
+.r-rank {
+  display: grid; place-items: center; width: 84px; height: 84px;
+  background: var(--r-blue); color: var(--r-on-blue);
+  border: var(--r-edge) solid var(--r-ink); box-shadow: var(--r-shadow);
+  font: 700 13px/1.1 var(--r-mono); text-align: center; letter-spacing: .04em;
+}
+.r-rank b { display: block; font-size: 30px; letter-spacing: -.02em; }
+
+/* ── Таблица ───────────────────────────────────────────────────────── */
+.r-table { width: 100%; border-collapse: collapse; background: var(--r-paper); border: var(--r-edge) solid var(--r-ink); }
+.r-table th, .r-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--r-hair); font-size: 15px; }
+.r-table thead th { font: 500 12px/1.2 var(--r-mono); letter-spacing: .06em; text-transform: uppercase; background: var(--r-ink); color: var(--r-paper); }
+.r-table tbody tr:last-child td { border-bottom: 0; }
+.r-table tbody tr:hover { background: var(--r-hair); }
+
+/* ── Переключатель видимости факта ─────────────────────────────────── */
+.r-switch { display: inline-flex; align-items: center; gap: var(--r-step); cursor: pointer; font-size: 15px; }
+.r-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.r-switch i { width: 46px; height: 26px; border: var(--r-edge) solid var(--r-ink); background: var(--r-paper); position: relative; flex: none; }
+.r-switch i::after { content: ""; position: absolute; inset: 2px auto 2px 2px; width: 18px; background: var(--r-ink); transition: transform var(--r-fast) linear; }
+.r-switch input:checked + i { background: var(--r-blue); }
+.r-switch input:checked + i::after { transform: translateX(20px); background: var(--r-on-blue); }
+.r-switch input:focus-visible + i { outline: 3px solid var(--r-blue); outline-offset: 2px; }
+
+/* ── Пусто, оповещение ─────────────────────────────────────────────── */
+.r-empty { padding: calc(var(--r-step) * 4); text-align: center; border: var(--r-edge) dashed var(--r-ink); }
+.r-toast { display: inline-flex; align-items: center; gap: var(--r-step); padding: 12px 16px; background: var(--r-ink); color: var(--r-back); border: var(--r-edge) solid var(--r-ink); box-shadow: var(--r-drop) var(--r-drop) 0 var(--r-blue); font-weight: 600; }
+/* Единственная синяя тень в ките: плашка залита пером, и синий рядом с ним
+   даёт 8,6 : 1 на любом листе. */
+
+/* ── Место под экспонат: рисует иллюстратор, а не вёрстка ────────────── */
+.r-slot {
+  display: grid; place-items: center; gap: 6px; padding: calc(var(--r-step) * 3);
+  min-height: 140px; text-align: center;
+  border: var(--r-edge) dashed var(--r-ink); color: var(--r-mute);
+  background: repeating-linear-gradient(45deg, var(--r-hair) 0 1px, transparent 1px 9px);
+}
+.r-slot b { font: 500 12px/1.3 var(--r-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--r-ink); }
+
+/* ── Слово-знак ────────────────────────────────────────────────────────
+   Имя набрано дисплейной гарнитурой, знак стоит перед ним. Сменится
+   имя — правится одна строка разметки, кит этого не заметит. */
+.r-word { display: inline-flex; align-items: center; gap: 10px; font: 800 34px/1 var(--r-display); letter-spacing: -.03em; }
+.r-word svg { width: .82em; height: .82em; flex: none; }
+
+@container kit (max-width: 720px) {
+  .r-cand { grid-template-columns: 44px 1fr; }
+  .r-cand__act { grid-column: 1 / -1; }
+  .r-avatar { width: 44px; height: 44px; font-size: 16px; }
+  .r-sum { grid-template-columns: 1fr; }
+  .r-turn { max-width: 100%; }
+  .r-score__legend span { font-size: 9px; letter-spacing: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit * { transition: none !important; }
+}
+
+/* Графика «Разряда»: искра между профилем и вакансией. */

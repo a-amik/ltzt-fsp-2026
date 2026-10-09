@@ -1,0 +1,9 @@
+node_modules/
+.venv/
+dist/
+__pycache__/
+.env
+*.xlsx
+
+# Выгрузка для организаторов — отдельный репозиторий
+.public/

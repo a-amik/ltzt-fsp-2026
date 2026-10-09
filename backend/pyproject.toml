@@ -1,0 +1,32 @@
+[project]
+name = "razryad"
+version = "0.1.0"
+description = "Разряд: сервис подбора ИТ-специалистов с обратной механикой для ФСП"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]",
+    "pydantic[email]>=2",
+    "pydantic-settings>=2",
+    "sqlalchemy>=2",
+    "psycopg[binary]>=3",
+    "httpx",
+    "python-multipart",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["uv_build>=0.11.7,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "razryad"
+module-root = ""

@@ -1,0 +1,97 @@
+# Разряд
+
+Сервис подбора ИТ-специалистов с обратной механикой для Федерации спортивного
+программирования. Кандидат проходит опрос и адаптивный тест на свой грейд
+и попадает в категорию «специализация × грейд». Работодатель описывает
+потребность, получает подборку из категории с объяснением, проводит
+предразговор агентов сторон и сам приглашает кандидата с вилкой зарплаты.
+Контакты кандидата открываются после его согласия.
+
+Спецтрек ФСП, «Лидеры цифровой трансформации» 2026.
+
+- Стенд: https://d5d5d58b3bosodm1111q.4kscn31j.apigw.yandexcloud.net/
+- Описание API (OpenAPI): `/docs` на стенде или локально
+- Документация решения: [`docs/`](docs/)
+- Результаты валидации: [`backend/validation/REPORT.md`](backend/validation/REPORT.md)
+
+## Как войти на стенд
+
+Почта подтверждается кодом; в демо-режиме код показывается прямо на экране.
+
+| Роль | Как войти |
+|---|---|
+| Работодатель | `hr@transcode.example` — компания «ТрансКод» с вакансиями и заданием |
+| Кандидат | любая почта или «Войти через ФСП ID» → учётная запись с историей соревнований или без неё |
+
+Кандидаты в базе синтетические: 600 человек, 431 с подтверждённым грейдом.
+Для быстрой проверки теста есть экспресс-режим — 3—4 задания.
+
+## Запуск
+
+### Docker
+
+```sh
+docker compose up --build
+```
+
+Фронт — http://localhost:5173, API — http://localhost:8000/docs. База — PostgreSQL 16
+в контейнере. Синтетические данные:
+
+```sh
+docker compose exec api uv run python -m razryad.seed --n 600
+```
+
+### Без Docker
+
+Нужны Python 3.12, [uv](https://docs.astral.sh/uv/) и Node.js 22.
+
+```sh
+cd backend
+uv sync
+uv run python -m razryad.seed --n 600   # синтетические кандидаты, работодатель, вакансии
+uv run python main.py                    # API на http://localhost:8000, база SQLite
+```
+
+```sh
+cd web
+npm ci
+npm run dev                              # http://localhost:5173, /api проксируется на :8000
+```
+
+### Тесты и валидация
+
+```sh
+cd backend
+uv run pytest                            # ядро и сквозной сценарий
+uv run python -m razryad.validate        # валидация на синтетике → backend/validation/
+```
+
+## Настройки
+
+Переменные окружения с префиксом `RZ_` (`backend/razryad/config.py`, образец — `.env.example`):
+
+| Переменная | По умолчанию | Что делает |
+|---|---|---|
+| `RZ_DATABASE_URL` | `sqlite:///./razryad.db` | база; в Docker — PostgreSQL |
+| `RZ_SECRET` | `dev-secret-change-me` | секрет подписи токенов, на стенде — свой |
+| `RZ_MAIL_MODE` | `screen` | `screen` — код подтверждения в ответе API |
+| `RZ_LLM_PROVIDER` | `stub` | разбор потребности и резюме, реплики агентов — правилами |
+| `RZ_FSP_OIDC_ISSUER` | `internal` | провайдер ФСП ID; `internal` — встроенный мок OIDC |
+| `RZ_GRADE_COOLDOWN_DAYS` | `90` | интервал повторного теста на тот же грейд |
+
+## Устройство
+
+```
+backend/            FastAPI, SQLAlchemy; ядро — razryad/core
+  razryad/core/     irt (адаптивный тест), bank (шаблоны заданий), scoring (категории
+                    и ранжирование), agents (предразговор), fsp_mock (ФСП ID и реестр)
+  razryad/api/      маршруты: auth, candidate, test, employer, tasks, fsp, catalog
+  razryad/validate.py  процедура валидации
+web/                React 19 + Vite: кабинеты кандидата и работодателя, «Как это работает»
+docs/               документация решения
+tools/stand/        выкладка стенда в Yandex Cloud
+```
+
+## Лицензия
+
+MIT

@@ -1,0 +1,99 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Скин «ФСП» — второй кит поверх тех же узлов r-*.
+
+   Откуда стиль: сайт и брендбук ФСП (fsp-russia.ru, 05.10.2026).
+   Тёмный лист #1B1C21, карточки #2D2E37, светлая плашка #EDEDED, акцент
+   #402FFF, красный #EC1D35 только под ошибку и отказ. Заголовки —
+   JetBrains Mono обычного веса, текст — Inter. Скругление 6–12 px,
+   теней нет: глубину дают заливка и тонкая линия, а не смещение.
+
+   Как устроен скин. Узлы кита не переписываются: скин меняет токены
+   (краски, кромку, тень, скругление, гарнитуры) и поправляет те немногие
+   правила, где форма Gumroad зашита в сам узел, — нажатие кнопки со
+   сдвигом и столбики соответствия. Включается одним атрибутом
+   data-skin="fsp" у .kit; тема — тем же data-kit="night".
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.kit[data-skin="fsp"] {
+  --r-paper:   #FFFFFF;
+  --r-back:    #EDEDED;
+  --r-ink:     #1B1C21;
+  --r-mute:    #5F5F66;
+  --r-hair:    rgba(27, 28, 33, .14);
+
+  --r-blue:    #402FFF;   --r-on-blue: #FFFFFF;
+  --r-blue-ink:#402FFF;
+  /* Жёлтого у ФСП нет. Вторая ступень метки — светлый фиолетовый:
+     шкала «федерация — тест — слова» остаётся шкалой плотности одной краски. */
+  --r-sun:     #DAD6FF;   --r-on-sun:  #1B1C21;
+  --r-alarm:   #EC1D35;   --r-on-alarm:#FFFFFF;
+  --r-alarm-ink: #C8102A;
+  --r-green-ink: #1F8A5B;
+
+  --r-edge:   1px;
+  --r-drop:   0px;
+  --r-radius: 10px;
+  --r-shadow: none;
+
+  --r-display: 'JetBrains Mono', ui-monospace, monospace;
+  --r-font:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+.kit[data-skin="fsp"][data-kit="night"] {
+  --r-paper:   #2D2E37;
+  --r-back:    #1B1C21;
+  --r-ink:     #EDEDED;
+  --r-mute:    #9B9C9E;
+  --r-hair:    rgba(237, 237, 237, .14);
+  /* Синий ФСП на тёмном живёт заливкой; как текст — осветлённый. */
+  --r-blue-ink:#9D94FF;
+  --r-sun:     #3D3570;   --r-on-sun:  #EDEDED;
+  --r-alarm-ink: #FF5A6C;
+  --r-green-ink: #3CC98A;
+}
+
+/* ── Кегли: заголовки — моно обычного веса, как на сайте федерации ── */
+.kit[data-skin="fsp"] .r-hero,
+.kit[data-skin="fsp"] .r-h1,
+.kit[data-skin="fsp"] .r-h2 { font-family: var(--r-display); font-weight: 500; letter-spacing: -.02em; }
+.kit[data-skin="fsp"] .r-h3 { font-family: var(--r-display); font-weight: 500; letter-spacing: -.01em; }
+.kit[data-skin="fsp"] .r-word { font-family: var(--r-display); font-weight: 700; letter-spacing: -.04em; }
+
+/* ── Кнопка: без тени и сдвига, плотная заливка, скругление 8 ────── */
+.kit[data-skin="fsp"] .r-btn { border-radius: 8px; box-shadow: none; border-color: var(--r-hair); background: var(--r-paper); }
+.kit[data-skin="fsp"] .r-btn:hover { transform: none; box-shadow: none; border-color: var(--r-ink); }
+.kit[data-skin="fsp"] .r-btn:active { transform: translateY(1px); box-shadow: none; }
+.kit[data-skin="fsp"] .r-btn--main { background: var(--r-blue); color: var(--r-on-blue); border-color: var(--r-blue); }
+.kit[data-skin="fsp"] .r-btn--main:hover { background: #3424E0; border-color: #3424E0; }
+.kit[data-skin="fsp"] .r-btn--quiet { border-color: transparent; background: none; }
+.kit[data-skin="fsp"] .r-btn[disabled] { opacity: .55; background: var(--r-paper); border-color: var(--r-hair); }
+
+/* ── Поля, чипы, метки ─────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-input,
+.kit[data-skin="fsp"] .r-area,
+.kit[data-skin="fsp"] .r-select { border-radius: 8px; border-color: var(--r-hair); background: var(--r-paper); }
+.kit[data-skin="fsp"] .r-input:focus-visible,
+.kit[data-skin="fsp"] .r-area:focus-visible { border-color: var(--r-blue); outline: 2px solid var(--r-blue); outline-offset: 0; }
+.kit[data-skin="fsp"] .r-chip { border-radius: 100px; border-color: var(--r-hair); padding-inline: 14px; }
+.kit[data-skin="fsp"] .r-chip[aria-pressed="true"] { background: var(--r-blue); border-color: var(--r-blue); color: var(--r-on-blue); }
+.kit[data-skin="fsp"] .r-mark { border-radius: 6px; border-color: transparent; }
+.kit[data-skin="fsp"] .r-mark--word { border-color: var(--r-hair); }
+
+/* ── Карточки: заливка и линия, без тени ───────────────────────── */
+.kit[data-skin="fsp"] .r-card { border-radius: 12px; border-color: var(--r-hair); box-shadow: none; }
+.kit[data-skin="fsp"] .r-card--blue { border-color: var(--r-blue); }
+.kit[data-skin="fsp"] .r-card--sun { border-color: transparent; }
+.kit[data-skin="fsp"] .r-empty,
+.kit[data-skin="fsp"] .r-nodata,
+.kit[data-skin="fsp"] .r-slot { border-radius: 12px; border-width: 1px; border-color: var(--r-hair); }
+.kit[data-skin="fsp"] .r-table { border-radius: 12px; overflow: hidden; border-color: var(--r-hair); }
+.kit[data-skin="fsp"] .r-table thead th { background: var(--r-back); color: var(--r-mute); }
+.kit[data-skin="fsp"] .r-turn__body { border-radius: 12px; border-color: var(--r-hair); }
+.kit[data-skin="fsp"] .r-rank { border-radius: 12px; box-shadow: none; border-color: var(--r-blue); }
+.kit[data-skin="fsp"] .r-switch i { border-radius: 100px; border-color: var(--r-hair); }
+.kit[data-skin="fsp"] .r-switch i::after { border-radius: 100px; }
+.kit[data-skin="fsp"] .r-toast { border-radius: 10px; box-shadow: none; background: var(--r-blue); color: var(--r-on-blue); border-color: var(--r-blue); }
+
+/* ── Столбики соответствия ─────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-score__bar { border-radius: 4px; border-color: var(--r-hair); overflow: hidden; }
