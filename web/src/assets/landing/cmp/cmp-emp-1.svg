@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="var(--r-mute, #5F5F66)" fill="var(--r-hair, rgba(27,28,33,.14))">
+    <g transform="rotate(-13 41 60)">
+      <rect x="14" y="28" width="54" height="64" rx="6"/>
+      <rect x="24" y="40" width="31" height="5" rx="3" stroke="none"/>
+      <rect x="24" y="53" width="24" height="5" rx="3" stroke="none"/>
+    </g>
+    <g transform="rotate(11 54 52)">
+      <rect x="26" y="16" width="55" height="73" rx="6"/>
+      <rect x="36" y="28" width="32" height="5" rx="3" stroke="none"/>
+      <rect x="36" y="41" width="23" height="5" rx="3" stroke="none"/>
+    </g>
+    <g transform="rotate(-6 63 67)">
+      <rect x="35" y="35" width="56" height="65" rx="6"/>
+      <rect x="46" y="48" width="33" height="5" rx="3" stroke="none"/>
+      <rect x="46" y="61" width="25" height="5" rx="3" stroke="none"/>
+    </g>
+    <g transform="rotate(6 45 65)">
+      <rect x="17" y="32" width="56" height="66" rx="6"/>
+      <circle cx="32" cy="49" r="7" fill="none"/>
+      <rect x="44" y="44" width="20" height="5" rx="3" stroke="none"/>
+      <rect x="44" y="54" width="14" height="5" rx="3" stroke="none"/>
+      <rect x="27" y="70" width="34" height="5" rx="3" stroke="none"/>
+      <rect x="27" y="82" width="26" height="5" rx="3" stroke="none"/>
+    </g>
+  </g>
+  <path d="M108 60H132M126 54L132 60L126 66" stroke="var(--r-mute, #5F5F66)"/>
+  <g fill="var(--r-paper, #FFFFFF)">
+    <rect x="143" y="25" width="28" height="32" rx="5" fill="var(--r-blue, #402FFF)" stroke="var(--r-blue, #402FFF)"/>
+    <rect x="176" y="25" width="28" height="32" rx="5"/>
+    <rect x="209" y="25" width="28" height="32" rx="5"/>
+    <rect x="143" y="64" width="28" height="32" rx="5"/>
+    <rect x="176" y="64" width="28" height="32" rx="5"/>
+    <rect x="209" y="64" width="28" height="32" rx="5"/>
+  </g>
+  <path d="M149 37L155 43L165 33" stroke="var(--r-paper, #FFFFFF)"/>
+  <rect x="150" y="48" width="14" height="5" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+  <g fill="var(--r-sun, #DAD6FF)" stroke="none">
+    <rect x="183" y="33" width="14" height="5" rx="3"/>
+    <rect x="216" y="33" width="14" height="5" rx="3"/>
+    <rect x="150" y="72" width="14" height="5" rx="3"/>
+    <rect x="183" y="72" width="14" height="5" rx="3"/>
+    <rect x="216" y="72" width="14" height="5" rx="3"/>
+  </g>
+  <g fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none">
+    <rect x="183" y="46" width="10" height="5" rx="3"/>
+    <rect x="216" y="46" width="10" height="5" rx="3"/>
+    <rect x="150" y="85" width="10" height="5" rx="3"/>
+    <rect x="183" y="85" width="10" height="5" rx="3"/>
+    <rect x="216" y="85" width="10" height="5" rx="3"/>
+  </g>
+</svg>

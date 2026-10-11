@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="var(--r-mute, #5F5F66)" fill="var(--r-hair, rgba(27,28,33,.14))">
+    <path d="M17 26C13 28 11 34 14 41C20 55 31 66 45 71C52 74 57 71 60 66L51 56Q49 54 46 56L40 60Q29 54 23 43L27 36Q29 33 27 31L20 26Q19 25 17 26Z"/>
+    <circle cx="12" cy="92" r="5"/>
+    <circle cx="25" cy="92" r="5"/>
+    <circle cx="38" cy="92" r="5"/>
+    <circle cx="51" cy="92" r="5"/>
+    <circle cx="64" cy="92" r="5"/>
+    <circle cx="77" cy="92" r="5"/>
+    <circle cx="90" cy="92" r="5"/>
+  </g>
+  <path d="M108 60H132M126 54L132 60L126 66" stroke="var(--r-mute, #5F5F66)"/>
+  <g fill="var(--r-paper, #FFFFFF)">
+    <path d="M149 31H161Q167 31 167 37V51L170 56L167 61V83Q167 89 161 89H149Q143 89 143 83V37Q143 31 149 31Z"/>
+    <path d="M217 31H229Q235 31 235 37V83Q235 89 229 89H217Q211 89 211 83V61L208 56L211 51V37Q211 31 217 31Z"/>
+  </g>
+  <g fill="var(--r-sun, #DAD6FF)" stroke="none">
+    <rect x="150" y="41" width="12" height="12" rx="4"/>
+    <rect x="216" y="41" width="12" height="12" rx="4"/>
+  </g>
+  <g fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none">
+    <rect x="149" y="64" width="14" height="5" rx="3"/>
+    <rect x="149" y="76" width="10" height="5" rx="3"/>
+    <rect x="215" y="64" width="14" height="5" rx="3"/>
+    <rect x="219" y="76" width="10" height="5" rx="3"/>
+  </g>
+  <g fill="var(--r-paper, #FFFFFF)">
+    <path d="M181 24H198Q203 24 203 29V36Q203 41 198 41H182L175 45V39Q176 38 176 36V29Q176 24 181 24Z"/>
+    <path d="M181 49H198Q203 49 203 54V61L207 67H198H181Q176 67 176 62V54Q176 49 181 49Z"/>
+    <path d="M181 76H198Q203 76 203 81V88Q203 93 198 93H182L175 97V91Q176 90 176 88V81Q176 76 181 76Z" fill="var(--r-sun, #DAD6FF)"/>
+  </g>
+  <rect x="182" y="30" width="14" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="182" y="55" width="14" height="5" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <path d="M182 84L187 89L197 80" stroke="var(--r-blue, #402FFF)"/>
+</svg>

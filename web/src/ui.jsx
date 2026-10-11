@@ -24,14 +24,14 @@ export function Modal({ title, onClose, children, wide }) {
   );
 }
 
-const PART_NAMES = { test: 'Тест', stack: 'Стек', fsp: 'ФСП', fresh: 'Свежесть' };
+const PART_NAMES = { test: 'Тест', stack: 'Стек', fsp: 'ФСП', fresh: 'Свежесть', social: 'Связи' };
 export function Score({ parts }) {
   return (
     <div className="r-score" title="Из чего сложилось место в выдаче">
-      <div className="r-score__bars" style={{ gridTemplateColumns: 'repeat(4, 1fr)', height: 44 }}>
+      <div className="r-score__bars" style={{ gridTemplateColumns: `repeat(${Object.keys(parts).length}, 1fr)`, height: 44 }}>
         {Object.entries(parts).map(([k, v]) => <div key={k} className="r-score__bar"><i style={{ '--r-fill': `${Math.round(v * 100)}%` }} /></div>)}
       </div>
-      <div className="r-score__legend" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      <div className="r-score__legend" style={{ gridTemplateColumns: `repeat(${Object.keys(parts).length}, 1fr)` }}>
         {Object.keys(parts).map((k) => <span key={k}>{PART_NAMES[k]}</span>)}
       </div>
     </div>
@@ -73,6 +73,14 @@ export const Empty = ({ img, icon, title, children }) => (
   <div className="r-empty">
     <span className="r-empty__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{LUCIDE[icon || ICON_OF[img] || 'inbox']}</svg></span>
     {img && <img src={img} alt="" className="empty-img" />}<p className="r-h3">{title}</p><div className="r-mute">{children}</div></div>
+);
+
+// Полоса кабинета: краска стороны, как первый экран её главной. Внутри — кто это и вкладки.
+export const CabHead = ({ micro, title, sub, children }) => (
+  <header className="cab-head">
+    <div className="cab-head__in"><p className="r-micro">{micro}</p><h1 className="cab-head__title">{title}</h1>{sub && <p className="cab-head__sub">{sub}</p>}</div>
+    {children}
+  </header>
 );
 
 export function Tabs({ items, value, onChange }) {
@@ -133,3 +141,18 @@ export function Dictate({ value, onChange, onStart, children }) {
     {(on || msg) && <span className="r-hint" aria-live="polite">{on ? 'Говорите — текст появляется в поле. Нажмите микрофон ещё раз, чтобы закончить.' : msg}</span>}
   </>);
 }
+
+// Полоса шагов онбординга: пройденные отмечены, текущий выделен.
+export function OnbSteps({ steps, cur }) {
+  return (
+    <ol className="onb-steps" aria-label="Шаги">
+      {steps.map((s, i) => (
+        <li key={s} className={i < cur ? 'is-done' : i === cur ? 'is-cur' : ''} aria-current={i === cur ? 'step' : undefined}>
+          <span className="onb-steps__n">{i < cur ? '✓' : i + 1}</span><span className="onb-steps__t">{s}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+export const CAND_STEPS = ['Вход', 'Кто вы в ИТ', 'Что ищете', 'Тест на грейд'];
+export const EMP_STEPS = ['Вход', 'Компания', 'Кого нанимаете'];

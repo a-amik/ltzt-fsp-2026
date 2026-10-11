@@ -343,6 +343,8 @@
 
 @media (max-width: 640px) {
   .app[data-skin="fsp"] .modal { border-radius: var(--r-rad-l) var(--r-rad-l) 0 0; }
+  .app[data-skin="fsp"] .modal-back { background: transparent; } /* нижний шит: без затемнения, отделяет тень */
+  .app[data-skin="fsp"] .modal { box-shadow: 0 -8px 32px rgba(17, 17, 20, .18); }
   .app[data-skin="fsp"] .bar { padding: 6px 8px 0; }
 }
 @media (prefers-reduced-motion: reduce) {

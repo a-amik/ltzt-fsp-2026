@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+  <g stroke="var(--r-mute, #5F5F66)">
+    <rect x="8" y="38" width="87" height="44" rx="6" fill="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="18" y="50" width="27" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="18" y="64" width="35" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <circle cx="74" cy="60" r="14"/>
+    <circle cx="74" cy="67" r="2" fill="var(--r-mute, #5F5F66)" stroke="none"/>
+  </g>
+  <path d="M108 60H132M126 54L132 60L126 66" stroke="var(--r-mute, #5F5F66)"/>
+  <rect x="143" y="30" width="94" height="44" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+  <circle cx="159" cy="51" r="8" fill="var(--r-sun, #DAD6FF)"/>
+  <rect x="175" y="40" width="48" height="5" rx="3" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  <rect x="175" y="55" width="34" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <g stroke="none">
+    <rect x="143" y="84" width="52" height="12" rx="4" fill="var(--r-blue, #402FFF)"/>
+    <rect x="197" y="84" width="18" height="12" rx="4" fill="var(--r-sun, #DAD6FF)"/>
+    <rect x="217" y="84" width="9" height="12" rx="4" fill="var(--r-ink, #1B1C21)"/>
+    <rect x="228" y="84" width="9" height="12" rx="4" fill="var(--r-hair, rgba(27,28,33,.14))"/>
+  </g>
+</svg>

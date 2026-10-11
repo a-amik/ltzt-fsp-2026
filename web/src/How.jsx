@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from './store.jsx';
 import { get } from './api.js';
-import { GRADES, COOLDOWN_DAYS, WEIGHTS, spec, gradeName, num } from './const.js';
+import { GRADES, COOLDOWN_DAYS, WEIGHTS, spec, gradeName, num, plural, ZAD } from './const.js';
 import { Trace, Mark, Score } from './ui.jsx';
 
 export default function How() {
@@ -25,14 +25,14 @@ export default function How() {
         <div className="steps">
           <div><b>Шаблон, а&nbsp;не&nbsp;задача.</b> У&nbsp;шаблона параметры, генератор данных и&nbsp;эталон. Цифры и&nbsp;сюжет у&nbsp;каждого кандидата свои, трудность одна — она откалибрована у&nbsp;шаблона. Эталон ответа не&nbsp;покидает сервер.</div>
           <div><b>Следующее задание — по&nbsp;текущей оценке.</b> Берём три самых информативных шаблона и&nbsp;одно из&nbsp;них случайно; самые показанные уходят в&nbsp;конец очереди. Тест короче, утечка одного варианта бесполезна.</div>
-          <div><b>Стоп по&nbsp;точности.</b> {cat ? <>Минимум {cat.min_items} заданий, максимум {cat.max_items}; останавливаемся, когда погрешность ≤ {cat.target_se}. Экспресс для жюри — {mech.cat.express.max_items} задания.</> : '…'}</div>
+          <div><b>Стоп по&nbsp;точности.</b> {cat ? <>Минимум {plural(cat.min_items, ...ZAD)}, максимум {cat.max_items}; останавливаемся, когда погрешность ≤&nbsp;{num(cat.target_se)}. Экспресс для жюри — {plural(mech.cat.express.max_items, ...ZAD)}, даёт грейд с&nbsp;меткой «экспресс».</> : '…'}</div>
           <div><b>Грейд — отрезок шкалы.</b> Не&nbsp;прошёл — тест на ступень ниже сразу; уверенно выше — отдельный тест на ступень выше; повтор того&nbsp;же уровня через {COOLDOWN_DAYS}&nbsp;дней. Не&nbsp;подтвердил — виден с&nbsp;меткой, ниже подтверждённых.</div>
         </div>
         {t ? <><p className="r-label">Ваш последний тест</p><Trace trace={t.trace || []} claimed={t.claimed} /></> : <p className="r-small r-mute">Пройдите тест в&nbsp;кабинете кандидата — здесь появится его ход.</p>}
         <p className="r-label">Банк шаблонов · {tpls.length} · показано экземпляров: {total}</p>
         <div className="tablewrap scroll-x"><table className="r-table">
           <thead><tr><th>Шаблон</th><th>Навык</th><th>Для кого</th><th>Формат</th><th>Трудность b</th><th>Различение a</th><th>Показан</th></tr></thead>
-          <tbody>{[...tpls].sort((x, y) => x.b - y.b).map((x) => <tr key={x.id}><td>{x.id} {x.title}</td><td>{x.skill}</td><td className="r-small">{x.specs.map((s) => spec(s).name).join(', ')}</td><td>{x.format}</td><td className="r-num">{x.b}</td><td className="r-num">{x.a}</td><td className="r-num">{x.shown}</td></tr>)}</tbody>
+          <tbody>{[...tpls].sort((x, y) => x.b - y.b).map((x) => <tr key={x.id}><td>{x.id} {x.title}</td><td>{x.skill}</td><td className="r-small">{x.specs.map((s) => spec(s).name).join(', ')}</td><td>{x.format}</td><td className="r-num">{num(x.b, 1)}</td><td className="r-num">{num(x.a, 1)}</td><td className="r-num">{x.shown}</td></tr>)}</tbody>
         </table></div>
         <p className="r-small r-mute">Параметры a&nbsp;и&nbsp;b заданы экспертно и&nbsp;пересчитываются по&nbsp;ответам; шаблон с&nbsp;a&nbsp;&lt;&nbsp;0,5 уходит в&nbsp;доработку.</p>
       </section>
@@ -40,8 +40,8 @@ export default function How() {
         <h2 className="r-h2">2. Подбор: категории и&nbsp;порядок</h2>
         <div className="steps">
           <div><b>Сначала категория.</b> Специализация × грейд из&nbsp;теста — не&nbsp;из&nbsp;резюме. Работодатель видит категории с&nbsp;числом людей и&nbsp;выбирает сам.</div>
-          <div><b>Потом порядок внутри.</b> Тест {WEIGHTS.test * 100}&nbsp;%, совпадение стека {WEIGHTS.stack * 100}&nbsp;%, ФСП {WEIGHTS.fsp * 100}&nbsp;%, свежесть {WEIGHTS.fresh * 100}&nbsp;%. Без истории ФСП — ноль по&nbsp;строке, не&nbsp;штраф. Все соревнования равны, считаются результативные; направление, близкое к&nbsp;специализации, — полностью, остальные — с&nbsp;коэффициентом 0,8.</div>
-          <div><b>Вилка — тоже порядок.</b> Кандидат, чьи ожидания выше верха вилки больше чем на&nbsp;10&nbsp;%, стоит после тех, кто в&nbsp;неё укладывается: работодатель сначала видит тех, с&nbsp;кем сойдётся по&nbsp;деньгам. Скрытые ожидания и&nbsp;вилка без верха порядок не&nbsp;меняют.</div>
+          <div><b>Потом порядок внутри.</b> Тест {WEIGHTS.test * 100}&nbsp;%, совпадение стека {Math.round(WEIGHTS.stack * 100)}&nbsp;%, ФСП {WEIGHTS.fsp * 100}&nbsp;%, свежесть {WEIGHTS.fresh * 100}&nbsp;%, связи {Math.round(WEIGHTS.social * 100)}&nbsp;%&nbsp;— отзывы бывших коллег и&nbsp;рекомендации. Без истории ФСП — ноль по&nbsp;строке, не&nbsp;штраф. Все соревнования равны, считаются результативные; направление, близкое к&nbsp;специализации, — полностью, остальные — с&nbsp;коэффициентом 0,8.</div>
+          <div><b>Вилка зарплаты — тоже порядок.</b> Кандидат, чьи ожидания выше верха вилки больше чем на&nbsp;10&nbsp;%, стоит после тех, кто в&nbsp;неё укладывается: работодатель сначала видит тех, с&nbsp;кем сойдётся по&nbsp;деньгам. Скрытые ожидания и&nbsp;вилка без верха порядок не&nbsp;меняют.</div>
           <div><b>Объяснение из&nbsp;фактов.</b> Каждая строка «почему здесь» ссылается на&nbsp;факт и&nbsp;его источник: <Mark src="fsp" /> <Mark src="test" /> <Mark src="word" />.</div>
           <div><b>Фильтры не&nbsp;теряют отбор.</b> Отмеченные кандидаты остаются наверху при&nbsp;любом уточнении.</div>
         </div>
@@ -49,7 +49,7 @@ export default function How() {
       <section className="r-card r-card--flat stack-sm">
         <h2 className="r-h2">3. Контакт: приглашение и&nbsp;предразговор</h2>
         <div className="steps">
-          <div><b>Пишет работодатель.</b> Приглашение без вилки не&nbsp;отправить; вилка ниже ожиданий — предупреждение до&nbsp;отправки.</div>
+          <div><b>Пишет работодатель.</b> Приглашение без вилки зарплаты не&nbsp;отправить; вилка ниже ожиданий — предупреждение до&nbsp;отправки.</div>
           <div><b>Агенты до&nbsp;решения.</b> Агент работодателя проходит один сценарий со&nbsp;всей категорией; агент кандидата отвечает только одобренными фактами. Протокол одинаков у&nbsp;обеих сторон.</div>
           <div><b>Статусы видят обе стороны.</b> Отправлено → просмотрено → принято или отклонено с&nbsp;причиной.</div>
           <div><b>Контакты — после «да».</b> До&nbsp;этого работодатель видит имя, места работы и&nbsp;подтверждённый профиль, но&nbsp;не&nbsp;почту и&nbsp;телефон.</div>
@@ -73,7 +73,7 @@ export default function How() {
       <section className="r-card r-card--flat stack-sm">
         <h2 className="r-h2">Грейды</h2>
         <div className="tablewrap scroll-x"><table className="r-table"><thead><tr><th>Грейд</th><th>Отрезок θ</th></tr></thead>
-          <tbody>{GRADES.map((g) => <tr key={g.id}><td>{g.name} · {g.short}</td><td className="r-num">{g.from < -5 ? '…' : g.from} — {g.to > 5 ? '…' : g.to}</td></tr>)}</tbody></table></div>
+          <tbody>{GRADES.map((g) => <tr key={g.id}><td>{g.name} · {g.short}</td><td className="r-num">{g.from < -5 ? '…' : num(g.from, 1)} — {g.to > 5 ? '…' : num(g.to, 1)}</td></tr>)}</tbody></table></div>
       </section>
     </div>
   );

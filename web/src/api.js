@@ -1,10 +1,20 @@
-/* Клиент API. Токены двух ролей держим отдельно: в демо один человек ходит
-   по обоим кабинетам, в жизни это два разных входа. */
+/* Клиент API. Вход один на человека: у него до двух профилей — кандидата
+   и компании, переключение в шапке. Слоты cand и emp оставлены ради старых
+   вызовов и всегда равны общему токену me. */
 const BASE = import.meta.env.VITE_API || '/api';
 const KEY = 'razryad-tokens';
 
-export const tokens = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } })();
-export function setToken(role, t) { if (t) tokens[role] = t; else delete tokens[role]; try { localStorage.setItem(KEY, JSON.stringify(tokens)); } catch { /* приватное окно */ } }
+const save = (t) => { try { localStorage.setItem(KEY, JSON.stringify(t)); } catch { /* приватное окно */ } };
+export const tokens = (() => {
+  let t = {}; try { t = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { /* приватное окно */ }
+  // Старое хранилище держало два разных входа; общим становится вход компании.
+  const me = t.me || t.emp || t.cand;
+  return me ? { me, cand: me, emp: me } : {};
+})();
+export function setToken(_role, t) {
+  ['me', 'cand', 'emp'].forEach((k) => { if (t) tokens[k] = t; else delete tokens[k]; });
+  save(t ? { me: t } : {});
+}
 
 export class ApiError extends Error { constructor(status, detail) { super(detail || `Ошибка ${status}`); this.status = status; } }
 

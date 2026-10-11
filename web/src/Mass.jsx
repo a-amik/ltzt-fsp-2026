@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { gradeName, fmt } from './const.js';
 import { Modal } from './ui.jsx';
 import { Negotiation } from './Artifacts.jsx';
+import { CamBadge, camOf } from './Camera.jsx';
 
 const ORDER = { ok: 0, part: 1, no: 2 };
 const CELLS = [['Стек', 'Стек'], ['Грейд', 'Грейд'], ['Деньги', 'Деньги'], ['Формат', 'Формат'], ['Мотивация', 'Мотив']];
@@ -45,7 +46,7 @@ export default function Mass({ items, company, salaryTo, onInvite }) {
       {finished && Object.keys(miss).length > 0 && (
         <div className="doc-note">
           Чаще всего расходимся: {Object.entries(miss).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k.toLowerCase()} — ${v}`).join(', ')}.
-          {payNear > 0 && <> Поднять верх вилки на 10 % до {fmt(Math.round(salaryTo * 1.1 / 1000) * 1000)} — ещё <b>{payNear}</b> без расхождений.</>}
+          {payNear > 0 && <> Поднять верх вилки зарплаты на 10 % до {fmt(Math.round(salaryTo * 1.1 / 1000) * 1000)} — ещё <b>{payNear}</b> без расхождений.</>}
         </div>
       )}
       <div className="tablewrap scroll-x">
@@ -57,7 +58,7 @@ export default function Mass({ items, company, salaryTo, onInvite }) {
               <tr key={r.c.id} className={sel.includes(r.c.id) ? 'is-sel' : ''}>
                 <td><label className="mass-chk"><input type="checkbox" checked={sel.includes(r.c.id)} onChange={() => toggle(r.c.id)} aria-label={`Выбрать ${r.c.display}`} /><i /></label></td>
                 <td className="r-num">{r.pos}</td>
-                <td><button className="linkish" onClick={() => setOpen(r)}>{r.c.display}</button><span className="r-small r-mute"> · {gradeName(r.c.grade)}{r.c.confirmed ? '' : ' · не подтверждён'}</span></td>
+                <td><button className="linkish" onClick={() => setOpen(r)}>{r.c.display}</button><span className="r-small r-mute"> · {gradeName(r.c.grade)}{r.c.confirmed ? '' : ' · не подтверждён'}</span>{camOf(r.c) && <CamBadge />}</td>
                 {CELLS.map(([k]) => { const x = by[k]; return <td key={k}>{x ? <i className={`cdot cd-${x.state}`} title={`${WORD[x.state]}: ${x.note}`} /> : <span className="r-mute">—</span>}</td>; })}
                 <td className={`mass-v v2-${r.n.verdict.kind}`}>{{ ok: 'Совпало', part: 'Оговорки', no: 'Нет' }[r.n.verdict.kind]}</td>
               </tr>

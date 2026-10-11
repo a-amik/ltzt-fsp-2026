@@ -72,6 +72,8 @@ def start(body: StartIn, c: Candidate = Depends(current_candidate), db: Session 
         if not allowed_now and last.finished_at and datetime.utcnow() - last.finished_at < timedelta(days=settings.grade_cooldown_days):
             left = settings.grade_cooldown_days - (datetime.utcnow() - last.finished_at).days
             raise HTTPException(429, f"Смена грейда — не чаще раза в {settings.grade_cooldown_days} дней; осталось {left}")
+    if not 0 <= body.claimed <= 4:
+        raise HTTPException(422, "Грейд 0…4")
     c.claimed_grade = body.claimed
     s = TestSession(candidate_id=c.id, spec=c.spec, claimed=body.claimed, mode=body.mode, prior=prior_for(body.claimed),
                     trace=[{"theta": prior_for(body.claimed), "se": 1.0}])
@@ -121,9 +123,13 @@ def answer(body: AnswerIn, c: Candidate = Depends(current_candidate), db: Sessio
         s.finished, s.finished_at, s.theta, s.se = True, datetime.utcnow(), theta, se
         s.verdict = verdict(s.claimed, theta, se)
         s.current = None
-        if s.verdict["kind"] == "ok":
-            c.grade, c.theta, c.se, c.grade_since = s.claimed, theta, se, datetime.utcnow()
-            c.facts = [{**f, "src": "test"} if f.get("k") == "Стек" else f for f in c.facts]
+        if s.verdict["kind"] == "ok" and s.mode == "express":
+            # Экспресс (4 задания) даёт грейд с меткой «экспресс»: оценка видна, подтверждает только полный тест.
+            if c.grade is None:
+                c.theta, c.se, c.express_at = theta, se, datetime.utcnow()
+        elif s.verdict["kind"] == "ok":
+            c.grade, c.theta, c.se, c.grade_since, c.express_at = s.claimed, theta, se, datetime.utcnow(), None
+        # Стек тест не проверяет: факты стека остаются «со слов».
     db.commit()
     out = _session_out(s)
     out["last"] = last

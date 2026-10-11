@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Профиль открыт посторонним; контакты под замком до принятия приглашения">
+  <g stroke="var(--r-mute, #5F5F66)" fill="var(--r-hair, rgba(27,28,33,.14))">
+    <rect x="27" y="25" width="48" height="76" rx="6"/>
+    <circle cx="40" cy="40" r="6" stroke="none"/>
+    <rect x="51" y="37" width="16" height="5" rx="3" stroke="none"/>
+    <rect x="35" y="54" width="31" height="5" rx="3" stroke="none"/>
+    <rect x="35" y="65" width="24" height="5" rx="3" stroke="none"/>
+    <rect x="35" y="82" width="31" height="5" rx="3" fill="var(--r-mute, #5F5F66)" stroke="none" opacity="0.55"/>
+    <circle cx="12" cy="41" r="10"/>
+    <circle cx="87" cy="39" r="10"/>
+    <circle cx="13" cy="87" r="10"/>
+    <circle cx="87" cy="87" r="10"/>
+    <path d="M5 41Q12 33 19 41Q12 49 5 41ZM80 39Q87 31 94 39Q87 47 80 39ZM6 87Q13 79 20 87Q13 95 6 87ZM80 87Q87 79 94 87Q87 95 80 87Z" fill="none"/>
+    <g fill="var(--r-mute, #5F5F66)" stroke="none">
+      <circle cx="12" cy="41" r="2"/>
+      <circle cx="87" cy="39" r="2"/>
+      <circle cx="13" cy="87" r="2"/>
+      <circle cx="87" cy="87" r="2"/>
+    </g>
+  </g>
+  <path d="M108 60H132M126 54L132 60L126 66" stroke="var(--r-mute, #5F5F66)"/>
+  <rect x="145" y="24" width="54" height="76" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+  <circle cx="160" cy="40" r="7" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="173" y="36" width="17" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="173" y="46" width="12" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="153" y="57" width="36" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="153" y="67" width="24" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="151" y="79" width="42" height="16" rx="4" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="176" y="84" width="12" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <path d="M158 81V77Q158 73 162 73Q166 73 166 77V81"/>
+  <rect x="155" y="81" width="14" height="12" rx="4" fill="var(--r-sun, #DAD6FF)"/>
+  <path d="M162 86V89"/>
+  <rect x="209" y="67" width="25" height="23" rx="5" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  <path d="M215 78L219 82L228 73" stroke="var(--r-paper, #FFFFFF)"/>
+</svg>

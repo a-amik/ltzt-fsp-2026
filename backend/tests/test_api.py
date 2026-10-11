@@ -62,7 +62,12 @@ def test_end_to_end():
         st = client.get("/api/employer/invites", headers=e).json()
         assert st[0]["status"] == "принято" and len(st[0]["log"]) == 3
         # кандидат не видит чужого
-        assert client.get("/api/employer/invites", headers=c).status_code == 403
+        # У кандидата нет профиля компании, пока он его не заведёт; свой профиль компания не видит.
+        assert client.get("/api/employer/invites", headers=c).status_code == 404
+        assert client.post("/api/auth/profiles/employer", headers=c).json()["profiles"]["employer"]
+        assert client.get("/api/employer/invites", headers=c).status_code == 200
+        own = client.get("/api/candidate/profile", headers=c).json()["id"]
+        assert client.get(f"/api/employer/candidates/{own}", headers=c).status_code == 404
 
 
 def test_cooldown_and_openapi():
@@ -112,6 +117,7 @@ def test_migration_import():
         prof = r["profile"]
         assert prof["spec"] == "backend" and prof["work_format"] == "удалённо"
         assert any(f["k"] == "Места работы" and f["src"] == "word" for f in prof["facts"])
+        assert all(str(f["v"]).strip() for f in prof["facts"])  # пустые значения в факты не идут
         files = {"file": ("resume.txt", "Опыт работы 4 года. Go, Redis".encode(), "text/plain")}
         assert client.post("/api/candidate/resume", files=files, headers=c).status_code == 200
         v = client.post("/api/employer/vacancies/parse", json={"text": "Бэкенд-разработчик (Middle)\nЗадачи:\n- Писать сервисы на Python\nУсловия: гибрид, 220–300 тыс. ₽"}, headers=e).json()

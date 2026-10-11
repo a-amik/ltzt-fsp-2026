@@ -2,8 +2,10 @@
    профиль работодателя глазами кандидата, протокол переговоров агентов
    и статистика сторон. Все числа приходят с сервера. */
 import { useEffect, useState } from 'react';
-import { GRADES, spec, fmt, fmtRange, gradeName, cap, num } from './const.js';
+import { GRADES, spec, fmt, fmtRange, gradeName, cap, num, plural, ZAD, KAND, LET } from './const.js';
 import { Mark } from './ui.jsx';
+import { useStore } from './store.jsx';
+import { CamBadge, CamReport, camOf } from './Camera.jsx';
 
 const pct = (v) => `${Math.round(v * 100)} %`;
 
@@ -28,8 +30,10 @@ const SkillAxis = () => <div className="sk-row sk-axis"><span /><div className="
 // ── 1. Профиль кандидата — то, что видит работодатель ─────────────────
 /* card — карточка из API работодателя (контакты закрыты до согласия) либо profile кандидата (свой кабинет). */
 export function CandidateProfileDoc({ card, profile, tests, rank, need, score }) {
-  const c = card || { ...profile, anon: 'Вы', confirmed: profile.grade != null, grade: profile.grade ?? profile.claimed_grade, fsp: (profile.fsp || []).filter((a) => !a.hidden), facts: profile.facts.filter((f) => f.approved) };
+  const c = card || { ...profile, anon: 'Вы', confirmed: profile.grade != null, express: !!profile.express, grade: profile.grade ?? profile.claimed_grade, fsp: (profile.fsp || []).filter((a) => !a.hidden), facts: profile.facts.filter((f) => f.approved) };
   const skills = tests?.[0]?.skills || null;
+  const { state } = useStore();
+  const cam = card ? camOf(card) : state.ui.camDone;
   const words = c.facts.filter((f) => f.src === 'word');
   const g = c.grade;
   const strong = skills ? [...skills].sort((a, b) => b.theta - a.theta)[0] : null, weak = skills ? [...skills].sort((a, b) => a.theta - b.theta)[0] : null;
@@ -39,13 +43,13 @@ export function CandidateProfileDoc({ card, profile, tests, rank, need, score })
         <div>
           <p className="r-micro">{c.contacts ? 'Контакты открыты' : c.display ? 'Контакты откроются после согласия кандидата' : 'Так вас видит работодатель: контакты — после вашего согласия'}</p>
           <h2 className="r-h1 doc-title">{c.display || c.name}</h2>
-          <p className="doc-cat">{spec(c.spec).name} · {gradeName(g)} {!c.confirmed && <span className="r-mark r-mark--warn">грейд не подтверждён</span>}</p>
+          <p className="doc-cat">{spec(c.spec).name} · {gradeName(g)} {!c.confirmed && (c.express ? <span className="r-mark" title="Экспресс-тест из 4 заданий: грейд с меткой, подтверждает полный тест">экспресс</span> : <span className="r-mark r-mark--warn">грейд не подтверждён</span>)}{cam && <CamBadge />}</p>
           {c.contacts && <p className="r-small">{c.contacts.email}{c.contacts.phone ? ` · ${c.contacts.phone}` : ''}</p>}
         </div>
         <div className="doc-kpis">
-          {c.confirmed ? <div><b className="r-num">{num(c.theta, 2)}</b><span>оценка ± {num(c.se, 2)}</span></div> : <div><b className="r-num">—</b><span>тест не пройден</span></div>}
+          {c.confirmed || c.express ? <div><b className="r-num">{num(c.theta, 2)}</b><span>оценка ± {num(c.se, 2)}{c.express ? ', экспресс' : ''}</span></div> : <div><b className="r-num">—</b><span>тест не пройден</span></div>}
           {rank && <div><b className="r-num">{rank.pos} из {rank.total}</b><span>в выдаче категории</span></div>}
-          {c.years != null && <div><b className="r-num">{c.years} лет</b><span>стажа <Mark src="word" /></span></div>}
+          {c.years != null && <div><b className="r-num">{plural(c.years, ...LET)}</b><span>стажа <Mark src="word" /></span></div>}
         </div>
       </header>
 
@@ -55,6 +59,14 @@ export function CandidateProfileDoc({ card, profile, tests, rank, need, score })
           <p className="r-small r-mute">Оценка по каждому навыку отдельно. Точка — оценка, полоса — погрешность{need != null ? ', черта — нижняя граница вашего грейда' : ''}.</p>
           <div className="sk">{skills.map((s) => <SkillRow key={s.name} s={s} need={need} />)}<SkillAxis /></div>
           <p className="doc-note">Сильнее всего — <b>{strong.name.toLowerCase()}</b>, слабее — <b>{weak.name.toLowerCase()}</b>{weak.items < 2 ? ' (мало заданий, погрешность выше)' : ''}.</p>
+        </section>
+      )}
+
+      {cam && (
+        <section>
+          <h3 className="r-h3">Тест под камерой</h3>
+          <p className="r-small r-mute">{!card ? 'Так отчёт увидит компания, чьё приглашение вы примете.' : c.contacts ? 'Кандидат принял приглашение: запись открыта.' : 'Отметки видны сразу, запись — после того, как кандидат примет приглашение.'}</p>
+          <CamReport r={cam} locked={!!card && !c.contacts} />
         </section>
       )}
 
@@ -83,7 +95,7 @@ export function CandidateProfileDoc({ card, profile, tests, rank, need, score })
             <dt>Формат</dt><dd>{cap(c.work_format)}</dd>
             {c.city && <><dt>Город</dt><dd>{c.city}</dd></>}
             <dt>Задания работодателей</dt><dd>{c.fresh_tasks ?? 0} за 90 дней</dd>
-            {c.conduct && <><dt>Протокол теста</dt><dd className="r-small">{c.conduct.items} заданий{c.conduct.mode === 'express' ? ' (экспресс)' : ''}, с открытым ИИ {c.conduct.ai_items}, вставок {c.conduct.paste}, уходов со вкладки {c.conduct.blur}</dd></>}
+            {c.conduct && <><dt>Протокол теста</dt><dd className="r-small">{plural(c.conduct.items, ...ZAD)}{c.conduct.mode === 'express' ? ' (экспресс)' : ''}, с открытым ИИ {c.conduct.ai_items}, вставок {c.conduct.paste}, уходов со вкладки {c.conduct.blur}</dd></>}
           </dl>
         </div>
         <div>
@@ -116,7 +128,7 @@ export function EmployerProfileDoc({ e, offer }) {
         </div>
       </header>
       <p>{e.about}</p>
-      {offer && <section><h3 className="r-h3">Это предложение</h3><p className="r-vac__pay">{fmtRange(offer.from, offer.to)}</p><p className="r-small r-mute">Вилка зафиксирована в приглашении; итог — внутри неё по результатам встречи.</p></section>}
+      {offer && <section><h3 className="r-h3">Это предложение</h3><p className="r-vac__pay">{fmtRange(offer.from, offer.to)}</p><p className="r-small r-mute">Вилка зарплаты зафиксирована в приглашении; итог — внутри неё по результатам встречи.</p></section>}
       <section>
         <h3 className="r-h3">Почему ей отказывают</h3>
         {total ? <div className="bars">{st.reasons.map(([k, v]) => <div key={k} className="bar-row"><span>{k}</span><i style={{ width: pct(v / total) }} /><b className="r-num">{v}</b></div>)}</div>
@@ -140,7 +152,7 @@ export function Negotiation({ talk: n, company, who, side, instant }) {
         <p className="r-micro">Переговоры агентов · {company} ↔ {who}</p>
         <div className="r-talk">{n.steps.slice(0, k).map((s, i) => (
           <div key={i} className={`r-turn ${s.who === 'emp' ? 'r-turn--emp' : 'r-turn--cand'}`}>
-            <span className="r-turn__who">{s.who === 'emp' ? `Агент · ${company}` : 'Агент кандидата'}</span>
+            <span className="r-turn__who">{s.who === 'emp' ? `Агент · ${company}` : s.ask ? 'Агент кандидата · обязательный вопрос' : 'Агент кандидата'}</span>
             {s.nodata ? <div className="r-nodata">{s.text}</div> : <div className="r-turn__body">{s.text}{s.cite && <div className="r-cite">{s.cite.map((ci, j) => <span key={j}><Mark src={ci.src} /> {ci.text}</span>)}</div>}</div>}
           </div>))}
           {!done && <div className="typing r-micro">агент пишет…</div>}
@@ -154,10 +166,14 @@ export function Negotiation({ talk: n, company, who, side, instant }) {
       <aside className="nego-proto r-card r-card--flat">
         <p className="r-micro">Протокол · одинаковый у обеих сторон</p>
         <table className="crit"><tbody>{n.crit.map((x, i) => (
-          <tr key={x.name} className={i < closed || done ? `c-${x.state}` : 'c-wait'}><td>{x.name}</td><td>{i < closed || done ? CRIT_LABEL[x.state] : '…'}</td><td className="r-small r-mute">{i < closed || done ? x.note : ''}</td></tr>))}</tbody></table>
+          <tr key={x.name} className={i < closed || done ? `c-${x.state}` : 'c-wait'}><td>{x.name}{x.imp === 'stop' ? <span className="r-mark" title="Для кандидата это стоп-фактор">Стоп</span> : x.imp === 'low' ? <span className="r-mute r-small" title="Кандидату неважно: на итог не влияет"> · неважно</span> : null}</td><td>{i < closed || done ? <>{CRIT_LABEL[x.state]}{x.note && <span className="crit-note r-small r-mute">{x.note}</span>}</> : '…'}</td></tr>))}</tbody></table>
         {done && <>
           <p className={`verdict v-${n.verdict.kind}`}>{n.verdict.text}</p>
-          {n.open.length > 0 && <p className="r-small"><b>Уточнить людям:</b> {n.open.join(', ').toLowerCase()}.</p>}
+          {n.asks?.length > 0 && (
+            <div className="ag-asks"><p className="r-micro">Вопросы кандидата</p>
+              <ul className="r-small">{n.asks.map((a) => <li key={a.q} className={a.hit ? 'is-hit' : a.a ? 'is-ok' : ''}><b>{a.q}</b> {a.a ? a.a : <span className="r-mute">Уточнить на&nbsp;встрече</span>}</li>)}</ul></div>
+          )}
+          {n.open.filter((x) => !n.asks?.some((a) => a.q === x)).length > 0 && <p className="r-small"><b>Уточнить людям:</b> {n.open.filter((x) => !n.asks?.some((a) => a.q === x)).join(', ').toLowerCase()}.</p>}
           <p className="r-small r-mute">{side === 'emp' ? 'Решение о приглашении — за вами. Кандидат увидит этот же протокол вместе с приглашением.' : 'Решение — за вами. Компания видит этот же протокол; контакты откроются, только если вы примете приглашение.'}</p>
         </>}
       </aside>
@@ -166,7 +182,7 @@ export function Negotiation({ talk: n, company, who, side, instant }) {
 }
 
 // ── Почему я на этом месте: с сервера, тем же ранжированием ──────────
-const NAMES = { test: 'выше тест', stack: 'стек ближе к запросу', fsp: 'сильнее ФСП', fresh: 'свежее задания' };
+const NAMES = { test: 'выше тест', stack: 'стек ближе к запросу', fsp: 'сильнее ФСП', fresh: 'свежее задания', social: 'больше отзывов коллег' };
 export function RankWhy({ rank: r, profile }) {
   if (!r) return null;
   const above = r.pos - 1;
@@ -179,7 +195,7 @@ export function RankWhy({ rank: r, profile }) {
         <div className="bars">{Object.entries(r.above_by).filter(([, v]) => v).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
           <div key={k} className="bar-row"><span>{NAMES[k]}</span><i style={{ width: pct(v / above) }} /><b className="r-num">{v}</b></div>))}</div>
       ) : <p className="doc-note">Вы первый в выдаче своей категории.</p>}
-      {above > 0 && <p className="r-small r-mute">Сколько из {above} кандидатов выше вас обходят вас главным образом за счёт этого.</p>}
+      {above > 0 && <p className="r-small r-mute">Сколько из {plural(above, ...KAND)} выше вас обходят вас главным образом за счёт этого.</p>}
       <div className="tablewrap scroll-x"><table className="r-table">
         <thead><tr><th>Если сделать</th><th>Место</th></tr></thead>
         <tbody>{r.moves.map((m) => <tr key={m.text}><td>{m.text}</td><td className="r-num">{r.pos} → <b>{m.pos}</b></td></tr>)}</tbody>
@@ -198,7 +214,7 @@ export function CandStatsDoc({ profile, rank, stats: s }) {
         <div className="doc-kpis">{rank && <div><b className="r-num">{rank.pos} из {rank.total}</b><span>место в выдаче категории</span></div>}<div><b className="r-num">{s.invites}</b><span>приглашений</span></div><div><b className="r-num">{s.accepted}</b><span>приняли</span></div></div></header>
       <RankWhy rank={rank} profile={profile} />
       <section>
-        <h3 className="r-h3">Вилки приглашений против ваших ожиданий</h3>
+        <h3 className="r-h3">Вилки зарплаты в приглашениях против ваших ожиданий</h3>
         {s.offers.length ? <>
           <div className="dots">{s.offers.map((o, i) => <i key={i} className={exp && o >= exp ? 'd-ok' : 'd-low'} style={{ left: `${Math.min(96, Math.max(2, (o / ((exp || o) * 1.6)) * 100))}%` }} title={fmt(o)} />)}
             {exp && <span className="dots-exp" style={{ left: `${100 / 1.6}%` }}>ваши {Math.round(exp / 1000)}</span>}</div>
@@ -223,11 +239,11 @@ export function EmpStatsDoc({ company, stats: st }) {
       <section className="grid2">
         <div><h3 className="r-h3">Причины отказов</h3>
           {total ? <><div className="bars">{st.reasons.map(([k, v]) => <div key={k} className="bar-row"><span>{k}</span><i style={{ width: pct(v / total) }} /><b className="r-num">{v}</b></div>)}</div>
-            {st.reasons[0]?.[0] === 'мало денег' && <p className="doc-note">Чаще всего отказывают из-за денег. Поднять верх вилки — плюс к принятию в этой категории.</p>}</> : <p className="r-small r-mute">Отказов пока нет.</p>}
+            {st.reasons[0]?.[0] === 'мало денег' && <p className="doc-note">Чаще всего отказывают из-за денег. Поднять верх вилки зарплаты — плюс к принятию в этой категории.</p>}</> : <p className="r-small r-mute">Отказов пока нет.</p>}
         </div>
         <div>{m ? <><h3 className="r-h3">Рынок категории «{spec(m.need.spec).name} · {gradeName(m.need.grade)}»</h3>
           <Hist vals={m.salaries} from={m.need.salary_from} to={m.need.salary_to} />
-          <p className="r-small r-mute">{m.count} кандидатов; {m.within != null ? `${m.within} из них ждут не больше вашей верхней границы` : 'укажите вилку в запросе'}.</p></> : <p className="r-small r-mute">Сделайте подбор — здесь появится рынок вашей категории.</p>}</div>
+          <p className="r-small r-mute">{plural(m.count, ...KAND)}; {m.within != null ? `${m.within} из них ждут не больше вашей верхней границы` : 'укажите вилку зарплаты в запросе'}.</p></> : <p className="r-small r-mute">Сделайте подбор — здесь появится рынок вашей категории.</p>}</div>
       </section>
     </article>
   );

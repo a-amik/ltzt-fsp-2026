@@ -1,0 +1,192 @@
+/* Тест под камерой и интервью с агентом. Префикс cm-. Краски — роли кита --r-*,
+   поэтому экраны одинаково живут в виде ФСП и в «Разряде», в обеих темах. */
+.cm-ico { flex: none; vertical-align: -0.15em; }
+.cm-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue); vertical-align: middle; }
+.cm-info { display: inline-flex; color: var(--r-mute); cursor: help; vertical-align: middle; }
+
+/* Шапка экрана */
+.cm-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.cm-title { margin: 4px 0 0; }
+.cm-head__acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cm-iconbtn { width: 34px; padding-inline: 0; justify-content: center; }
+
+/* Кадр камеры и экрана — рисунок, не видео */
+.cm-frame { position: relative; aspect-ratio: 4 / 3; width: 100%; overflow: hidden; border-radius: var(--r-rad-m, var(--r-radius)); border: var(--r-edge) solid var(--r-hair); background: var(--r-back); }
+.cm-frame svg { display: block; width: 100%; height: 100%; }
+.cm-bg { fill: var(--r-back); }
+.cm-person { fill: var(--r-mute); opacity: .38; }
+.cm-mesh { fill: var(--r-blue); stroke: var(--r-blue); stroke-width: 1.4; fill-opacity: .9; }
+.cm-mesh path { fill: none; }
+.cm-frame.is-off { background: var(--r-ink); }
+.cm-frame.is-off .cm-bg { fill: var(--r-ink); }
+.cm-frame__off { position: absolute; inset: 0; display: grid; place-items: center; color: var(--r-paper); }
+.cm-rec { position: absolute; top: 8px; left: 8px; display: inline-flex; gap: 6px; align-items: center; padding: 3px 8px 3px 6px; border-radius: 100px; background: rgba(17, 17, 20, .72); color: #fff; font: 500 11px/1 var(--r-font); }
+.cm-rec i { width: 7px; height: 7px; border-radius: 50%; background: #E5484D; }
+.cm-tag { position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 100px; background: rgba(17, 17, 20, .72); color: #fff; font: 500 11px/1 var(--r-font); }
+.cm-frame--screen { background: var(--r-paper); }
+.cm-mini { position: absolute; inset: 30px 14px 12px; display: grid; gap: 7px; align-content: start; }
+.cm-mini i { display: block; height: 7px; border-radius: 3px; background: var(--r-hair); }
+.cm-mini .w60 { width: 60%; } .cm-mini .w90 { width: 90%; } .cm-mini .w75 { width: 75%; }
+.cm-mini s { display: block; height: 12px; width: 70%; border-radius: 4px; border: 1px solid var(--r-hair); text-decoration: none; }
+.cm-mini__wave { display: flex; gap: 4px; align-items: center; height: 26px; margin-top: 4px; }
+.cm-mini__wave i { width: 4px; height: 60%; background: var(--r-blue); }
+.cm-mini__wave i:nth-child(2n) { height: 100%; } .cm-mini__wave i:nth-child(3n) { height: 40%; }
+
+/* Волна голоса: бесшовная петля по синусу; при reduced-motion стоит */
+.cm-wave { display: inline-flex; gap: 3px; align-items: center; height: 26px; }
+.cm-wave i { display: block; width: 4px; height: 100%; border-radius: 2px; background: currentColor; transform: scaleY(.18); transform-origin: center; }
+.cm-wave.is-on i { animation: cm-wave 0.9s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
+@keyframes cm-wave { from { transform: scaleY(.18); } to { transform: scaleY(1); } }
+.cm-wave--you { color: var(--r-ink); height: 22px; }
+@media (prefers-reduced-motion: reduce) { .cm-wave.is-on i { animation: none; transform: scaleY(.6); } }
+
+/* Агент */
+.cm-agent { position: relative; display: grid; place-items: center; min-height: 128px; padding: 18px; overflow: hidden; }
+.cm-agent--big { min-height: 0; aspect-ratio: 4 / 3; }
+.cm-agent__orb { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue); }
+.cm-agent--big .cm-agent__orb { width: 104px; height: 104px; }
+.cm-agent__orb .cm-wave { height: 30px; }
+.cm-agent .cm-tag { background: var(--r-ink); color: var(--r-paper); }
+.cm-agent__state { position: absolute; top: 8px; right: 10px; color: var(--r-mute); }
+
+/* Выбор раскладки */
+.cm-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.cm-pick__opt { position: relative; display: grid; gap: 4px; justify-items: start; align-content: start; padding: 12px; text-align: left; cursor: pointer; color: var(--r-ink); font: inherit; }
+/* Выбор виден сразу в любой теме: синяя рамка, бледно-синяя подложка, галочка в углу.
+   Синий на схеме — только у выбранной, у второй схема серая. */
+.cm-pick__opt[aria-pressed="true"] { border-color: var(--r-blue); background: var(--r-blue-soft, rgba(64, 47, 255, .1)); }
+.cm-pick__mark { position: absolute; top: -10px; right: -10px; display: none; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue); box-shadow: 0 0 0 3px var(--r-paper); }
+.cm-pick__opt[aria-pressed="true"] .cm-pick__mark { display: grid; }
+.cm-pick__wire { width: 100%; height: auto; margin-bottom: 6px; }
+.cm-pick__wire rect { fill: var(--r-paper); stroke: var(--r-mute); stroke-opacity: .5; }
+.cm-pick__wire rect.hi { fill: var(--r-mute); fill-opacity: .25; }
+.cm-pick__opt[aria-pressed="true"] .cm-pick__wire rect { stroke: var(--r-blue); stroke-opacity: .6; }
+.cm-pick__opt[aria-pressed="true"] .cm-pick__wire rect.hi { fill: var(--r-blue); fill-opacity: .55; stroke-opacity: 1; }
+
+/* Подготовка */
+.cm-prep { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+/* Колонки кончаются на одной линии: нижняя карточка каждой тянется до низа. */
+.cm-prep > .stack { grid-template-rows: auto 1fr; }
+.cm-prep > .stack > .r-card:last-child { align-content: start; }
+/* «Начать тест» — в самом низу согласия, на линии конца левой колонки. */
+.cm-consent { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+/* Согласие и «Начать тест» — одной группой у низа: переключатель прямо над кнопкой. */
+.cm-consent__go { margin-top: auto; display: grid; gap: 12px; justify-items: start; padding-top: 16px; }
+.cm-prep .cm-frame { max-width: 360px; }
+.cm-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; width: 100%; }
+.cm-checks li { display: flex; gap: 10px; align-items: center; color: var(--r-mute); }
+.cm-checks li.is-ok { color: var(--r-ink); }
+.cm-checks__st { margin-left: auto; font-size: 13px; color: var(--r-mute); }
+.cm-checks li.is-ok .cm-checks__st { color: var(--r-green-ink, var(--r-ink)); }
+.cm-facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cm-facts li { display: flex; gap: 10px; align-items: baseline; }
+.cm-facts .cm-ico { color: var(--r-blue); }
+.cm-face { color: var(--r-mute); }
+
+/* Голосовой вопрос и ответ */
+.cm-voice { display: grid; gap: 12px; justify-items: start; width: 100%; }
+.cm-voice__q { display: flex; gap: 10px; align-items: center; margin: 4px 0 0; }
+.cm-voice__q .cm-ico { color: var(--r-blue); }
+.cm-answer { width: 100%; }
+.cm-answer__row { display: flex; gap: 12px; align-items: center; }
+.cm-transcript { min-height: 3em; margin: 0; padding: 12px 14px; border-radius: var(--r-radius); background: var(--r-back); font-size: 15px; line-height: 1.5; }
+.cm-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.15em; background: var(--r-ink); }
+.cm-sub { margin: 0; }
+.cm-task .task-head { gap: 12px; }
+.cm-task .task-head > :last-child { flex: none; white-space: nowrap; }
+.cm-vblock { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 8px; }
+.cm-vblock.is-bare { grid-template-columns: minmax(0, 1fr); }
+.cm-vblock__agent { display: grid; gap: 8px; justify-items: center; }
+.cm-vblock__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.cm-qtext { margin: 0; max-width: 62ch; padding: 12px 14px; border-left: 3px solid var(--r-blue); background: var(--r-back); font-size: 16px; line-height: 1.5; }
+
+/* Ход теста */
+.cm-progress { display: flex; gap: 4px; }
+.cm-progress i { flex: 1; height: 6px; border-radius: 3px; background: var(--r-hair); }
+.cm-progress i.is-done { background: var(--r-mute); }
+.cm-progress i.is-done.is-voice { background: var(--r-blue); }
+.cm-progress i.is-cur { background: var(--r-ink); }
+.cm-run--a { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 20px; align-items: start; }
+.cm-side { justify-items: stretch; }
+.cm-task { min-height: 280px; }
+.cm-call { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cm-call .cm-frame, .cm-call .cm-agent--big { aspect-ratio: 16 / 9; }
+.cm-you { position: relative; }
+.cm-you__pip { position: absolute; right: 10px; bottom: 10px; width: 34%; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); border-radius: var(--r-rad-m, var(--r-radius)); }
+.cm-you__pip .cm-rec { display: none; }
+.cm-live { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--r-mute); }
+.cm-live .cm-ico { color: var(--r-green-ink, var(--r-ink)); margin-right: 4px; }
+.cm-pause { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; align-items: start; }
+
+/* Карточки во вкладке грейда */
+.cm-cards { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: stretch; }
+.cm-cards > .r-card { align-content: start; }
+.cm-tiers { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; width: 100%; }
+.cm-tiers li { display: grid; gap: 2px; padding: 8px 12px; border-radius: var(--r-radius); border: 1px solid var(--r-hair); }
+.cm-tiers li b { display: inline-flex; gap: 6px; align-items: center; }
+.cm-tiers li.is-on { border-color: var(--r-blue); background: var(--r-blue-soft, rgba(64, 47, 255, .1)); }
+.cm-tiers li.cm-goal { border-color: transparent; }
+
+/* Жёлтые акценты «Разряда»: на --r-sun текст и значки только тёмные (правило проекта).
+   Роли --r-ink/--r-mute/--r-hair темнеет кит (.r-card--sun в его списке), а поля,
+   которые красятся бумагой и фоном, — расшифровка, текст вопроса, обычная кнопка —
+   светлеют здесь: иначе в тёмной теме на жёлтом встало бы тёмное поле. */
+.app[data-skin="razryad"] .cm-sun { --r-paper: #FFFFFF; --r-back: rgba(255, 255, 255, .62); --r-line: rgba(17, 17, 20, .3); }
+.app[data-skin="razryad"] .cm-sun .cm-agent__state, .app[data-skin="razryad"] .cm-sun .r-mute { color: var(--r-on-sun); }
+
+/* Итог и отчёт */
+.cm-final { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: stretch; }
+.cm-final .cat-name .cm-ico { vertical-align: -0.2em; margin-left: 6px; }
+.cm-narrow { max-width: 680px; }
+.cm-report__head { display: grid; gap: 6px; }
+.cm-verdict { display: flex; gap: 10px; align-items: center; margin: 0; }
+.cm-dot { display: inline-block; flex: none; width: 10px; height: 10px; margin-right: 8px; border-radius: 50%; background: var(--r-mute); vertical-align: 0; }
+.cm-verdict .cm-dot { margin-right: 0; }
+.cm-dot.is-ok { background: var(--r-green-ink, #2E7D32); }
+.cm-dot.is-ask { background: var(--r-alarm-ink, #D52B1E); }
+.cm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cm-chip { display: inline-flex; gap: 6px; align-items: center; cursor: help; }
+.cm-tl { display: grid; gap: 6px; }
+.cm-tl__bar { position: relative; display: flex; gap: 3px; height: 28px; }
+.cm-tl__seg { flex: 1; border-radius: 4px; background: var(--r-hair); }
+.cm-tl__seg.is-voice { background: var(--r-blue); opacity: .35; }
+.cm-tl__ep { position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; padding: 0; border-radius: 50%; border: 3px solid var(--r-paper); background: var(--r-mute); cursor: pointer; }
+.cm-tl__ep.is-ask { background: var(--r-alarm-ink, #D52B1E); }
+.cm-tl__ep[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--r-ink); }
+.cm-tl__axis { display: flex; justify-content: space-between; gap: 12px; }
+.cm-tl__legend { display: inline-flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.cm-tl__legend i { display: inline-block; width: 10px; height: 10px; margin-right: -6px; border-radius: 50%; background: var(--r-mute); }
+.cm-tl__legend i.is-voice { border-radius: 2px; background: var(--r-blue); opacity: .45; }
+.cm-tl__legend i.is-ask { background: var(--r-alarm-ink, #D52B1E); }
+.cm-ep { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.cm-ep__frames { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cm-ep p { margin: 0; }
+.cm-emo { display: grid; gap: 6px; }
+.cm-emo .r-h3 { display: flex; gap: 8px; align-items: center; margin: 0; }
+.cm-emo > .r-small { margin: 0; }
+.cm-emo__list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 8px; }
+.cm-emo__list li { display: grid; grid-template-columns: 90px minmax(0, 1fr) 120px; gap: 12px; align-items: center; }
+.cm-conf { display: block; height: 6px; border-radius: 3px; background: var(--r-hair); overflow: hidden; cursor: help; }
+.cm-conf i { display: block; height: 100%; background: var(--r-mute); }
+
+/* Раздел отчёта в профиле кандидата */
+.cm-sect-head { display: flex; gap: 8px; align-items: center; }
+
+@media (max-width: 760px) {
+  .cm-prep, .cm-cards, .cm-final, .cm-ep { grid-template-columns: minmax(0, 1fr); }
+  .cm-run--a { grid-template-columns: minmax(0, 1fr); }
+  .cm-run--a .cm-side { order: -1; display: grid; grid-template-columns: 1fr 1fr; }
+  .cm-run--a .cm-side .cm-agent { grid-column: 1 / -1; min-height: 96px; }
+  .cm-run--a .cm-side .cm-live { grid-column: 1 / -1; }
+  .cm-call { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cm-agent--big .cm-agent__orb { width: 64px; height: 64px; }
+  .cm-pause { grid-template-columns: minmax(0, 1fr); }
+  .cm-pause .cm-frame { max-width: 220px; }
+  .cm-emo__list li { grid-template-columns: 76px minmax(0, 1fr); }
+  .cm-emo__list .cm-conf { grid-column: 2; }
+  .cm-task { min-height: 0; }
+  .cm-vblock { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .cm-vblock__agent { display: flex; gap: 10px; align-items: center; }
+  .cm-vblock__agent .cm-agent__orb { width: 44px; height: 44px; }
+  .cm-vblock__agent .cm-wave { height: 18px; }
+}

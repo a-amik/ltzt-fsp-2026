@@ -1,4 +1,8 @@
-"""Зависимости: сессия базы, текущий пользователь по токену, роли."""
+"""Зависимости: сессия базы, текущий пользователь по токену, профили.
+
+Один вход — до двух профилей: кандидата и компании. Человек может представлять
+компанию и в то же время искать работу сам, поэтому доступ к кабинету решает
+наличие профиля, а не роль, выбранная при регистрации."""
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
@@ -16,12 +20,14 @@ def current_user(authorization: str = Header(default=""), db: Session = Depends(
 
 
 def current_candidate(user: User = Depends(current_user), db: Session = Depends(get_db)) -> Candidate:
-    if user.role != "candidate":
-        raise HTTPException(403, "Только для кандидата")
-    return db.query(Candidate).filter_by(user_id=user.id).one()
+    c = db.query(Candidate).filter_by(user_id=user.id).first()
+    if not c:
+        raise HTTPException(404, "Профиль кандидата не создан")
+    return c
 
 
 def current_employer(user: User = Depends(current_user), db: Session = Depends(get_db)) -> Employer:
-    if user.role != "employer":
-        raise HTTPException(403, "Только для работодателя")
-    return db.query(Employer).filter_by(user_id=user.id).one()
+    e = db.query(Employer).filter_by(user_id=user.id).first()
+    if not e:
+        raise HTTPException(404, "Профиль компании не создан")
+    return e

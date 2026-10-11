@@ -55,11 +55,18 @@ class Candidate(Base):
     theta: Mapped[float | None] = mapped_column(Float, nullable=True)
     se: Mapped[float | None] = mapped_column(Float, nullable=True)
     grade_since: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    express_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # заявленный грейд прошёл экспресс-тест; подтверждает только полный
     facts: Mapped[list] = mapped_column(JSON, default=list)   # [{k, v, src: fsp|test|word, approved}]
     privacy: Mapped[dict] = mapped_column(JSON, default=lambda: {"fsp": True, "salary": True, "city": False})
     visible: Mapped[bool] = mapped_column(Boolean, default=True)
     fsp_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     resume_text: Mapped[str] = mapped_column(Text, default="")
+    # Статус поиска: active — ищу, open — рассматриваю предложения, closed — не ищу (из выдачи пропадает).
+    search: Mapped[str] = mapped_column(String(8), default="active")
+    # Условия поиска: {formats, cities, relocate, fields, hide: [employer_id]}; деньги — поле salary.
+    wants: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Настройка своего агента: {importance, stops, asks, brief, auto_decline} — см. core/agents.py.
+    agent: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     user = relationship("User")
 
 
@@ -120,6 +127,15 @@ class Employer(Base):
     contact: Mapped[str] = mapped_column(String(200), default="")
     inn: Mapped[str] = mapped_column(String(12), default="")
     verified: Mapped[bool] = mapped_column(Boolean, default=False)  # добровольная метка доверия, не блокирует
+    size: Mapped[str] = mapped_column(String(16), default="")   # до 50 | 50–200 | 200–1000 | 1000+
+    city: Mapped[str] = mapped_column(String(100), default="")
+    site: Mapped[str] = mapped_column(String(200), default="")
+    # Статус найма: active — нанимаем, paused — на паузе (вакансии и задания кандидатам не видны).
+    hiring: Mapped[str] = mapped_column(String(8), default="active")
+    # Критерии подбора: {specs, grades, formats, cities, confirmed_only, fsp_first}; подставляются в банк и подборку.
+    prefs: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Репутация для сводки кандидату: {staff: {n, avg, notes}, open: [{src, rating, count}]}. Тексты открытых отзывов не берём.
+    reputation: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class Need(Base):
@@ -205,4 +221,24 @@ class TaskAnswer(Base):
     candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"), index=True)
     text: Mapped[str] = mapped_column(Text)
     score: Mapped[float | None] = mapped_column(Float, nullable=True)  # 0, 0.5, 1 — ставит работодатель
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class ColleagueRef(Base):
+    """Отзыв бывшего коллеги о кандидате или рекомендация.
+
+    Коллегу находит агент по совпадению мест работы в двух профилях. Запрос компании
+    идёт без её названия, коллега может отказаться. kind: review — отзыв для компании,
+    rec — рекомендация в профиль (видна после одобрения кандидатом).
+    status: ready — готовый отзыв агента, asked — ждёт ответа, answered, declined."""
+    __tablename__ = "colleague_refs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"), index=True)   # о ком
+    author_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"), index=True)      # коллега
+    employer_id: Mapped[int | None] = mapped_column(ForeignKey("employers.id"), nullable=True)  # кто спросил
+    kind: Mapped[str] = mapped_column(String(8), default="review")
+    status: Mapped[str] = mapped_column(String(10), default="asked")
+    relation: Mapped[str] = mapped_column(String(200), default="")   # «ТрансКод»: где работали вместе
+    answers: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {strong, grow, again}
+    approved: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)

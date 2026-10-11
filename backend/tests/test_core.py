@@ -17,6 +17,17 @@ def test_bank_instances_are_unique_per_seed_and_have_answers():
     assert all(len(bank.for_spec(s)) >= 10 for s in ["backend", "frontend", "mobile", "data", "ml", "devops"])
 
 
+def test_bank_variety_and_shuffle():
+    """Банк: варианты без повторов, эталон на разных местах, текст и (у задач с выбором) ответ зависят от зерна."""
+    for t in bank.TEMPLATES:
+        xs = [bank.instance(t, s) for s in range(1, 201)]   # instance сам падает на повторе вариантов
+        assert len({x["q"] for x in xs}) > 1, t.id
+        if not xs[0].get("open"):
+            assert len({x["opts"].index(x["ok"]) for x in xs}) > 1, t.id
+            assert len({x["ok"] for x in xs}) > 1, t.id
+        assert bank.instance(t, 7) == bank.instance(t, 7)  # экземпляр воспроизводим по зерну
+
+
 def test_estimate_moves_towards_truth():
     r = random.Random(1)
     true = 1.2
@@ -120,3 +131,49 @@ def test_validation_runs_small():
     assert 0.4 < acc["exact"] <= 1.0
     m = V.exp_matching(w, 300, random.Random(3), needs_n=4)
     assert 0 <= m["ours"]["p10"] <= 1
+
+
+def test_candidate_agent_settings():
+    """Настройка агента кандидата меняет переговоры: вопросы, стоп-факторы, важность."""
+    from razryad.core.agents import negotiate
+    c = {"stack": ["Python"], "grade": 2, "claimed_grade": 2, "theta": 0.1, "se": 0.3, "salary": 300000, "privacy": {"salary": True},
+         "facts": [{"k": "Стек", "v": "Python", "src": "test", "approved": True}, {"k": "Формат", "v": "удалённо", "src": "word", "approved": True}]}
+    offer = {"stack": ["Python", "Go", "Kafka"], "grade": 2, "salary_from": 200000, "salary_to": 250000, "work_format": "офис", "tasks": [], "team": "Платежи, 5 человек.", "field": "Финтех"}
+    base = negotiate(c, offer)
+    assert base["verdict"]["kind"] == "no" and not base["asks"]
+    c["agent"] = {"importance": {"pay": "low", "format": "low", "stack": "low"}, "stops": [], "asks": ["Кто будет руководителем и как устроена команда?", "Как пересматривают зарплату?"]}
+    t = negotiate(c, offer)
+    assert t["verdict"]["kind"] == "ok"                      # неважное не портит итог
+    assert t["asks"][0]["a"] == "Платежи, 5 человек." and t["asks"][1]["a"] is None
+    assert "Как пересматривают зарплату?" in t["open"]
+    c["agent"]["stops"] = ["office"]
+    t = negotiate(c, offer)
+    assert t["verdict"]["kind"] == "no" and t["stops"] == ["Офис без удалёнки"]
+
+
+def test_parse_resume_sections():
+    """Резюме читаем по разделам: места работы — из строк опыта, а не из кавычек; стек — из перечня навыков;
+    стаж — по периодам; грейд и должность — по последнему месту."""
+    from razryad.core.docs import parse_resume
+    text = """Иван Петров
+Город: Казань · +7 (900) 123-45-67 · ivan@example.com
+Бэкенд-разработчик
+Опыт работы
+Senior Python-разработчик | ООО «Ромашка» | Март 2022 — Март 2025
+Делал сервис «Лидеры цифровой трансформации» для участников «от — до», да.
+Стек: Python, PostgreSQL, Kafka, React
+Junior разработчик | Северный банк | Январь 2020 — Февраль 2022
+Навыки
+Python, Docker, Redis, SQL
+Дополнительно знаком с: Vue, Kubernetes
+Языки: английский B2; наставничество джунов, работа в команде
+Образование
+КФУ, 2014 — 2019"""
+    r = parse_resume(text)
+    assert r["name"] == "Иван Петров" and r["city"] == "Казань" and r["spec"] == "backend"
+    assert r["workplaces"] == ["ООО «Ромашка»", "Северный банк"]
+    assert r["years"] == 5 and r["grade"] == 3 and r["role"] == "Senior Python-разработчик"
+    assert r["stack"] == ["Docker", "Kafka", "PostgreSQL", "Python", "Redis", "SQL"]  # React — чужой стек из строки опыта, Vue — «знаком»
+    assert {"английский", "работа в команде"} <= set(r["soft"]) and r["phone"].startswith("+7")
+    free = parse_resume("Бэкенд на Python, опыт 6 лет, ООО «Северный банк». PostgreSQL, Kafka. Удалённо.")
+    assert free["years"] == 6 and free["workplaces"] == ["ООО «Северный банк»"] and free["grade"] is None

@@ -7,6 +7,7 @@ import Landing from './Landing.jsx';
 import Login from './Login.jsx';
 import Nav from './Nav.jsx';
 import { Modal } from './ui.jsx';
+import { navigate, pathOf } from './route.js';
 
 function Shell() {
   const { state: st, dispatch, loadCand, loadEmp } = useStore();
@@ -32,6 +33,8 @@ function Shell() {
     return () => window.removeEventListener('scroll', on);
   }, []);
   const role = state.role;
+  // Адрес следует за экраном: у входа, онбординга, профиля и вкладок — свои пути.
+  useEffect(() => { const p = pathOf(st); if (p) navigate(p); }, [st]);
   // Тема: светлая, тёмная или как в системе; скин: Разряд или ФСП.
   const [sysDark, setSysDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches);
   useEffect(() => {
@@ -46,20 +49,27 @@ function Shell() {
     document.documentElement.style.background = bg; document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
 
   }, [dark, skin]);
+  // Значок вкладки — по стороне (участник, 11.10.2026): компаниям — белая плитка с триколором,
+  // кандидатам — синий знак на жёлтой. Иконка приложения одна — белая (site.webmanifest).
+  const cand = role === 'cand' || ((role === 'home' || role === 'login') && state.lside === 'cand');
+  useEffect(() => {
+    const side = cand ? 'cand' : 'biz';
+    document.querySelectorAll('link[rel="icon"]').forEach((l) => { l.href = l.type === 'image/png' ? `./favicon-${side}-32.png` : `./favicon-${side}.svg`; });
+  }, [cand]);
   // Переход в кабинет перечитывает его данные: приглашение, отправленное из другой роли, видно сразу.
-  const set = (r) => { set2({ role: r }); window.scrollTo(0, 0); if (r === 'cand') loadCand(); if (r === 'emp') loadEmp(); };
+  const set = (r) => { set2({ role: r, ...(r === 'cand' || r === 'emp' ? { cab: r } : {}) }); window.scrollTo(0, 0); if (r === 'cand') loadCand(); if (r === 'emp') loadEmp(); };
   return (
     <div className="kit app" data-skin={skin} data-kit={dark ? 'night' : undefined}>
-      <Nav barRef={bar} role={role} dark={dark} side={state.lside === 'cand' ? 'cand' : 'emp'} set={set} skin={state.skin} theme={state.theme} setUi={set2} onBye={() => setBye(true)} />
+      <Nav barRef={bar} role={role} side={state.lside === 'cand' ? 'cand' : 'emp'} set={set} skin={state.skin} theme={state.theme} setUi={set2} onBye={() => setBye(true)} me={st.me} cab={state.cab || 'cand'} />
       <main>
         {role === 'home' && <Landing go={set} />}
-        {role === 'login' && <Login go={set} />}
+        {role === 'login' && <Login />}
         {role === 'cand' && <Candidate />}
         {role === 'emp' && <Employer />}
         {role === 'how' && <How />}
       </main>
       {bye && (
-        <Modal title="Выйти из обоих кабинетов?" onClose={() => setBye(false)}>
+        <Modal title="Выйти из аккаунта?" onClose={() => setBye(false)}>
           <p className="r-mute">Профиль, тесты и приглашения останутся на сервере. Войти снова можно по той же почте.</p>
           <div className="acts">
             <button className="r-btn r-btn--main" onClick={() => { localStorage.removeItem('razryad-tokens'); localStorage.removeItem('razryad-ui-v2'); location.reload(); }}>Выйти</button>
@@ -68,7 +78,7 @@ function Shell() {
         </Modal>
       )}
       {state.error && <div className="r-toast r-toast--err" role="alert">{state.error}</div>}
-      <footer className="foot r-small r-mute">MVP для спецтрека ФСП, ЛЦТ 2026. Кандидаты синтетические. <a href="/docs">API</a></footer>
+      <footer className="foot r-small r-mute">MVP для спецтрека ФСП, ЛЦТ 2026. <a href="/docs">API</a></footer>
     </div>
   );
 }

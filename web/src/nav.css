@@ -32,11 +32,19 @@
 .nv-seg button { padding: 8px 6px; border: 0; border-radius: 7px; background: none; color: var(--r-ink); font: 600 13px/1 var(--r-font); cursor: pointer; white-space: nowrap; }
 .nv-seg button[aria-pressed="true"] { background: var(--r-paper); color: var(--r-blue-ink, var(--r-blue)); box-shadow: 0 1px 3px rgba(17, 17, 20, .14); }
 
-/* Логотип один для обеих версий: слово «Разряд» — Tektur 700 (утверждён
-   участником 11.10.2026), меню и кнопки — JetBrains Mono, как на сайте ФСП. */
-.kit .nv .logo.r-word { font: 700 23px/1 'Tektur', 'JetBrains Mono', sans-serif; letter-spacing: 0; gap: 9px; }
+/* Логотип один для обеих версий: слово «Разряд» — кривыми (wordmark.js: Tektur 700
+   со своими «Р» и «д», утверждено 11.10.2026), меню и кнопки — JetBrains Mono. */
+.kit .nv .logo.r-word { gap: 10px; }
+.nv .nv-word { height: 25px; width: auto; display: block; }
+@media (max-width: 640px) { .nv .nv-word { height: 22px; } }
 .nv, .lg { --r-font: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
 .nv-link, .nv-cab button { font-weight: 500; letter-spacing: -.01em; }
+
+/* Шапка в виде ФСП — простая полоса во всю ширину, как у кандидатов,
+   без отдельной скруглённой панели (участник, 11.10.2026). */
+.app[data-skin="fsp"] .bar.nv { padding: 0; background: var(--r-paper); border-bottom: 1px solid var(--r-line, var(--r-hair)); }
+.app[data-skin="fsp"] .nv .bar-in { background: none; border: 0; border-radius: 0; }
+@media (max-width: 640px) { .app[data-skin="fsp"] .bar.nv { padding: 0; } }
 
 /* Вид «Разряд»: мягких ролей в его ките нет. */
 .kit[data-skin="razryad"] .nv, .kit[data-skin="razryad"] .lg { --r-blue-soft: rgba(64, 47, 255, .10); --r-raise: #F4F4F6; --r-line: rgba(17, 17, 20, .28); --r-blue-ink: #402FFF; }
@@ -47,13 +55,23 @@
 .lg-head { display: grid; gap: 10px; }
 .lg-head .r-h1, .lg-head p { margin: 0; }
 .lg-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-.lg-side { display: grid; padding: 0; overflow: hidden; text-align: left; font: inherit; color: var(--r-ink); background: var(--r-paper); border: 1px solid var(--r-hair); border-radius: 16px; cursor: pointer; transition: border-color .15s, transform .15s; }
-.lg-side:hover { border-color: var(--r-blue); transform: translateY(-2px); }
-.lg-side:focus-visible { outline: 3px solid var(--r-focus, var(--r-blue)); outline-offset: 3px; }
-.lg-side img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; }
-.lg-side__body { display: grid; gap: 10px; justify-items: start; padding: 24px 28px 28px; }
+.lg-side { display: grid; grid-template-rows: auto 1fr; padding: 0; overflow: hidden; text-align: left; color: var(--r-ink); background: var(--r-paper); border: 1px solid var(--r-hair); border-radius: 16px; }
+.lg-side img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; }
+.lg-side__body { display: grid; gap: 12px; align-content: start; justify-items: stretch; padding: 20px 20px 24px; }
+.lg-side__body > .r-btn { justify-self: start; }
+/* Готовые аккаунты: вход в один клик */
+.lg-accs { display: grid; gap: 6px; }
+.lg-acc { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; width: 100%; padding: 10px 12px; border: 1px solid var(--r-hair); border-radius: 12px; background: none; color: var(--r-ink); text-align: left; font: inherit; cursor: pointer; transition: border-color .15s, background .15s; }
+.lg-acc:hover { border-color: var(--r-blue); background: var(--r-raise, transparent); }
+.lg-acc:focus-visible { outline: 3px solid var(--r-focus, var(--r-blue)); outline-offset: 2px; }
+.lg-ava { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue, #fff); font: 600 14px/1 var(--r-font); }
+.lg-ava--emp { border-radius: 10px; background: #0039A6; color: #fff; }
+.lg-acc--new .lg-ava { background: none; border: 1.5px dashed var(--r-mute); color: var(--r-ink); font-size: 20px; }
+.lg-acc__txt { display: grid; gap: 2px; min-width: 0; }
+.lg-acc__txt b { font: 600 15px/1.25 var(--r-font); }
+.lg-acc__txt span { font: 400 13px/1.3 var(--r-font); color: var(--r-ink); }
+.lg-acc__txt .lg-acc__hint { color: var(--r-mute); }
 .lg-side__body .r-h2 { margin: 0; }
-.lg-side__body .r-btn { margin-top: 8px; pointer-events: none; }
 
 @media (max-width: 860px) {
   .nv-links { order: 3; flex-basis: 100%; margin: 0 -24px; padding: 0 24px; }
@@ -68,3 +86,18 @@
   .lg-side__body { padding: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { .nv-menu { animation: none; } .lg-side { transition: none; } .lg-side:hover { transform: none; } }
+
+/* Кнопка и меню профиля: профили аккаунта, смена аккаунта, выход */
+.nv-me { display: inline-flex; align-items: center; gap: 8px; max-width: 240px; padding: 3px 12px 3px 3px; border: 1px solid var(--r-line, var(--r-hair)); border-radius: 100px; background: none; color: var(--r-ink); font: 600 14px/1 var(--r-font); cursor: pointer; }
+.nv-me:hover { border-color: var(--r-blue); }
+.nv-me:focus-visible { outline: 3px solid var(--r-focus, var(--r-blue)); outline-offset: 2px; }
+.nv-me__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-ava { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue, #fff); font: 600 12px/1 var(--r-font); font-style: normal; }
+.nv-ava--emp { border-radius: 8px; background: #0039A6; color: #fff; }
+.nv-mail { padding: 6px 12px 4px; overflow: hidden; text-overflow: ellipsis; }
+.nv-prof { grid-template-columns: 30px 1fr; align-items: center; gap: 10px; }
+.nv-prof b { display: grid; gap: 2px; font: 600 15px/1.25 var(--r-font); }
+.nv-prof[aria-current="page"] { background: var(--r-raise, var(--r-hair)); color: var(--r-ink); }
+@media (max-width: 640px) { .nv-me { padding-right: 3px; } .nv-me__name { display: none; } }
+/* Вход стороны: аккаунты слева, почта справа */
+.lg-mail .entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin: 0; }

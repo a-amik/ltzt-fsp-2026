@@ -27,16 +27,28 @@ class CompanyIn(BaseModel):
     field: str | None = None
     contact: str | None = None
     inn: str | None = None
+    size: str | None = None
+    city: str | None = None
+    site: str | None = None
+    hiring: str | None = None
+    prefs: dict | None = None
 
 
 @router.get("/company")
 def get_company(e: Employer = Depends(current_employer)):
-    return {"id": e.id, "name": e.name, "about": e.about, "field": e.field, "contact": e.contact, "inn": e.inn, "verified": e.verified}
+    return {"id": e.id, "name": e.name, "about": e.about, "field": e.field, "contact": e.contact, "inn": e.inn, "verified": e.verified,
+            "size": e.size, "city": e.city, "site": e.site, "hiring": e.hiring or "active", "prefs": e.prefs}
 
 
 @router.patch("/company")
 def patch_company(body: CompanyIn, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
-    for k, v in body.model_dump(exclude_none=True).items():
+    data = body.model_dump(exclude_none=True)
+    if "hiring" in data and data["hiring"] not in ("active", "paused"):
+        raise HTTPException(422, "Статус найма: active | paused")
+    if "prefs" in data:
+        keys = {"specs": list, "grades": list, "formats": list, "cities": list, "confirmed_only": bool, "fsp_first": bool}
+        data["prefs"] = {k: t(data["prefs"][k]) for k, t in keys.items() if k in data["prefs"]}
+    for k, v in data.items():
         setattr(e, k, v)
     # Добровольная метка доверия: ИНН из 10 знаков и корпоративный домен почты. Не блокирует сценарий.
     e.verified = bool(e.inn and len(e.inn) == 10 and e.contact and "@" in e.contact and not e.contact.endswith(("@mail.ru", "@gmail.com", "@yandex.ru")))
@@ -46,11 +58,15 @@ def patch_company(body: CompanyIn, e: Employer = Depends(current_employer), db: 
 
 # ── Кандидаты как словари для ранжирования ───────────────────────────
 
-def _cand_dicts(db: Session) -> list[dict]:
+def _cand_dicts(db: Session, skip_user: int | None = None, emp_id: int | None = None, only_id: int | None = None) -> list[dict]:
+    """Банк кандидатов для ранжирования. skip_user — вход самой компании: человек,
+    который её представляет и сам ищет работу, своей компании не виден."""
     achs = {}
     for a in db.query(FspAchievement):
         achs.setdefault(a.candidate_id, []).append({"event": a.event, "year": a.year, "place": a.place, "participants": a.participants,
                                                     "level": a.level, "discipline": a.discipline, "rank": a.rank, "hidden": a.hidden})
+    from ..core.refs import social_scores
+    social = social_scores(db)
     conduct = {}
     for ts in db.query(TestSession).filter_by(finished=True):
         conduct[ts.candidate_id] = conduct_summary(ts)
@@ -62,15 +78,26 @@ def _cand_dicts(db: Session) -> list[dict]:
         if ta.score is not None:
             f["scores"].append(ta.score)
     out = []
-    for c in db.query(Candidate).filter_by(visible=True):
+    q = db.query(Candidate).filter_by(visible=True)
+    if skip_user is not None:
+        q = q.filter(Candidate.user_id != skip_user)
+    if only_id is not None:  # свой профиль для проверки агента: без фильтров видимости
+        q = db.query(Candidate).filter_by(id=only_id)
+    for c in q:
         if c.spec is None or (c.grade is None and c.claimed_grade is None):
+            continue
+        # «Не ищу» — в выдаче нет; скрывшийся от этой компании — тоже.
+        hidden = (c.search or "active") == "closed" or (emp_id is not None and emp_id in ((c.wants or {}).get("hide") or []))
+        if hidden and only_id is None:
             continue
         f = fresh.get(c.id, {"n": 0, "scores": []})
         out.append({"id": c.id, "spec": c.spec, "grade": c.grade, "claimed_grade": c.claimed_grade, "theta": c.theta, "se": c.se,
+                    "express": c.grade is None and c.express_at is not None,
                     "stack": c.stack, "work_format": c.work_format, "salary": c.salary if c.privacy.get("salary", True) else None,
                     "years": c.years, "city": c.city if c.privacy.get("city") else None, "facts": c.facts, "privacy": c.privacy,
                     "fsp": achs.get(c.id, []) if c.privacy.get("fsp", True) else [],
-                    "fresh_tasks": f["n"], "task_score": (max(f["scores"]) if f["scores"] else None), "name": c.name, "conduct": conduct.get(c.id)})
+                    "fresh_tasks": f["n"], "task_score": (max(f["scores"]) if f["scores"] else None), "name": c.name, "conduct": conduct.get(c.id),
+                    "search": c.search or "active", "agent": c.agent, "social": social.get(c.id, 0.0)})
     return out
 
 
@@ -80,11 +107,11 @@ def card(x: dict, s: dict | None = None) -> dict:
     ответ экспертов ФСП 07.10.2026)."""
     g = x["grade"] if x["grade"] is not None else x["claimed_grade"]
     return {"id": x["id"], "display": x.get("name") or f"Кандидат №{x['id']:03d}", "spec": x["spec"], "grade": g, "grade_name": GRADES[g]["name"], "conduct": x.get("conduct"),
-            "confirmed": x["grade"] is not None, "theta": x["theta"], "se": x["se"], "stack": x["stack"], "work_format": x["work_format"],
+            "confirmed": x["grade"] is not None, "express": bool(x.get("express")), "theta": x["theta"], "se": x["se"], "stack": x["stack"], "work_format": x["work_format"],
             "salary": x["salary"], "years": x["years"], "city": x["city"],
             "facts": [{"k": f["k"], "v": f["v"], "src": f["src"]} for f in x["facts"] if f.get("approved")],
             "fsp": [a for a in x["fsp"] if not a.get("hidden")], "fresh_tasks": x["fresh_tasks"], "task_score": x["task_score"],
-            "score": s}
+            "search": x.get("search", "active"), "score": s}
 
 
 # ── Потребность и подборка ───────────────────────────────────────────
@@ -135,7 +162,7 @@ def selection(need_id: int, near: bool = False, fsp_only: bool = False, confirme
     n = db.get(Need, need_id)
     if not n or n.employer_id != e.id:
         raise HTTPException(404)
-    cands = _cand_dicts(db)
+    cands = _cand_dicts(db, e.user_id, e.id)
     need = _need_out(n)
     cats = [{"grade": g["id"], "name": g["name"], "count": sum(1 for c in cands if c["spec"] == n.spec and (c["grade"] if c["grade"] is not None else c["claimed_grade"]) == g["id"])} for g in GRADES]
     ranked = rank(cands, need, {"near": near, "fsp_only": fsp_only, "confirmed_only": confirmed_only, "work_format": work_format, "must_stack": must_stack})
@@ -152,7 +179,7 @@ def selection(need_id: int, near: bool = False, fsp_only: bool = False, confirme
 def bank_search(spec: str | None = None, grade: int | None = None, stack: str | None = None, fsp_only: bool = False,
                 confirmed_only: bool = False, work_format: str | None = None, limit: int = 20, offset: int = 0,
                 e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
-    cands = _cand_dicts(db)
+    cands = _cand_dicts(db, e.user_id, e.id)
     st = [s for s in (stack or "").split(",") if s]
     out = []
     for c in cands:
@@ -168,9 +195,18 @@ def bank_search(spec: str | None = None, grade: int | None = None, stack: str | 
     return {"total": len(out), "items": [card(c) for c in out[offset: offset + limit]]}
 
 
+@router.get("/candidates/{cand_id}/references", summary="Отзывы бывших коллег: агент компании опрашивает их в фоне, компанию не называет")
+def candidate_refs(cand_id: int, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
+    from ..core.refs import collect
+    c = db.get(Candidate, cand_id)
+    if not c or c.user_id == e.user_id:
+        raise HTTPException(404)
+    return collect(db, c, e)
+
+
 @router.get("/candidates/{cand_id}", summary="Карточка кандидата до согласия: имя и профиль видны, контакты закрыты")
 def candidate_card(cand_id: int, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
-    x = next((c for c in _cand_dicts(db) if c["id"] == cand_id), None)
+    x = next((c for c in _cand_dicts(db, e.user_id, e.id) if c["id"] == cand_id), None)
     if not x:
         raise HTTPException(404)
     out = card(x)
@@ -190,7 +226,7 @@ class TalkIn(BaseModel):
 
 @router.post("/candidates/{cand_id}/talk", summary="Предразговор агентов сторон до приглашения")
 def talk(cand_id: int, body: TalkIn, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
-    x = next((c for c in _cand_dicts(db) if c["id"] == cand_id), None)
+    x = next((c for c in _cand_dicts(db, e.user_id, e.id) if c["id"] == cand_id), None)
     if not x:
         raise HTTPException(404)
     offer = _offer(db, e, body.need_id, body.vacancy_id)
@@ -203,11 +239,13 @@ def _offer(db: Session, e: Employer, need_id: int | None, vacancy_id: int | None
     if vacancy_id:
         v = db.get(Vacancy, vacancy_id)
         if v and v.employer_id == e.id:
-            return {"stack": v.stack, "grade": v.grade, "salary_from": v.salary_from, "salary_to": v.salary_to, "work_format": v.work_format, "tasks": v.tasks, "team": v.team}
+            return {"stack": v.stack, "grade": v.grade, "salary_from": v.salary_from, "salary_to": v.salary_to, "work_format": v.work_format, "tasks": v.tasks, "team": v.team, "field": e.field}
     n = db.get(Need, need_id) if need_id else db.query(Need).filter_by(employer_id=e.id).order_by(Need.id.desc()).first()
+    if n and n.employer_id != e.id:
+        n = None
     if not n:
         raise HTTPException(422, "Нужна потребность или вакансия")
-    return {"stack": n.stack, "grade": n.grade, "salary_from": n.salary_from or 0, "salary_to": n.salary_to or 0, "work_format": n.work_format, "tasks": [], "team": e.about}
+    return {"stack": n.stack, "grade": n.grade, "salary_from": n.salary_from or 0, "salary_to": n.salary_to or 0, "work_format": n.work_format, "tasks": [], "team": e.about, "field": e.field}
 
 
 # ── Приглашения ──────────────────────────────────────────────────────
@@ -224,29 +262,42 @@ class InviteIn(BaseModel):
     need_id: int | None = None
 
 
-@router.post("/invites", summary="Пригласить кандидата: вилка «от — до» в рублях обязательна")
+@router.post("/invites", summary="Пригласить кандидата: вилка зарплаты «от — до» в рублях обязательна")
 def create_invite(body: InviteIn, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
     if body.salary_from <= 0 or body.salary_to < body.salary_from:
-        raise HTTPException(422, "Вилка «от — до» в рублях обязательна")
-    if not db.get(Candidate, body.candidate_id):
+        raise HTTPException(422, "Вилка зарплаты «от — до» в рублях обязательна")
+    if not body.title.strip() or not body.contact.strip():
+        raise HTTPException(422, "В приглашении нужны название предложения и способ связи")
+    c0 = db.get(Candidate, body.candidate_id)
+    if not c0 or c0.user_id == e.user_id:
         raise HTTPException(404)
     if db.query(Invite).filter_by(employer_id=e.id, candidate_id=body.candidate_id).filter(Invite.status.in_(["отправлено", "просмотрено"])).first():
         raise HTTPException(409, "Приглашение уже отправлено и ждёт ответа")
-    x = next((c for c in _cand_dicts(db) if c["id"] == body.candidate_id), None)
+    x = next((c for c in _cand_dicts(db, e.user_id, e.id) if c["id"] == body.candidate_id), None)
+    if not x:  # скрыт, не ищет или закрыл компанию: приглашение обходило бы приватность
+        raise HTTPException(404)
     warn = None
-    if x and x["salary"] and x["salary"] > body.salary_to:
-        warn = f"Вилка ниже ожиданий кандидата ({x['salary']:,} ₽)".replace(",", " ")
-    talk = None
-    if x:
+    if x["salary"] and x["salary"] > body.salary_to:
+        warn = f"Вилка зарплаты ниже ожиданий кандидата ({x['salary']:,} ₽)".replace(",", " ")
+    # Стек и задачи — из потребности или вакансии, если они указаны; вилка и формат — всегда из самого приглашения:
+    # протокол агентов кандидат читает рядом с приглашением, и условия в них должны совпадать.
+    offer = None
+    if body.need_id or body.vacancy_id:
         try:
             offer = _offer(db, e, body.need_id, body.vacancy_id)
-        except HTTPException:  # приглашение без потребности и вакансии: предложение из самого приглашения
-            offer = {"stack": [], "grade": x["grade"] if x["grade"] is not None else x["claimed_grade"], "salary_from": body.salary_from,
-                     "salary_to": body.salary_to, "work_format": body.work_format, "tasks": [], "team": e.about}
-        talk = negotiate(x, offer)
+        except HTTPException:
+            offer = None
+    if offer is None:
+        offer = {"stack": [], "grade": x["grade"] if x["grade"] is not None else x["claimed_grade"], "tasks": [], "team": e.about, "field": e.field}
+    offer.update({"salary_from": body.salary_from, "salary_to": body.salary_to, "work_format": body.work_format})
+    talk = negotiate(x, offer)
     i = Invite(employer_id=e.id, candidate_id=body.candidate_id, vacancy_id=body.vacancy_id, title=body.title, text=body.text,
                salary_from=body.salary_from, salary_to=body.salary_to, contact=body.contact, work_format=body.work_format,
                log=[{"t": datetime.utcnow().isoformat(), "s": "отправлено"}], talk=talk)
+    # Агент кандидата со стоп-фактором и разрешением отклонять сам — отклоняет сразу, с причиной.
+    if talk and talk.get("stops") and ((c0.agent or {}).get("auto_decline")):
+        i.status, i.reason = "отклонено", "стоп-фактор: " + ", ".join(talk["stops"]).lower()
+        i.log = i.log + [{"t": datetime.utcnow().isoformat(), "s": "отклонено", "by": "агент кандидата"}]
     db.add(i)
     db.commit()
     out = invite_out(db, i, for_candidate=False)
@@ -292,6 +343,14 @@ def my_invites(e: Employer = Depends(current_employer), db: Session = Depends(ge
 
 # ── Вакансии и отклики ───────────────────────────────────────────────
 
+def _check_cat(body) -> None:
+    """Категория «специализация × грейд» — только из справочника: иначе выдача и кабинет кандидата получат неизвестный грейд."""
+    if body.spec not in SPEC_IDS:
+        raise HTTPException(422, "Неизвестная специализация")
+    if not 0 <= body.grade < len(GRADES):
+        raise HTTPException(422, "Грейд 0…4")
+
+
 class VacancyIn(BaseModel):
     title: str
     spec: str
@@ -324,12 +383,11 @@ async def parse_vacancy_file(file: UploadFile, e: Employer = Depends(current_emp
     return {**provider.parse_vacancy(text), "text": text[:6000]}
 
 
-@router.post("/vacancies", summary="Опубликовать вакансию (без вилки не сохраняется)")
+@router.post("/vacancies", summary="Опубликовать вакансию (без вилки зарплаты не сохраняется)")
 def create_vacancy(body: VacancyIn, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
     if body.salary_from <= 0 or body.salary_to < body.salary_from:
-        raise HTTPException(422, "Вилка «от — до» в рублях обязательна")
-    if body.spec not in SPEC_IDS:
-        raise HTTPException(422)
+        raise HTTPException(422, "Вилка зарплаты «от — до» в рублях обязательна")
+    _check_cat(body)
     v = Vacancy(employer_id=e.id, **body.model_dump())
     db.add(v)
     db.commit()
@@ -353,7 +411,8 @@ def patch_vacancy(vac_id: int, body: VacancyIn, e: Employer = Depends(current_em
     if not v or v.employer_id != e.id:
         raise HTTPException(404)
     if body.salary_from <= 0 or body.salary_to < body.salary_from:
-        raise HTTPException(422, "Вилка «от — до» в рублях обязательна")
+        raise HTTPException(422, "Вилка зарплаты «от — до» в рублях обязательна")
+    _check_cat(body)
     for k, val in body.model_dump().items():
         setattr(v, k, val)
     db.commit()
@@ -365,7 +424,7 @@ def vacancy_responses(vac_id: int, e: Employer = Depends(current_employer), db: 
     v = db.get(Vacancy, vac_id)
     if not v or v.employer_id != e.id:
         raise HTTPException(404)
-    cands = {c["id"]: c for c in _cand_dicts(db)}
+    cands = {c["id"]: c for c in _cand_dicts(db, e.user_id, e.id)}
     out = []
     for r in db.query(Response).filter_by(vacancy_id=vac_id).order_by(Response.id.desc()):
         c = cands.get(r.candidate_id)
@@ -402,6 +461,7 @@ class TaskIn(BaseModel):
 
 @router.post("/tasks", summary="Короткое задание для категории: решить или предложить подход")
 def create_task(body: TaskIn, e: Employer = Depends(current_employer), db: Session = Depends(get_db)):
+    _check_cat(body)
     t = Task(employer_id=e.id, **body.model_dump())
     db.add(t)
     db.commit()
@@ -454,7 +514,7 @@ def my_stats(need_id: int | None = None, e: Employer = Depends(current_employer)
     out = employer_stats(db, e)
     n = db.get(Need, need_id) if need_id else db.query(Need).filter_by(employer_id=e.id).order_by(Need.id.desc()).first()
     if n and n.employer_id == e.id:
-        cat = [c for c in _cand_dicts(db) if c["spec"] == n.spec and (c["grade"] if c["grade"] is not None else c["claimed_grade"]) == n.grade]
+        cat = [c for c in _cand_dicts(db, e.user_id, e.id) if c["spec"] == n.spec and (c["grade"] if c["grade"] is not None else c["claimed_grade"]) == n.grade]
         sal = sorted(c["salary"] for c in cat if c["salary"])
         out["market"] = {"need": _need_out(n), "count": len(cat), "salaries": sal,
                          "within": sum(1 for v in sal if n.salary_to and v <= n.salary_to) if n.salary_to else None}

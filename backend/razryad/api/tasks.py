@@ -21,6 +21,8 @@ def feed(c: Candidate = Depends(current_candidate), db: Session = Depends(get_db
         if abs(t.grade - g) > 1:
             continue
         e = db.get(Employer, t.employer_id)
+        if e.user_id == c.user_id or e.hiring == "paused":
+            continue
         a = mine.get(t.id)
         out.append({"id": t.id, "company": e.name, "title": t.title, "text": t.text, "grade": t.grade, "created_at": t.created_at,
                     "answer": {"text": a.text, "score": a.score} if a else None})

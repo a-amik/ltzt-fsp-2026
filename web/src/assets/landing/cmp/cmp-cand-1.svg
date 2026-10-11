@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Множество откликов теряется; приглашение приходит к подтверждённому профилю">
+  <g stroke="var(--r-mute, #5F5F66)" fill="var(--r-hair, rgba(27,28,33,.14))">
+    <path d="M9 81L33 72L25 96L20 86Z"/>
+    <path d="M20 86L33 72M20 86L19 93L23 90" fill="none"/>
+    <g opacity="0.8">
+      <path d="M34 66L56 58L49 79L44 70Z"/>
+      <path d="M44 70L56 58M44 70L43 77L47 74" fill="none"/>
+      <path d="M13 48L32 41L26 60L22 52Z"/>
+      <path d="M22 52L32 41" fill="none"/>
+    </g>
+    <g opacity="0.6">
+      <path d="M49 44L69 37L62 56L58 48Z"/>
+      <path d="M58 48L69 37" fill="none"/>
+      <path d="M37 27L54 21L48 37L45 30Z"/>
+      <path d="M45 30L54 21" fill="none"/>
+    </g>
+    <g opacity="0.35">
+      <path d="M66 28L84 22L78 39L74 31Z"/>
+      <path d="M74 31L84 22" fill="none"/>
+    </g>
+    <g opacity="0.2">
+      <path d="M82 15L96 10L91 23L88 17Z"/>
+      <path d="M88 17L96 10" fill="none"/>
+    </g>
+    <path d="M6 103L12 98M27 96L33 88M56 68L61 62" fill="none" opacity="0.45"/>
+  </g>
+  <path d="M108 60H132M126 54L132 60L126 66" stroke="var(--r-mute, #5F5F66)"/>
+  <path d="M171 69C180 69 179 51 187 51M182 47L187 51L182 55" stroke="var(--r-blue, #402FFF)"/>
+  <rect x="187" y="23" width="48" height="79" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+  <circle cx="201" cy="39" r="7" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="213" y="36" width="13" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="197" y="54" width="28" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="197" y="64" width="20" height="5" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="200" y="77" width="23" height="17" rx="4" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  <path d="M206 85L210 89L217 81" stroke="var(--r-paper, #FFFFFF)"/>
+  <path d="M142 64H147M140 73H147" stroke="var(--r-blue, #402FFF)"/>
+  <rect x="145" y="58" width="28" height="22" rx="4" fill="var(--r-sun, #DAD6FF)"/>
+  <path d="M146 61L157 69Q159 71 161 69L172 61M146 77L154 70M172 77L164 70"/>
+</svg>

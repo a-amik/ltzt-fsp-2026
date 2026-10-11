@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .api import auth, badge, candidate, catalog, employer, fsp, tasks, test
 from .config import settings
-from .db import Base, SessionLocal, engine
+from .db import Base, SessionLocal, add_missing_columns, engine
 
 DESCRIPTION = """Сервис подбора ИТ-специалистов с обратной механикой для Федерации спортивного программирования.
 
@@ -23,9 +23,12 @@ for r in (auth, catalog, candidate, test, fsp, employer, tasks, badge):
 @app.on_event("startup")
 def init_db():
     Base.metadata.create_all(engine)
-    from .seed import ensure_demo_candidate
+    add_missing_columns()
+    from .seed import ensure_demo_candidate, ensure_demo_dual, ensure_personas
     with SessionLocal() as db:
         ensure_demo_candidate(db)
+        ensure_demo_dual(db)
+        ensure_personas(db)
 
 
 @app.get("/api/health", tags=["service"])

@@ -21,6 +21,8 @@ button.logo { background: none; border: 0; padding: 0; color: inherit; cursor: p
 
 main { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
 .page { display: grid; gap: 24px; }
+.page > *, .stack > *, .stack-sm > *, .r-card, .tablewrap { min-width: 0; max-width: 100%; } /* таблица с прокруткой внутри не растягивает колонку шире экрана */
+.stack-sm { grid-template-columns: minmax(0, 1fr); }
 .stack { display: grid; gap: 20px; }
 .stack-sm { display: grid; gap: 10px; justify-items: start; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
@@ -57,7 +59,7 @@ main { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
 
 /* Вкладки кабинета */
 .tabs { display: flex; gap: 0; border-bottom: var(--r-edge) solid var(--r-ink); }
-.tab { font: 600 15px/1 var(--r-font); padding: 12px 16px; background: none; border: 0; border-bottom: 4px solid transparent; margin-bottom: -2px; color: var(--r-mute); cursor: pointer; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
+.tab { font: 600 15px/1 var(--r-font); padding: 12px var(--tab-x, 16px); background: none; border: 0; border-bottom: 4px solid transparent; margin-bottom: -2px; color: var(--r-mute); cursor: pointer; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
 .tab[aria-current="page"] { color: var(--r-ink); border-bottom-color: var(--r-blue); }
 .tab-badge { background: var(--r-blue); color: var(--r-on-blue); padding: 2px 7px; font-size: 12px; }
 
@@ -137,7 +139,10 @@ main { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
   .inv-row { flex-direction: column; gap: 10px; }
   .inv-side { justify-items: start; }
   .modal-back { place-items: end stretch; padding: 0; }
-  .modal { width: 100%; max-height: 88vh; border-bottom: 0; }
+  .modal { width: 100%; max-height: 88vh; border-bottom: 0; box-shadow: 0 -8px 32px rgba(17, 17, 20, .18); position: relative; padding-top: 28px; }
+  /* Нижний шит: страницу под ним не затемняем (правило проекта), отделяет мягкая тень; ручка сверху. */
+  .modal-back { background: transparent; }
+  .modal::before { content: ''; position: absolute; top: 10px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--r-hair, rgba(17, 17, 20, .2)); }
   .r-card { padding: 18px; }
 }
 
@@ -328,3 +333,125 @@ main { overflow-x: clip; }
 /* Значок грейда: превью и строка для README. */
 .badge-img { display: block; height: 22px; width: auto; }
 .badge-md { display: block; padding: 10px 12px; font: 13px/1.45 var(--r-mono); word-break: break-all; background: var(--r-back); border-radius: var(--r-radius, 0); }
+
+/* Вход: две карточки рядом одной высоты и одного строя —
+   заголовок, пояснение, поле, кнопка у нижнего края на одной линии. */
+.entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+.entry-card { display: flex; flex-direction: column; gap: 12px; }
+.entry-card > .r-h3, .entry-card > p { margin: 0; }
+.entry-card .r-field { margin-bottom: 0; }
+.entry-act { margin-top: auto; padding-top: 8px; }
+@media (max-width: 760px) { .entry { grid-template-columns: minmax(0, 1fr); } }
+
+/* Полоса кабинета: краска своей стороны, как первый экран её главной.
+   «Разряд» (кандидат) — жёлтая с чёрным пером; ФСП (компания) — графитовая.
+   Полоса во всю ширину окна, рабочая область под ней остаётся спокойной. */
+main:has(.cab-head) { overflow-x: visible; }
+.app:has(.cab-head) { overflow-x: clip; }
+.cab-head { --cab-pad: max(24px, calc((100vw - 1112px) / 2)); margin: -32px calc(50% - 50vw) 0; padding: 36px var(--cab-pad) 0; display: grid; gap: 24px; }
+.cab-head__in { display: grid; gap: 8px; }
+.cab-head__in .r-micro, .cab-head__title, .cab-head__sub { margin: 0; }
+.cab-head__title { font: 500 clamp(28px, 4vw, 44px)/1.08 var(--r-display, var(--r-mono)); letter-spacing: -.02em; color: var(--r-ink); text-wrap: balance; }
+.cab-head__sub { font-size: 15px; color: var(--r-mute); }
+.cab-head .tabs { border-bottom: 0; }
+/* Висячие вкладки: текст первой — на линии имени, её поле и черта уходят влево.
+   Ряд вынесен до края окна, поле возвращено изнутри: при прокрутке вкладки уходят под край. */
+.cab-head .tabs { --tab-x: 16px; margin-inline: calc(-1 * var(--cab-pad)); padding-inline: calc(var(--cab-pad) - var(--tab-x)); }
+.kit[data-skin="razryad"] .cab-head { background: #FFD400; color: #111114; --r-ink: #111114; --r-mute: rgba(17, 17, 20, .72); --r-hair: rgba(17, 17, 20, .2); border-bottom: 2px solid #111114; }
+.kit[data-skin="razryad"] .cab-head .tab[aria-current="page"] { border-bottom-color: #111114; }
+.kit[data-skin="fsp"] .cab-head { background: #1B1C21; color: #EDEDED; --r-ink: #EDEDED; --r-mute: #A9AAB0; --r-hair: rgba(237, 237, 237, .14); }
+.kit[data-skin="fsp"][data-kit="night"] .cab-head { background: #121317; border-bottom: 1px solid rgba(237, 237, 237, .14); }
+.kit[data-skin="fsp"] .cab-head .tab[aria-current="page"] { border-bottom-color: #8F86FF; }
+@media (max-width: 640px) { .cab-head { --cab-pad: 16px; margin-top: -20px; padding-top: 24px; gap: 16px; } }
+
+/* Настройка агента кандидата */
+.ag-imp { display: grid; gap: 8px; }
+.ag-imp__row { display: grid; grid-template-columns: 140px 1fr; align-items: center; gap: 12px; }
+.ag-imp__row .seg { justify-self: start; }
+.ag-add { display: flex; gap: 8px; margin-top: 10px; }
+.ag-add .r-input { flex: 1; min-width: 0; }
+.ag-asks { margin-top: 12px; }
+.ag-asks ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.ag-asks li b { display: block; font-weight: 600; }
+.ag-asks li.is-hit b { color: var(--r-alarm); }
+@media (max-width: 640px) {
+  .ag-imp__row { grid-template-columns: 1fr; gap: 6px; }
+  .ag-add { flex-direction: column; }
+}
+.crit-note { display: block; margin-top: 2px; }
+
+/* Профиль кандидата: карточка, заполненность, шаги */
+.ph-top { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.ph-card { display: flex; flex-direction: column; gap: 12px; }
+.ph-who { display: flex; gap: 16px; align-items: center; }
+.ph-ava { display: grid; place-items: center; flex: none; width: 64px; height: 64px; border-radius: 50%; background: var(--r-blue); color: var(--r-on-blue, #fff); font: 600 22px/1 var(--r-font); }
+.ph-name { margin: 0 0 4px; }
+.ph-dl { display: grid; gap: 8px; margin: 0; }
+.ph-dl div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; }
+.ph-dl dt { color: var(--r-mute); font-size: 14px; }
+.ph-dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.ph-st { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 13px; font-weight: 600; }
+.ph-st--active { background: #DDF3E4; color: #0B6B33; }
+.ph-st--open { background: #FFF1C2; color: #6B4E00; }
+.ph-st--closed { background: #ECECEF; color: #4A4A55; }
+.ph-pct { margin: 0; font: 600 40px/1 var(--r-mono); }
+.ph-bar { height: 8px; border-radius: 8px; background: var(--r-hair); overflow: hidden; }
+.ph-bar i { display: block; height: 100%; background: var(--r-blue); }
+.ph-steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; }
+.ph-steps li { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--r-hair); }
+.ph-steps li div { display: grid; gap: 2px; min-width: 0; }
+.ph-dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1.5px dashed var(--r-mute); font: 700 13px/1 var(--r-font); }
+.ph-steps li.is-done .ph-dot { border: 0; background: var(--r-blue); color: var(--r-on-blue, #fff); }
+@media (max-width: 640px) {
+  .ph-top { grid-template-columns: minmax(0, 1fr); }
+  .ph-steps li { grid-template-columns: 28px 1fr; }
+  .ph-steps li .r-btn { grid-column: 2; justify-self: start; }
+  .ph-dl div { grid-template-columns: 90px 1fr; }
+}
+
+/* Полоса шагов онбординга */
+.onb-steps { list-style: none; display: flex; gap: 6px; margin: 0 0 20px; padding: 0; overflow-x: auto; scrollbar-width: none; }
+.onb-steps::-webkit-scrollbar { display: none; }
+.onb-steps li { display: flex; align-items: center; gap: 8px; flex: none; padding: 6px 12px 6px 6px; border-radius: 100px; border: 1px solid var(--r-hair); color: var(--r-mute); font: 500 14px/1 var(--r-font); }
+.onb-steps__n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid currentColor; font: 600 12px/1 var(--r-font); }
+.onb-steps li.is-done { color: var(--r-ink); }
+.onb-steps li.is-done .onb-steps__n { border-color: var(--r-blue); background: var(--r-blue); color: var(--r-on-blue, #fff); }
+.onb-steps li.is-cur { color: var(--r-ink); border-color: var(--r-blue); font-weight: 600; }
+.onb-steps li.is-cur .onb-steps__n { border-color: var(--r-blue); color: var(--r-blue-ink, var(--r-blue)); }
+.onb-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; align-items: stretch; }
+.onb-grade > .r-card { display: flex; flex-direction: column; }
+@media (max-width: 640px) { .onb-grade { grid-template-columns: minmax(0, 1fr); } }
+
+/* Усилить профиль */
+.boost { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.boost-card { display: flex; flex-direction: column; gap: 6px; }
+.boost-card p { margin: 0; }
+.boost-ev { list-style: none; margin: 0; padding: 0; display: grid; }
+.boost-ev li { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--r-hair); }
+.boost-ev li div { display: grid; gap: 2px; min-width: 0; }
+@media (max-width: 1000px) { .boost { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .boost { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .boost-ev li { grid-template-columns: minmax(0, 1fr); } .boost-ev li .r-btn { justify-self: start; } }
+.boost-fsp { grid-column: 1 / -1; }
+
+/* Отзывы и связи */
+.rf-sum { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--r-hair); border-radius: 12px; }
+.rf-sum ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 10px; }
+.rf-sum li { display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; align-items: start; }
+.rf-sum li div { display: grid; gap: 2px; min-width: 0; }
+.rf-sum__k { font-weight: 600; }
+.rf-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rf-nums div { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--r-hair); border-radius: 10px; }
+.rf-nums b { font: 600 28px/1 var(--r-mono); }
+.rf-nums span { font-size: 13px; color: var(--r-mute); }
+.rf-q { padding: 10px 0; border-top: 1px solid var(--r-hair); }
+.rf-q p { margin: 0 0 4px; }
+.rf-refs { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--r-hair); }
+.rf-quotes { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 10px; }
+.rf-quotes li { display: grid; gap: 3px; justify-items: start; }
+@media (max-width: 640px) {
+  .rf-sum li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .rf-sum li .r-mark { justify-self: start; }
+  .rf-nums { grid-template-columns: minmax(0, 1fr); }
+}
+.rf-ask { width: 100%; box-sizing: border-box; justify-self: stretch; }

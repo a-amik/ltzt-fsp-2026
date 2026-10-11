@@ -30,14 +30,17 @@ def accounts():
     return [{"sub": a["sub"], "name": a["name"], "history": a["history"]} for a in fsp_mock.ACCOUNTS.values()]
 
 
-@router.get("/fsp-id/authorize", summary="Мок OIDC: вход, выдаёт code на redirect_uri")
-def authorize(sub: str, redirect_uri: str, state: str = ""):
+@router.get("/fsp-id/authorize", summary="Мок OIDC: вход, выдаёт code на redirect_uri; response_mode=json — тот же code в теле ответа")
+def authorize(sub: str, redirect_uri: str, state: str = "", response_mode: str = "redirect"):
     if sub not in fsp_mock.ACCOUNTS:
         raise HTTPException(404, "Нет такой учётной записи")
     code = secrets.token_urlsafe(16)
     _codes[code] = sub
     sep = "&" if "?" in redirect_uri else "?"
-    return RedirectResponse(f"{redirect_uri}{sep}code={code}&state={state}", status_code=302)
+    location = f"{redirect_uri}{sep}code={code}&state={state}"
+    if response_mode == "json":  # для fetch из приложения: браузер не отдаёт скрипту Location у редиректа
+        return {"code": code, "state": state, "location": location}
+    return RedirectResponse(location, status_code=302)
 
 
 class TokenIn(BaseModel):
@@ -78,6 +81,9 @@ def link(body: LinkIn, c: Candidate = Depends(current_candidate), db: Session = 
     sub = _codes.pop(body.code, None)
     if not sub:
         raise HTTPException(400, "Код входа ФСП ID не подходит")
+    other = db.query(Candidate).filter(Candidate.fsp_id == sub, Candidate.id != c.id).first()
+    if other:
+        raise HTTPException(409, "Эта учётная запись ФСП ID уже привязана к другому профилю")
     info = fsp_mock.userinfo(sub)
     c.fsp_id = sub
     if not c.name:
