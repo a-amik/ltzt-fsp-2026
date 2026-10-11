@@ -11,7 +11,7 @@
 
 - Стенд: https://d5d5d58b3bosodm1111q.4kscn31j.apigw.yandexcloud.net/
 - Описание API (OpenAPI): `/docs` на стенде или локально
-- Документация решения: [`docs/`](docs/)
+- Документация решения (PDF, 17 страниц): [`docs/Razryad-documentation.pdf`](docs/Razryad-documentation.pdf), она же страницей — [`docs/documentation.html`](docs/documentation.html)
 - Результаты валидации: [`backend/validation/REPORT.md`](backend/validation/REPORT.md)
 
 ## Как войти на стенд
