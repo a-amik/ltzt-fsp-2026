@@ -2,15 +2,63 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon-fed.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-fed-32.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta name="theme-color" content="#1B1C21" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Разряд — прототип</title>
+    <!-- Счётчик посещений Chapp сайта amik.am: только на fsp.amik.am, без cookies и сторонних пикселей -->
+    <script>if (location.hostname === 'fsp.amik.am') { var c = document.createElement('script'); c.defer = true; c.src = 'https://amik.am/chapp/pa.min.js?v=73c349bc'; c.setAttribute('data-site', 'amik'); c.setAttribute('data-prefix', '/fsp.amik.am'); document.head.appendChild(c); }</script>
+    <title>Разряд — подбор ИТ-специалистов</title>
+    <meta name="description" content="Первый разговор ведут агенты: опрос и уточнение фактов по пяти критериям, грейд подтверждён тестом, вилка в каждом приглашении. Спецтрек ФСП, ЛЦТ 2026." />
+    <!-- Карточка для соцсетей и мессенджеров: картинка — абсолютным адресом домена стенда -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Разряд" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="Разряд — первый разговор ведут агенты" />
+    <meta property="og:description" content="Подбор ИТ-специалистов для компаний и кандидатов: агенты сверяют стек, грейд, деньги, формат и мотивацию, люди встречаются, когда уже совпали." />
+    <meta property="og:url" content="https://fsp.amik.am/" />
+    <meta property="og:image" content="https://fsp.amik.am/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Разряд: первый разговор ведут агенты. Компаниям и кандидатам" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://fsp.amik.am/og.png" />
+    <!-- Знак в движении: прелоадер и ожидание данных. Круг 3 с: блоки сходятся, разряд бежит по знаку, блоки расходятся.
+         В покое и при «уменьшении движения» знак стоит собранным. Знак один для обеих версий — в цветах флага. -->
+    <style>
+      .sg { --sg-a: #0039A6; --sg-af: #7FA6FF; --sg-l: #D52B1E; --sg-lf: #FF9A90; --sg-h: #FFFFFF; overflow: visible; display: block; }
+      .sg rect { animation-duration: 3s; animation-iteration-count: infinite; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+      .sg-a, .sg-b { fill: var(--sg-a); } .sg-l { fill: var(--sg-l); } .sg-h { fill: var(--sg-h); transform-box: fill-box; transform-origin: center; }
+      .sg-a { animation-name: sg-a, sg-fa; } .sg-b { animation-name: sg-b, sg-fa; animation-delay: 0s, .2s; } .sg-l { animation-name: sg-l, sg-fl; animation-delay: 0s, .4s; } .sg-h { animation-name: sg-h; }
+      @keyframes sg-a { 0%, 100% { transform: translate(-24px, -16px); } 32%, 66% { transform: none; } }
+      @keyframes sg-b { 0%, 100% { transform: translate(24px, 14px); } 32%, 66% { transform: none; } }
+      @keyframes sg-l { 0%, 100% { transform: translate(-8px, 22px); } 32%, 66% { transform: none; } }
+      @keyframes sg-h { 0%, 27%, 71%, 100% { transform: scale(0); } 36%, 62% { transform: none; } }
+      @keyframes sg-fa { 0%, 36%, 54%, 100% { fill: var(--sg-a); } 45% { fill: var(--sg-af); } }
+      @keyframes sg-fl { 0%, 36%, 54%, 100% { fill: var(--sg-l); } 45% { fill: var(--sg-lf); } }
+      @media (prefers-reduced-motion: reduce) { .sg rect { animation: none; } }
+      #boot { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #EDEDED; transition: opacity .3s ease; }
+      #boot.is-dark { background: #1B1C21; } #boot.is-rz { background: #FFD400; } #boot.is-done { opacity: 0; pointer-events: none; }
+      #boot .sg { width: 76px; height: auto; }
+      .sg-wait { display: grid; place-items: center; min-height: 50vh; } .sg-wait .sg { width: 56px; height: auto; }
+      .sg-wait--sm { min-height: 120px; } .sg-wait--sm .sg { width: 32px; }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Tektur:wght@700&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <div id="boot" role="status" aria-label="Загружаем"><svg class="sg" viewBox="-30 -24 182 192" aria-hidden="true"><rect class="sg-a" width="82" height="60" /><rect class="sg-b" x="40" y="30" width="82" height="60" /><rect class="sg-h" x="40" y="30" width="42" height="30" /><rect class="sg-l" y="90" width="40" height="54" /></svg></div>
+    <script>
+      // Вид прелоадера до загрузки приложения: та же логика, что у приложения (сторона, кабинет, тема).
+      (function () { var b = document.getElementById('boot'), u = {}; try { u = JSON.parse(localStorage.getItem('razryad-ui-v2')) || {}; } catch (e) {}
+        var h = location.hash, cand = h === '#candidates' || (h !== '#business' && (u.role === 'cand' || (u.role === 'home' && u.lside === 'cand')));
+        var skin = u.skinPicked ? u.skin : (cand ? 'razryad' : 'fsp'), dark = u.theme === 'dark' || ((!u.theme || u.theme === 'auto') && matchMedia('(prefers-color-scheme: dark)').matches);
+        if (skin === 'razryad') b.className = 'is-rz'; else if (dark) b.className = 'is-dark'; })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

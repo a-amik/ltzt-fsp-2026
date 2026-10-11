@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <style>
+    .hr-a { animation-duration: 7.2s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .hr-invitation { opacity: 1; transform: translate(0px, 0px); animation-name: hr-arrive; }
+    .hr-accepted { opacity: 0; animation-name: hr-accept; }
+    @keyframes hr-arrive {
+      0%, 12%, 96%, 100% { transform: translate(0px, 0px); }
+      38%, 76% { transform: translate(152px, 40px); }
+    }
+    @keyframes hr-accept {
+      0%, 40%, 76%, 100% { opacity: 0; }
+      50%, 68% { opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) { .hr-a { animation: none; } }
+  </style>
+
+  <g class="hr-company-north">
+    <rect x="264" y="8" width="112" height="64" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="280" y="24" width="32" height="32" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="286" y="30" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="300" y="30" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="286" y="42" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="300" y="42" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M292 56V48H300V56"/>
+    <rect x="326" y="28" width="34" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="326" y="46" width="24" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="hr-company-east">
+    <rect x="464" y="208" width="112" height="64" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="480" y="224" width="32" height="32" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="486" y="230" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="500" y="230" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="486" y="242" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="500" y="242" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M492 256V248H500V256"/>
+    <rect x="526" y="228" width="34" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="526" y="246" width="24" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="hr-company-source">
+    <rect x="64" y="208" width="112" height="64" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="80" y="224" width="32" height="32" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="86" y="230" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="100" y="230" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="86" y="242" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="100" y="242" width="6" height="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M92 256V248H100V256"/>
+    <rect x="126" y="228" width="34" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="126" y="246" width="24" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="hr-profile">
+    <rect x="210" y="90" width="220" height="300" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="234" y="114" width="42" height="42" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="245" y="125" width="20" height="20" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="294" y="120" width="112" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="294" y="140" width="78" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <path d="M234 170H406" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+
+    <g class="hr-fact-federation">
+      <rect x="234" y="188" width="92" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="234" y="206" width="68" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="350" y="188" width="56" height="24" rx="12" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    </g>
+    <g class="hr-fact-test">
+      <rect x="234" y="236" width="80" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="234" y="254" width="58" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="350" y="236" width="56" height="24" rx="12" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    </g>
+    <g class="hr-fact-candidate">
+      <rect x="234" y="284" width="90" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="234" y="302" width="64" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+      <rect x="350" y="284" width="56" height="24" rx="12" fill="none" stroke="var(--r-ink, #1B1C21)"/>
+    </g>
+
+    <path d="M234 330H406" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="234" y="354" width="82" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <g class="hr-a hr-accepted">
+      <rect x="370" y="344" width="38" height="32" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+      <path d="M378 360L386 366L400 353" stroke="var(--r-paper, #FFFFFF)"/>
+    </g>
+  </g>
+
+  <g class="hr-a hr-invitation">
+    <rect x="64" y="284" width="132" height="86" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="80" y="300" width="74" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="80" y="318" width="52" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <path d="M80 348H180" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="96" y="343" width="62" height="10" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M96 336V360M158 336V360" stroke="var(--r-blue, #402FFF)"/>
+  </g>
+</svg>

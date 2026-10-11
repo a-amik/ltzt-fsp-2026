@@ -6,8 +6,13 @@
 пункты, линии, финал). Выход: Razryad-pitch.pptx.
 
     uv run --with python-pptx python docs/pitch/build_deck.py <base.pptx> <img_dir> <out.pptx>
+
+После ДЕМО встаёт слайд с роликом Razryad-demo.mp4 (обложка — demo-poster.png рядом
+со сборщиком): в показе он запускается кликом и идёт без интернета. Номера слайдов
+проставляются по порядку в конце сборки.
 """
 import copy
+import os
 import sys
 
 from pptx import Presentation
@@ -140,9 +145,17 @@ drop(s, ph)
 s = S[2]
 title(s, 'КОМАНДА')
 put(at(s, 0.57, 3.96), 'Амбарцум Амаякян', size=13)
-put(at(s, 0.57, 4.65), ['Капитан, продукт и разработка', 'Телеграм: @—', 'Телефон: —', 'Скорозвон'], size=10)
-put(at(s, 3.09, 3.96), 'Иван', size=13)
-put(at(s, 3.09, 4.65), ['Консультант по предметной области', 'Телеграм: @—', 'Телефон: —', '—'], size=10)
+# Контакты — из CONTACTS ниже; пустые строки не печатаем, заглушек «@—» на слайде не бывает.
+CONTACTS = {'amik': {'tg': '', 'phone': '', 'org': 'Скорозвон'}, 'ivan': {'tg': '', 'phone': '', 'org': ''}}
+
+
+def contact_lines(role, c):
+    return [role] + [x for x in (f"Телеграм: {c['tg']}" if c['tg'] else '', f"Телефон: {c['phone']}" if c['phone'] else '', c['org']) if x]
+
+
+put(at(s, 0.57, 4.65), contact_lines('Капитан, продукт и разработка', CONTACTS['amik']), size=10)
+put(at(s, 3.09, 3.96), 'Иван Пластун', size=13)
+put(at(s, 3.09, 4.65), contact_lines('Консультант по предметной области', CONTACTS['ivan']), size=10)
 for x in (5.42, 7.94, 10.46):
     drop(s, at(s, x, 1.66))
 for x in (5.61, 8.13, 10.65):
@@ -195,7 +208,7 @@ s = S[7]
 title(s, 'ТЕСТ', pill=at(s, 0.38, 0.35), w=2.2)
 cards = [('Шаблон', 'Не задача, а форма с параметрами и эталоном. Сотни вариантов одной трудности: цифры и сюжет у каждого свои.'),
          ('Адаптивный показ', 'Следующее задание — из трёх самых информативных в текущей оценке, одно случайно. Набор у каждого свой.'),
-         ('Стоп по точности', '6—12 заданий, стоп при погрешности ≤ 0,38. Экспресс для жюри — 3—4 задания.'),
+         ('Стоп по точности', '6—12 заданий на грейд, стоп при погрешности ≤ 0,38. Экспресс для жюри — 3—4.'),
          ('Грейд', 'Не прошёл — тест на ступень ниже сразу. Выше — отдельным тестом. Повтор — через 90 дней.')]
 for i, (h, t) in enumerate(cards):
     put(by_name(s, f'Текст {14 + i}'), f'0{i + 1}', size=14, color=PINK, bold=True)
@@ -211,6 +224,51 @@ for name, img in (('Рисунок 4', 'cview.jpg'), ('Рисунок 5', 'proto
     drop(s, ph)
 put(by_name(s, 'Текст 2'), [('Кандидат. ', 'Так его видит работодатель: категория, оценка, место в категории, соревнования ФСП и факты «со слов».')], size=12, color=INK)
 put(by_name(s, 'Текст 3'), [('Работодатель. ', 'Протокол переговоров агентов: по каждому критерию — совпадает, с оговоркой или расхождение.')], size=12, color=INK)
+
+
+def browser_label(slide, text):
+    """Адресная строка макета браузера в шаблоне — «www.lider.com»; пишем своё."""
+    def walk(shapes):
+        for sh in shapes:
+            if sh.shape_type == 6:  # группа
+                yield from walk(sh.shapes)
+            else:
+                yield sh
+    for sh in walk(slide.shapes):
+        if sh.has_text_frame and 'lider' in sh.text_frame.text:
+            runs = [r for p in sh.text_frame.paragraphs for r in p.runs]
+            runs[0].text = text
+            for r in runs[1:]:
+                r.text = ''
+
+
+browser_label(s, 'стенд «Разряда»')
+
+# ── 9а. Ролик: сквозной сценарий в самом слайде ─────────────────────
+HERE = os.path.dirname(os.path.abspath(__file__))
+STAND = 'd5d5d58b3bosodm1111q.4kscn31j.apigw.yandexcloud.net'
+
+
+def add_video_slide(prs, after, layout_from):
+    """Слайд «ДЕМО: РОЛИК» с встроенным Razryad-demo.mp4 сразу после слайда after (номер с нуля)."""
+    v = prs.slides.add_slide(layout_from.slide_layout)
+    for ph in list(v.placeholders):
+        if ph.placeholder_format.type != 1:
+            drop(v, ph)
+    title(v, 'ДЕМО: РОЛИК')
+    h = Inches(5.25)
+    w = int(h * 1440 / 900)  # ролик 1440 × 900
+    v.shapes.add_movie(os.path.join(HERE, 'Razryad-demo.mp4'), Inches(0.55), Inches(1.55), w, h,
+                       poster_frame_image=os.path.join(HERE, 'demo-poster.png'), mime_type='video/mp4')
+    textbox(v, 9.15, 1.7, 3.75, 5.2, [('Сквозной сценарий, 2 мин 25 с. ', 'Кандидат регистрируется, проходит опрос и адаптивный тест. Работодатель описывает потребность, агент проводит переговоры со всей категорией, приглашение уходит с вилкой. Кандидат принимает — контакты открываются.'),
+                                     ('Клик по кадру — запуск. ', 'Ролик встроен в слайд и идёт без интернета.'),
+                                     ('Пройти самому: ', STAND)], size=12)
+    ids = prs.slides._sldIdLst
+    el = ids[-1]
+    ids.remove(el)
+    ids.insert(after + 1, el)
+    return v
+
 
 # ── 10. Большой экран: переговоры с категорией ──────────────────────
 s = S[9]
@@ -230,7 +288,7 @@ textbox(s, 8.9, 1.75, 3.9, 5.0, [('Один сценарий со всеми. ',
 s = S[10]
 title(s, 'ПОДБОР', color=PLUM)
 cards = [('Категория', 'Специализация × грейд из теста, а не из резюме. Работодатель видит все грейды с числом людей.'),
-         ('Порядок', 'Тест 60 %, стек 20 %, ФСП 10 %, свежесть 10 %. Без ФСП — ноль, не штраф. Неподтверждённые — ниже всех.'),
+         ('Порядок', 'Тест 60 %, стек 20 %, ФСП 10 %, свежесть 10 %. Без ФСП — ноль, не штраф. Неподтверждённые и дороже вилки больше чем на 10 % — ниже.'),
          ('Объяснение', 'К каждой позиции строки «почему здесь» с источником факта и разбор балла. Фильтры не теряют отбор.')]
 for i, (h, t) in enumerate(cards):
     put(by_name(s, f'Текст {14 + i}'), f'0{i + 1}', size=14, color=PINK, bold=True)
@@ -245,7 +303,7 @@ items = [('75,7 %', 'грейд совпал с истинным, ошибок �
          ('0,44', 'средняя разделяющая сила заданий; ниже 0,3 — 1 из 41'),
          ('9 % против 24 %', 'у кого вырос грейд после утечки 30 % ответов: банк против общего набора'),
          ('69,7 % против 78,8 %', 'точность без калибровки и с ней — довод ТЗ против генерации'),
-         ('2,5 % против 26 %', 'кандидатов слабее запроса в первой десятке: тест против резюме')]
+         ('0,94 против 0,73', 'точность первой десятки подборки (P@10) против поиска по резюме; слабее запроса — 2,6 % против 26 %')]
 for i, (n, t) in enumerate(items):
     put(by_name(s, f'Текст {14 + i}'), f'0{i + 1}', size=14, color=PLUM, bold=True)
     put(by_name(s, f'Текст {1 + 2 * i}'), n, size=18, color=PINK, bold=True)
@@ -290,5 +348,22 @@ for layout in {id(sl.slide_layout): sl.slide_layout for sl in prs.slides}.values
                 for r in para.runs:
                     r.text = ''
 
+def number_slides(prs):
+    """Номер в углу — порядковый: в шаблоне номера стоят текстом и после перестановки слайдов врут."""
+    A = '{http://schemas.openxmlformats.org/drawingml/2006/main}'
+    for i, sl in enumerate(prs.slides, 1):
+        for sh in sl.shapes:
+            if sh.name.startswith('Номер слайда') and sh.has_text_frame:
+                ts = sh.text_frame._txBody.iter(A + 't')
+                first = next(ts, None)
+                if first is not None:
+                    first.text = str(i)
+                    for t in ts:
+                        t.text = ''
+
+
+# Слайд с роликом вставляем последним: до этого все слайды берутся по номерам S[i] шаблона.
+add_video_slide(prs, 8, S[9])
+number_slides(prs)
 prs.save(OUT)
 print('ok', OUT, len(prs.slides))

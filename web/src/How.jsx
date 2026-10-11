@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from './store.jsx';
 import { get } from './api.js';
-import { GRADES, COOLDOWN_DAYS, WEIGHTS, spec, gradeName } from './const.js';
+import { GRADES, COOLDOWN_DAYS, WEIGHTS, spec, gradeName, num } from './const.js';
 import { Trace, Mark, Score } from './ui.jsx';
 
 export default function How() {
@@ -40,7 +40,8 @@ export default function How() {
         <h2 className="r-h2">2. Подбор: категории и&nbsp;порядок</h2>
         <div className="steps">
           <div><b>Сначала категория.</b> Специализация × грейд из&nbsp;теста — не&nbsp;из&nbsp;резюме. Работодатель видит категории с&nbsp;числом людей и&nbsp;выбирает сам.</div>
-          <div><b>Потом порядок внутри.</b> Тест {WEIGHTS.test * 100}&nbsp;%, совпадение стека {WEIGHTS.stack * 100}&nbsp;%, ФСП {WEIGHTS.fsp * 100}&nbsp;%, свежесть {WEIGHTS.fresh * 100}&nbsp;%. Без истории ФСП — ноль по&nbsp;строке, не&nbsp;штраф. Все соревнования равны, считаются результативные.</div>
+          <div><b>Потом порядок внутри.</b> Тест {WEIGHTS.test * 100}&nbsp;%, совпадение стека {WEIGHTS.stack * 100}&nbsp;%, ФСП {WEIGHTS.fsp * 100}&nbsp;%, свежесть {WEIGHTS.fresh * 100}&nbsp;%. Без истории ФСП — ноль по&nbsp;строке, не&nbsp;штраф. Все соревнования равны, считаются результативные; направление, близкое к&nbsp;специализации, — полностью, остальные — с&nbsp;коэффициентом 0,8.</div>
+          <div><b>Вилка — тоже порядок.</b> Кандидат, чьи ожидания выше верха вилки больше чем на&nbsp;10&nbsp;%, стоит после тех, кто в&nbsp;неё укладывается: работодатель сначала видит тех, с&nbsp;кем сойдётся по&nbsp;деньгам. Скрытые ожидания и&nbsp;вилка без верха порядок не&nbsp;меняют.</div>
           <div><b>Объяснение из&nbsp;фактов.</b> Каждая строка «почему здесь» ссылается на&nbsp;факт и&nbsp;его источник: <Mark src="fsp" /> <Mark src="test" /> <Mark src="word" />.</div>
           <div><b>Фильтры не&nbsp;теряют отбор.</b> Отмеченные кандидаты остаются наверху при&nbsp;любом уточнении.</div>
         </div>
@@ -62,7 +63,7 @@ export default function How() {
             <div key={c.id} className="r-card stack-sm">
               <p className="r-micro">{c.fsp.length ? 'С историей ФСП' : 'Без истории ФСП'}</p>
               <p className="r-h3">{c.display} · место {c.pos} из {pair.total}</p>
-              <p className="r-num r-small">оценка {c.theta.toFixed(2)} · балл {c.score.total.toFixed(3)}</p>
+              <p className="r-num r-small">оценка {num(c.theta, 2)} · балл {num(c.score.total, 3)}</p>
               <Score parts={c.score.parts} />
               {c.fsp.length ? <p className="r-small"><Mark src="fsp" /> {c.fsp[0].place} из {c.fsp[0].participants}, {c.fsp[0].level}</p> : <p className="r-small r-mute">Строка ФСП — ноль, не штраф.</p>}
             </div>))}</div>

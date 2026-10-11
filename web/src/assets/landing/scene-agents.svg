@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="54" y="84" width="148" height="234" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+  <rect x="76" y="106" width="36" height="36" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  <rect x="76" y="162" width="104" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="76" y="182" width="80" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <path d="M76 212H180" fill="none" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+  <rect x="76" y="232" width="94" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="76" y="250" width="70" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="76" y="278" width="46" height="18" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="130" y="278" width="50" height="18" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="438" y="84" width="148" height="234" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+  <rect x="460" y="106" width="36" height="36" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="460" y="162" width="104" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="460" y="182" width="80" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <path d="M460 212H564" fill="none" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+  <rect x="460" y="232" width="94" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="460" y="250" width="70" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="460" y="278" width="46" height="18" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <rect x="514" y="278" width="50" height="18" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <path d="M242 96H392Q404 96 404 108V136Q404 148 392 148H246L224 160V144Q230 144 230 138V108Q230 96 242 96Z" fill="var(--r-sun, #DAD6FF)"/>
+  <rect x="250" y="112" width="90" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="250" y="128" width="64" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="368" y="110" width="24" height="24" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  <path d="M374 121L379 126L387 118" fill="none" stroke="var(--r-paper, #FFFFFF)"/>
+  <path d="M242 178H390Q402 178 402 190V224L422 242L396 236H242Q230 236 230 224V190Q230 178 242 178Z" fill="var(--r-paper, #FFFFFF)"/>
+  <rect x="250" y="195" width="130" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="280" y="213" width="100" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <path d="M242 262H392Q404 262 404 274V302Q404 314 392 314H246L224 326V310Q230 310 230 304V274Q230 262 242 262Z" fill="var(--r-paper, #FFFFFF)"/>
+  <rect x="250" y="278" width="96" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="250" y="294" width="72" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  <rect x="368" y="276" width="24" height="24" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  <path d="M374 287L379 292L387 284" fill="none"/>
+</svg>

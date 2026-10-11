@@ -100,3 +100,34 @@ def test_interview_feedback_and_conduct():
         assert any(f["src"] == "interview" for f in prof["facts"])
         card = client.get(f"/api/employer/candidates/{cid}", headers=e).json()
         assert card["conduct"]["items"] >= 3 and any(f["src"] == "interview" for f in card["facts"])
+
+
+def test_migration_import():
+    """Переезд: резюме кандидата и текст своей вакансии раскладываются в поля, всё распознанное — «со слов»."""
+    with client:
+        c = auth("move@example.com", "candidate")
+        e = auth("move-hr@firm.example", "employer")
+        r = client.post("/api/candidate/about", json={"text": "Бэкенд на Python, опыт 6 лет, ООО «Северный банк». PostgreSQL, Kafka. Удалённо, ожидания 280 000 ₽ на руки."}, headers=c).json()
+        assert r["parsed"]["years"] == 6 and "Kafka" in r["parsed"]["stack"]
+        prof = r["profile"]
+        assert prof["spec"] == "backend" and prof["work_format"] == "удалённо"
+        assert any(f["k"] == "Места работы" and f["src"] == "word" for f in prof["facts"])
+        files = {"file": ("resume.txt", "Опыт работы 4 года. Go, Redis".encode(), "text/plain")}
+        assert client.post("/api/candidate/resume", files=files, headers=c).status_code == 200
+        v = client.post("/api/employer/vacancies/parse", json={"text": "Бэкенд-разработчик (Middle)\nЗадачи:\n- Писать сервисы на Python\nУсловия: гибрид, 220–300 тыс. ₽"}, headers=e).json()
+        assert v["title"].startswith("Бэкенд") and v["grade"] == 2 and v["salary_from"] == 220000 and v["tasks"] == ["Писать сервисы на Python"]
+        files = {"file": ("vac.txt", "Фронтенд-разработчик\nReact, TypeScript. Офис, до 250 тыс.".encode(), "text/plain")}
+        f = client.post("/api/employer/vacancies/parse-file", files=files, headers=e).json()
+        assert f["spec"] == "frontend" and f["salary_to"] == 250000 and f["salary_from"] is None
+
+
+def test_badge_signed():
+    """Значок отдаётся только по подписанному адресу; номер кандидата без подписи ничего не открывает."""
+    with client:
+        c = auth("badge@example.com", "candidate")
+        client.patch("/api/candidate/profile", json={"spec": "frontend", "claimed_grade": 1}, headers=c)
+        b = client.get("/api/candidate/badge", headers=c).json()
+        r = client.get(b["path"])
+        assert r.status_code == 200 and "Фронтенд" in r.text and "не подтверждён" in r.text
+        cid = b["path"].split("/")[-1].split("-")[0]
+        assert client.get(f"/api/badge/{cid}-0000000000000000.svg").status_code == 404

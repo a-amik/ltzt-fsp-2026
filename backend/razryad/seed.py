@@ -67,6 +67,25 @@ def simulate_test(spec: str, true_theta: float, claimed: int, r: random.Random, 
     return theta, se, answers
 
 
+DEMO_CANDIDATE_TOKEN = "demo-candidate-token"
+
+
+def ensure_demo_candidate(db) -> None:
+    """Вход демо-кандидата для доски макетов: токен на засеянном кандидате.
+
+    Берём бэкендера уровня «Средний» с подтверждённым грейдом и историей ФСП,
+    чтобы страницы кандидата открывались с данными. Без пересева: токен вешается
+    на того, кто уже есть, и повторный старт ничего не меняет."""
+    if db.get(Token, DEMO_CANDIDATE_TOKEN):
+        return
+    c = (db.query(Candidate).filter(Candidate.spec == "backend", Candidate.grade == 2, Candidate.fsp_id.isnot(None))
+         .order_by(Candidate.id).first())
+    if not c:
+        return
+    db.add(Token(token=DEMO_CANDIDATE_TOKEN, user_id=c.user_id))
+    db.commit()
+
+
 def run(n: int = 600, seed: int = 2026, reset: bool = False):
     if reset:
         # Сброс — пересоздание схемы целиком: частичная очистка оставляла сессии тестов

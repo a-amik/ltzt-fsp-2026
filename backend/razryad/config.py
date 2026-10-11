@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     # Провайдер ФСП ID (OIDC). По умолчанию — мок внутри сервиса; тестовый стенд ФСП подставляется адресом.
     fsp_oidc_issuer: str = "internal"
     grade_cooldown_days: int = 90
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    # nami.amik.am — доска макетов: сборка прототипа лежит в разделе и ходит в API стенда.
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,https://nami.amik.am"
 
     model_config = {"env_prefix": "RZ_", "env_file": ".env", "extra": "ignore"}
 

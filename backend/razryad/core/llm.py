@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 
 from ..config import settings
+from . import docs as _docs
 from .scoring import parse_need as _rule_parse_need
 
 
@@ -21,16 +22,12 @@ class Provider:
         return _rule_parse_need(text)
 
     def parse_resume(self, text: str) -> dict:
-        """Поля резюме с меткой «со слов». Заглушка вытаскивает стек и годы по словарю."""
-        t = text.lower()
-        from .catalog import SPECS
-        stack = sorted({s for sp in SPECS for s in sp["stack"] if s.lower() in t})
-        m = re.search(r"(\d+)\s*(лет|года|год)", t)
-        years = int(m.group(1)) if m else 0
-        email = re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", text)
-        phone = re.search(r"\+?\d[\d\s()-]{9,}\d", text)
-        return {"stack": stack, "years": years, "email": email.group(0) if email else "", "phone": phone.group(0).strip() if phone else "",
-                "source": "word"}
+        """Поля резюме с меткой «со слов»: имя, специализация, стек, стаж, места работы, ожидания, формат."""
+        return _docs.parse_resume(text)
+
+    def parse_vacancy(self, text: str) -> dict:
+        """Текст своей вакансии компании — в поля формы."""
+        return _docs.parse_vacancy(text)
 
     def grade_open(self, text: str, rubric: list[str], keys: list[list[str]]) -> dict:
         t = text.lower()

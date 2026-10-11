@@ -18,8 +18,12 @@ def _fact(c: dict, k: str):
     return next((f for f in c.get("facts", []) if f.get("k") == k and f.get("approved")), None)
 
 
-def _rng(a: int, b: int) -> str:
-    return f"{a // 1000}–{b // 1000} тыс. ₽"
+def _rng(a: int | None, b: int | None) -> str:
+    if a and b:
+        return f"{a // 1000}–{b // 1000} тыс. ₽"
+    if a or b:
+        return f"{'от' if a else 'до'} {(a or b) // 1000} тыс. ₽"
+    return "не указана"
 
 
 def negotiate(c: dict, offer: dict) -> dict:
@@ -51,7 +55,12 @@ def negotiate(c: dict, offer: dict) -> dict:
 
     say("emp", f"Вилка — {_rng(offer['salary_from'], offer['salary_to'])}. Укладываемся?")
     s = c.get("salary")
-    if s and c.get("privacy", {}).get("salary", True):
+    if s and c.get("privacy", {}).get("salary", True) and not offer.get("salary_to"):
+        # «от 200 тыс.»: верха нет — расхождения по деньгам быть не может, обсуждается сумма
+        say("cand", f"Ожидания — {s // 1000} тыс. ₽; верх вилки не задан.", cite=[{"src": "word", "text": "Ожидания"}])
+        low = offer.get("salary_from") and s < offer["salary_from"]
+        crit["pay"] = {"name": "Деньги", "state": "ok" if low else "part", "note": "ниже низа вилки" if low else "верх не задан"}
+    elif s and c.get("privacy", {}).get("salary", True):
         over = s / offer["salary_to"] - 1
         say("cand", "Да, ожидания внутри вилки." if over <= 0 else f"Ожидания выше вилки на {round(over * 100)} %.", cite=[{"src": "word", "text": "Ожидания"}])
         crit["pay"] = {"name": "Деньги", "state": "ok" if over <= 0 else "part" if over <= 0.1 else "no", "note": "внутри вилки" if over <= 0 else f"+{round(over * 100)} %"}

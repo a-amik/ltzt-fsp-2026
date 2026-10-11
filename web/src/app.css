@@ -2,8 +2,6 @@
 html, body { margin: 0; }
 .app { min-height: 100vh; background: var(--r-back); --r-blue-ink: var(--r-blue); }
 .app[data-kit="night"] { --r-blue-ink: #9D94FF; }
-.app[data-skin="fsp"] { --r-blue-ink: #402FFF; }
-.app[data-skin="fsp"][data-kit="night"] { --r-blue-ink: #9D94FF; }
 .r-mark--warn { background: var(--r-alarm); color: var(--r-on-alarm); }
 
 /* Шапка */
@@ -12,6 +10,7 @@ html, body { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
 .bar-in { max-width: 1160px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; gap: 24px; }
 .logo { font-size: 24px; gap: 8px; }
+button.logo { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
 .logo img { width: 20px; height: 24px; }
 .roles { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 1; }
 .roles::-webkit-scrollbar { display: none; }
@@ -28,7 +27,7 @@ main { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
 .grid2.tight { gap: 16px; }
 .acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .mt { margin-top: 16px; } .mt-s { margin-top: 12px; }
-.r-field.wide { max-width: none; }
+.r-field.wide { max-width: none; justify-self: stretch; }
 .foot { max-width: 1160px; margin: 0 auto; padding: 0 24px 32px; }
 .tip { border-bottom: 1px dotted currentColor; cursor: help; }
 
@@ -246,35 +245,6 @@ main { overflow-x: clip; }
 @media (max-width: 640px) { .seg button { padding: 7px 8px; font-size: 12px; } .theme-btn { width: 32px; height: 32px; } }
 
 /* ── Узлы прототипа в скине ФСП: тонкая линия, скругление, без тени ── */
-.app[data-skin="fsp"] .bar { border-bottom: 0; background: transparent; padding: 10px 16px 0; }
-.app[data-skin="fsp"] .bar-in { background: var(--r-paper); border-radius: 12px; border: 1px solid var(--r-hair); }
-.app[data-skin="fsp"] .role { border-radius: 8px; }
-.app[data-skin="fsp"] .role[aria-current="page"] { background: var(--r-blue); color: var(--r-on-blue); }
-.app[data-skin="fsp"] .seg { border-color: var(--r-hair); border-radius: 100px; overflow: hidden; }
-.app[data-skin="fsp"] .seg button + button { border-left-color: var(--r-hair); }
-.app[data-skin="fsp"] .seg button[aria-pressed="true"] { background: var(--r-blue); color: var(--r-on-blue); }
-.app[data-skin="fsp"] .theme-btn { border-color: var(--r-hair); border-radius: 100px; }
-.app[data-skin="fsp"] .tabs { border-bottom: 1px solid var(--r-hair); }
-.app[data-skin="fsp"] .tab-badge { border-radius: 100px; }
-.app[data-skin="fsp"] .doc { border: 1px solid var(--r-hair); border-radius: 16px; }
-.app[data-skin="fsp"] .modal .doc { border: 0; }
-.app[data-skin="fsp"] .doc-head { border-bottom: 1px solid var(--r-hair); }
-.app[data-skin="fsp"] .doc-kpis > div { border: 1px solid var(--r-hair); border-radius: 10px; }
-.app[data-skin="fsp"] .doc-note, .app[data-skin="fsp"] .quote { border-radius: 0 10px 10px 0; }
-.app[data-skin="fsp"] .status { border-radius: 100px; border-color: var(--r-hair); }
-.app[data-skin="fsp"] .sk-track { border-color: var(--r-hair); border-radius: 100px; }
-.app[data-skin="fsp"] .sk-dot { border-radius: 50%; border-color: var(--r-paper); }
-.app[data-skin="fsp"] .bar-row i, .app[data-skin="fsp"] .fn-row i, .app[data-skin="fsp"] .weeks i, .app[data-skin="fsp"] .hist-bars i { border-radius: 4px; }
-.app[data-skin="fsp"] .bar-row i, .app[data-skin="fsp"] .hist-bars i { background: var(--r-mute); }
-.app[data-skin="fsp"] .pa, .app[data-skin="fsp"] .weeks, .app[data-skin="fsp"] .dots, .app[data-skin="fsp"] .hist-bars { border-bottom-color: var(--r-hair); }
-.app[data-skin="fsp"] .pa-range { border-radius: 6px; }
-.app[data-skin="fsp"] .verdict { border-radius: 10px; border-color: transparent; }
-.app[data-skin="fsp"] .grade-card.is-on, .app[data-skin="fsp"] .cat.is-on { border-color: var(--r-blue); }
-.app[data-skin="fsp"] .task-code { border-radius: 10px; border-color: var(--r-hair); }
-.app[data-skin="fsp"] .modal { border-radius: 16px; }
-.app[data-skin="fsp"] .steps > div { border-left-width: 2px; }
-.app[data-skin="fsp"] .scroll, .app[data-skin="fsp"] .scroll-x { scrollbar-color: var(--r-mute) transparent; }
-@media (max-width: 640px) { .app[data-skin="fsp"] .modal { border-radius: 16px 16px 0 0; } .app[data-skin="fsp"] .bar { padding: 6px 8px 0; } }
 
 /* ── Переговоры с категорией ───────────────────────────────────── */
 .view-seg { display: flex; }
@@ -306,10 +276,6 @@ main { overflow-x: clip; }
 .mass-chk input:checked + i::after { content: ""; width: 9px; height: 5px; border: solid var(--r-on-blue); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); }
 .mass-chk input:focus-visible + i { outline: 3px solid var(--r-blue); outline-offset: 2px; }
 .mass-act { display: flex; flex-wrap: wrap; gap: 12px; position: sticky; bottom: 0; padding: 12px 0; background: var(--r-back); }
-.app[data-skin="fsp"] .mass-k { border-color: var(--r-hair); border-radius: 12px; }
-.app[data-skin="fsp"] .mass-bar, .app[data-skin="fsp"] .mass-bar i { border-radius: 100px; }
-.app[data-skin="fsp"] .cdot { border-radius: 50%; }
-.app[data-skin="fsp"] .mass-chk i { border-radius: 6px; border-color: var(--r-hair); }
 
 /* ── Задания ───────────────────────────────────────────────────── */
 .task-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -334,3 +300,31 @@ main { overflow-x: clip; }
 .r-ach { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; }
 .r-ach.is-hidden { opacity: .45; }
 .r-ach .r-switch { justify-self: end; }
+
+/* Голосовой ввод: кнопка-микрофон внутри поля */
+.dict { position: relative; }
+.dict > .r-area, .dict > .r-input { padding-right: 52px; }
+.dict-btn { position: absolute; top: 5px; right: 5px; width: 36px; height: 36px; display: grid; place-items: center; padding: 0;
+  color: var(--r-ink); background: var(--r-paper); border: var(--r-edge) solid var(--r-ink); border-radius: var(--r-radius); cursor: pointer; }
+.dict-btn:hover { background: var(--r-back); }
+.dict-btn:focus-visible { outline: 3px solid var(--r-blue); outline-offset: 2px; }
+.dict-btn[aria-pressed="true"] { color: var(--r-on-alarm); background: var(--r-alarm); }
+.dict-btn[aria-pressed="true"] svg { animation: blink 1s steps(2) infinite; }
+@media (prefers-reduced-motion: reduce) { .dict-btn[aria-pressed="true"] svg { animation: none; } }
+
+/* Опрос кандидата: три пути входа — резюме, рассказ, вручную. */
+.ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.way { display: flex; flex-direction: column; gap: 8px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.way:hover { border-color: var(--r-blue); }
+@media (max-width: 720px) { .ways { grid-template-columns: 1fr; } }
+
+/* Экран «что дальше» после теста. */
+.done { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.done-steps { margin: 0; padding-left: 22px; display: grid; gap: 14px; }
+.done-steps li { padding-left: 4px; line-height: 1.45; }
+.done-art svg { display: block; width: 100%; height: auto; }
+@media (max-width: 900px) { .done { grid-template-columns: minmax(0, 1fr); } .done-art { max-width: 520px; } }
+
+/* Значок грейда: превью и строка для README. */
+.badge-img { display: block; height: 22px; width: auto; }
+.badge-md { display: block; padding: 10px 12px; font: 13px/1.45 var(--r-mono); word-break: break-all; background: var(--r-back); border-radius: var(--r-radius, 0); }

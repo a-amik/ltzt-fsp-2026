@@ -2,7 +2,7 @@ import random
 
 from razryad.core import bank
 from razryad.core.irt import estimate, p_correct, pick_next, should_stop, verdict
-from razryad.core.scoring import fsp_strength, parse_need, rank
+from razryad.core.scoring import fsp_strength, parse_money, parse_need, rank
 from razryad.core.agents import negotiate
 
 
@@ -60,6 +60,37 @@ def test_rank_unconfirmed_below_confirmed():
     assert rank([unconf, conf], need, {"confirmed_only": True})[0]["c"]["id"] == 1 and len(rank([unconf, conf], need, {"confirmed_only": True})) == 1
 
 
+def test_rank_over_budget_after_fitting():
+    """Ожидания выше вилки больше чем на 10 % — после укладывающихся, даже при лучшем тесте; до 10 % — на общих правах."""
+    base = {"spec": "backend", "claimed_grade": 2, "grade": 2, "se": 0.3, "stack": ["Python"], "fsp": [], "facts": [], "privacy": {}, "work_format": "гибрид"}
+    strong_dear = {**base, "id": 1, "theta": 0.4, "salary": 400000}
+    weaker_fits = {**base, "id": 2, "theta": -0.3, "salary": 280000}
+    slightly_over = {**base, "id": 3, "theta": 0.3, "salary": 320000}
+    hidden = {**base, "id": 4, "theta": -0.4, "salary": None}
+    need = {"spec": "backend", "grade": 2, "stack": ["Python"], "salary_to": 300000}
+    assert [x["c"]["id"] for x in rank([strong_dear, weaker_fits, slightly_over, hidden], need)] == [3, 2, 4, 1]
+    assert [x["c"]["id"] for x in rank([strong_dear, weaker_fits], {**need, "salary_to": None})] == [1, 2]
+
+
+def test_fsp_near_discipline_counts_fully():
+    e = {"place": 1, "participants": 100, "year": 2026}
+    near = fsp_strength([{**e, "discipline": "продуктовое программирование"}], spec="frontend")
+    far = fsp_strength([{**e, "discipline": "программирование БАС"}], spec="frontend")
+    assert near == 1.0 and abs(far - 0.8) < 1e-9
+    assert fsp_strength([e], spec="frontend") == 1.0  # без дисциплины — не штрафуем
+
+
+def test_parse_money_formats():
+    assert parse_money("300 000 – 380 000") == [300000, 380000]
+    assert parse_money("от 200к") == [200000]
+    assert parse_money("200–250 тыс") == [200000, 250000]
+    assert parse_money("от 200 до 260 тыс") == [200000, 260000]
+    assert parse_money("вилка 1,2 млн") == [1200000]
+    assert parse_money("опыт 3 года, react 18") == []
+    assert parse_need("бэкенд от 200к")["salary_to"] is None
+    assert parse_need("бэкенд до 300 тыс")["salary_from"] is None
+
+
 def test_parse_need():
     p = parse_need("Ищем старшего фронтенд-разработчика на React и TypeScript, удалённо, 300 000 – 380 000")
     assert p["spec"] == "frontend" and p["grade"] == 3 and set(p["stack"]) == {"TypeScript", "React"}
@@ -72,6 +103,12 @@ def test_negotiate_only_approved_facts():
     t = negotiate(c, {"stack": ["Python", "Kafka"], "grade": 2, "salary_from": 200000, "salary_to": 300000, "work_format": "удалённо", "tasks": [], "team": ""})
     names = {x["name"]: x["state"] for x in t["crit"]}
     assert names["Формат"] == "nodata" and names["Деньги"] == "no" and t["verdict"]["kind"] == "no"
+
+
+def test_negotiate_open_top_salary():
+    c = {"spec": "backend", "grade": 2, "claimed_grade": 2, "theta": 0.1, "se": 0.3, "stack": ["Python"], "salary": 400000, "privacy": {"salary": True}, "facts": []}
+    t = negotiate(c, {"stack": ["Python"], "grade": 2, "salary_from": 200000, "salary_to": 0, "work_format": None, "tasks": [], "team": ""})
+    assert {x["name"]: x["state"] for x in t["crit"]}["Деньги"] == "part"
 
 
 def test_validation_runs_small():

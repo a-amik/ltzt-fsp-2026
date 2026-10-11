@@ -5,6 +5,9 @@
 Достижения ФСП: все соревнования равны, считаются результативные (место), а не участие —
 так советовала федерация 6 октября 2026. Кандидат без истории ФСП получает 0, не штраф.
 Кандидат с неподтверждённым грейдом стоит в своей категории ниже всех подтверждённых.
+Вилка работодателя обязательна, поэтому она и порядок: кандидат, чьи ожидания выше верха
+вилки больше чем на 10 % (порог «расхождения» у агентов), стоит после тех, кто в неё укладывается.
+Достижение ФСП в направлении, близком к специализации, засчитывается полностью, в остальных — 0,8.
 """
 from __future__ import annotations
 
@@ -14,6 +17,17 @@ from datetime import datetime
 from .catalog import GRADES, SPECS
 
 WEIGHTS = {"test": 0.60, "stack": 0.20, "fsp": 0.10, "fresh": 0.10}
+BUDGET_SLACK = 0.10  # ожидания до 10 % выше вилки — «с оговоркой», выше — после укладывающихся
+# Направления соревнований ФСП, близкие к специализации; остальные засчитываются с коэффициентом 0,8.
+FSP_NEAR = {
+    "backend": ["продуктовое", "алгоритмическое", "информационная безопасность"],
+    "frontend": ["продуктовое"],
+    "mobile": ["продуктовое", "бас"],
+    "data": ["продуктовое", "алгоритмическое"],
+    "ml": ["алгоритмическое", "продуктовое", "бас"],
+    "devops": ["информационная безопасность", "продуктовое"],
+}
+FSP_FAR = 0.8
 
 SPEC_WORDS = {
     "backend": ["бэкенд", "бекенд", "backend", "сервер", "api"],
@@ -27,9 +41,16 @@ GRADE_WORDS = [["стажёр", "стажер", "intern"], ["младш", "junio
                ["старш", "senior", "синьор", "сеньор"], ["ведущ", "lead", "лид"]]
 
 
-def fsp_strength(achievements: list[dict], now_year: int | None = None) -> float:
+def fsp_near(e: dict, spec: str | None) -> bool:
+    """Близко ли направление соревнования к специализации. Без дисциплины или специализации — близко."""
+    d = (e.get("discipline") or "").lower()
+    return not d or not spec or any(w in d for w in FSP_NEAR.get(spec, []))
+
+
+def fsp_strength(achievements: list[dict], now_year: int | None = None, spec: str | None = None) -> float:
     """0…1. Результативность: место относительно числа участников; число результативных соревнований
-    добавляет по 0,1. Давность — мягкий коэффициент 0,8 для событий старше трёх лет (необязателен по ФСП)."""
+    добавляет по 0,1. Давность — мягкий коэффициент 0,8 для событий старше трёх лет (необязателен по ФСП).
+    Направление далёкое от специализации — коэффициент 0,8: все соревнования равны, но ближе — весомее."""
     now_year = now_year or datetime.utcnow().year
     scored = []
     for e in achievements:
@@ -39,6 +60,8 @@ def fsp_strength(achievements: list[dict], now_year: int | None = None) -> float
         v = 1 - (e["place"] - 1) / n
         if now_year - e.get("year", now_year) > 3:
             v *= 0.8
+        if not fsp_near(e, spec):
+            v *= FSP_FAR
         scored.append(v)
     if not scored:
         return 0.0
@@ -57,7 +80,7 @@ def score_candidate(c: dict, need: dict) -> dict:
     confirmed = c.get("grade") is not None
     test = test_position(c["grade"], c["theta"]) if confirmed else 0.0
     stack = (len([s for s in need["stack"] if s in c["stack"]]) / len(need["stack"])) if need["stack"] else 0.5
-    fsp = fsp_strength(c.get("fsp", []))
+    fsp = fsp_strength(c.get("fsp", []), spec=c.get("spec"))
     fresh = min(1.0, (c.get("fresh_tasks") or 0) / 3 + (c.get("task_score") or 0) * 0.5)
     parts = {"test": test, "stack": stack, "fsp": fsp, "fresh": fresh}
     total = sum(WEIGHTS[k] * parts[k] for k in WEIGHTS)
@@ -80,11 +103,19 @@ def score_candidate(c: dict, need: dict) -> dict:
         why.append({"src": "test", "text": f"Решил {c['fresh_tasks']} коротких задания работодателей за 90 дней"})
     if need.get("salary_to") and c.get("salary") and c["salary"] > need["salary_to"]:
         why.append({"src": "warn", "text": f"Ожидания {c['salary']:,} ₽ выше вашей вилки".replace(",", " ")})
-    return {"total": round(total, 4), "parts": {k: round(v, 3) for k, v in parts.items()}, "why": why, "confirmed": confirmed}
+    return {"total": round(total, 4), "parts": {k: round(v, 3) for k, v in parts.items()}, "why": why, "confirmed": confirmed,
+            "over_budget": over_budget(c, need)}
+
+
+def over_budget(c: dict, need: dict) -> bool:
+    """Ожидания выше верха вилки больше чем на 10 %. Скрытые ожидания или вилка без верха — не выше."""
+    to, sal = need.get("salary_to"), c.get("salary")
+    return bool(to and sal and sal > to * (1 + BUDGET_SLACK))
 
 
 def rank(cands: list[dict], need: dict, filters: dict | None = None) -> list[dict]:
-    """Жёсткий отбор по категории, затем ранжирование. Неподтверждённые — после подтверждённых."""
+    """Жёсткий отбор по категории, затем ранжирование. Неподтверждённые — после подтверждённых,
+    ожидания сильно выше вилки — после укладывающихся."""
     f = filters or {}
     grades = [need["grade"] - 1, need["grade"], need["grade"] + 1] if f.get("near") else [need["grade"]]
     out = []
@@ -101,8 +132,27 @@ def rank(cands: list[dict], need: dict, filters: dict | None = None) -> list[dic
         if f.get("must_stack") and not all(s in c["stack"] for s in need["stack"]):
             continue
         out.append({"c": c, "s": score_candidate(c, need), "grade": g})
-    out.sort(key=lambda x: (x["grade"] != need["grade"], not x["s"]["confirmed"], -x["s"]["total"]))
+    out.sort(key=lambda x: (x["grade"] != need["grade"], not x["s"]["confirmed"], x["s"]["over_budget"], -x["s"]["total"]))
     return out
+
+
+_MULT = {"к": 1000, "k": 1000, "тыс": 1000, "т.р": 1000, "млн": 1_000_000, "m": 1_000_000}
+
+
+def parse_money(t: str) -> list[int]:
+    """Суммы в рублях: «300 000», «300000», «200к», «от 200 тыс.», «200–250 тыс», «1,2 млн».
+    Множитель после второго числа диапазона относится к обоим: «200–250 тыс», «от 200 до 260 тыс»."""
+    t = t.replace(" ", " ").replace(" ", " ")
+    found = []
+    for m in re.finditer(r"(\d{1,3}(?: \d{3})+|\d+(?:[.,]\d+)?)\s*(тыс|млн|т\.р|к|k|m)?(?![\wа-яё])", t):
+        num = float(m.group(1).replace(" ", "").replace(",", "."))
+        found.append([num, _MULT.get(m.group(2) or "", 0), m.start(), m.end()])
+    for i in range(len(found) - 2, -1, -1):
+        a, b = found[i], found[i + 1]
+        if not a[1] and b[1] and re.fullmatch(r"\s*(?:-|–|—|до)\s*", t[a[3]:b[2]]):
+            a[1] = b[1]
+    nums = [int(n * (k or 1)) for n, k, _, _ in found]
+    return [n for n in nums if 20_000 <= n <= 2_000_000]
 
 
 def parse_need(text: str) -> dict:
@@ -112,9 +162,14 @@ def parse_need(text: str) -> dict:
     grade = next((i for i, ws in enumerate(GRADE_WORDS) if any(w in t for w in ws)), 2)
     pool = next(s for s in SPECS if s["id"] == spec_id)["stack"]
     stack = [s for s in pool if s.lower() in t] or pool[:2]
-    nums = [int(x.replace(" ", "").replace(" ", "")) for x in re.findall(r"\d[\d  ]{4,}", text)]
-    nums = [n for n in nums if 20_000 <= n <= 2_000_000]
+    nums = parse_money(t)
     fmt = next((w for w in ["удалённо", "удаленно", "гибрид", "офис"] if w in t), None)
+    lo, hi = (min(nums), max(nums)) if len(nums) > 1 else (nums[0], nums[0]) if nums else (None, None)
+    if len(nums) == 1:  # «от 200к» — только низ вилки, «до 300 тыс» — только верх
+        if re.search(r"(?<![\wа-яё])от\s+\d", t) and not re.search(r"(?<![\wа-яё])до\s+\d", t):
+            hi = None
+        elif re.search(r"(?<![\wа-яё])до\s+\d", t):
+            lo = None
     return {"spec": spec_id, "grade": grade, "stack": stack,
-            "salary_from": min(nums) if nums else None, "salary_to": max(nums) if len(nums) > 1 else (nums[0] if nums else None),
+            "salary_from": lo, "salary_to": hi,
             "work_format": "удалённо" if fmt == "удаленно" else fmt}

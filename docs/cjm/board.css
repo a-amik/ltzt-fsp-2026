@@ -1,0 +1,60 @@
+/* Доска карты пути. Холст выносится на всю ширину листа, как таблица,
+   и двигается сам: панорама и масштаб — трансформация мира внутри окна.
+   Краски — токены оболочки, обе темы. */
+
+.bd-wrap { margin: 8px calc(-1 * var(--pad, 72px)) 28px; border: 1px solid var(--border); border-radius: 14px;
+  background: var(--bg-sunk); overflow: hidden; position: relative; }
+.bd-wrap:fullscreen { margin: 0; border: 0; border-radius: 0; display: flex; flex-direction: column; }
+.bd-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.bd-seg { display: inline-flex; gap: 2px; }
+.bd-seg button { height: 32px; padding: 0 14px; font: inherit; font-size: 14px; color: var(--text-2); background: transparent;
+  border: 0; border-radius: 8px; cursor: pointer; }
+.bd-seg button:hover { color: var(--text); background: var(--hover); }
+.bd-seg button[aria-pressed="true"] { color: var(--link); font-weight: 600; background: color-mix(in srgb, var(--link) 12%, transparent); }
+.bd-tools { display: flex; align-items: center; gap: 6px; }
+.bd-btn { min-width: 32px; height: 32px; padding: 0 8px; display: inline-grid; place-items: center; font: inherit; font-size: 15px;
+  color: var(--text); background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.bd-btn:hover { background: var(--hover); }
+.bd-btn--text { font-size: 13.5px; padding: 0 12px; }
+.bd-zoom { min-width: 52px; text-align: center; font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.bd-seg button:focus-visible, .bd-btn:focus-visible, .bd-view:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+.bd-view { position: relative; height: min(76vh, 760px); overflow: hidden; cursor: grab; touch-action: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--text) 14%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px; }
+.bd-wrap:fullscreen .bd-view { height: auto; flex: 1; }
+.bd-view.is-panning { cursor: grabbing; }
+.bd-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.bd-world[hidden] { display: none; }
+
+.bd-col { position: absolute; top: 0; display: flex; flex-direction: column; gap: 56px; }
+.bd-stage { position: relative; height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 18px; margin-bottom: -24px;
+  font-size: 24px; font-weight: 650; color: var(--text); border-radius: 12px; background: var(--bg-card);
+  border: 1px solid var(--border); box-sizing: border-box; user-select: none; }
+.bd-stage-n { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 17px;
+  color: #fff; background: var(--link); }
+.bd-next { position: absolute; top: 31px; right: -112px; width: 104px; height: 2px; background: var(--text-3); }
+.bd-next::after { content: ""; position: absolute; right: -1px; top: -5px; border: 6px solid transparent; border-left: 9px solid var(--text-3); border-right: 0; }
+
+.bd-card { position: relative; width: 560px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); cursor: auto; }
+.bd-shot { display: block; border-bottom: 1px solid var(--border); border-radius: 14px 14px 0 0; overflow: hidden; background: var(--bg-sunk); }
+.bd-shot img { display: block; width: 100%; height: auto; max-width: none; }
+.bd-body { padding: 16px 20px 18px; }
+.bd-body p { margin: 0 0 8px; font-size: 16px; line-height: 1.45; max-width: none; }
+.bd-body .bd-title { margin: 4px 0 10px; font-size: 22px; line-height: 1.25; font-weight: 650; color: var(--text); }
+.bd-n { display: flex; align-items: center; gap: 8px; font-size: 13px !important; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+.bd-n span { font-weight: 700; color: var(--link); }
+.bd-down { position: absolute; left: 50%; bottom: -50px; width: 2px; height: 42px; background: var(--text-3); }
+.bd-down::after { content: ""; position: absolute; left: -5px; bottom: -1px; border: 6px solid transparent; border-top: 9px solid var(--text-3); border-bottom: 0; }
+
+@media (max-width: 640px) {
+  .bd-wrap { margin-inline: calc(-1 * var(--pad-x, 16px)); border-radius: 0; border-inline: 0; }
+  .bd-view { height: 64vh; }
+  .bd-btn--text[data-act="full"] { display: none; }
+}
+@media print {
+  .bd-bar { display: none; }
+  .bd-view { height: auto; overflow: visible; }
+}

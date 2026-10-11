@@ -12,6 +12,7 @@ dependencies = [
     "psycopg[binary]>=3",
     "httpx",
     "python-multipart",
+    "pypdf>=6.20.0",
 ]
 
 [dependency-groups]

@@ -2,18 +2,20 @@
    адаптивный тест. Дальше — кабинет: приглашения, как меня видят, грейд,
    факты, задания, вакансии, настройки. Все данные — с сервера. */
 import { useEffect, useState } from 'react';
+import SignLoader from './SignLoader.jsx';
 import { useStore } from './store.jsx';
-import { get, post, patch, del, setToken } from './api.js';
-import { GRADES, GRADE_HINT, SPECS, FORMATS, REASONS, COOLDOWN_DAYS, spec, fmt, fmtRange, dateRu } from './const.js';
-import { Mark, Modal, Trace, Empty, Tabs, Status } from './ui.jsx';
+import { get, post, patch, del, req, setToken } from './api.js';
+import { GRADES, GRADE_HINT, SPECS, FORMATS, REASONS, COOLDOWN_DAYS, spec, fmt, fmtRange, dateRu, cap, num } from './const.js';
+import { Mark, Modal, Trace, Empty, Tabs, Status, Dictate } from './ui.jsx';
 import { CandidateProfileDoc, CandStatsDoc, EmployerProfileDoc, Negotiation } from './Artifacts.jsx';
 import { CandidateTasks } from './Tasks.jsx';
+import doneArt from './assets/landing/test-done.svg?raw';
 
 export default function Candidate() {
   const { state } = useStore();
   const c = state.cand;
   if (!c.authed) return <Start />;
-  if (!c.profile) return <p className="page r-mute">Загружаем…</p>;
+  if (!c.profile) return <SignLoader />;
   if (c.session && !c.session.finished) return <TestRun />;
   if (!c.profile.spec || c.profile.claimed_grade == null) return <Quiz />;
   return <Cabinet />;
@@ -52,7 +54,7 @@ function Start() {
           <h1 className="r-h1">Работодатель придёт к&nbsp;вам сам — с&nbsp;вилкой зарплаты в&nbsp;первом сообщении</h1>
           <p className="r-mute">Резюме не&nbsp;рассылаете. Проходите опрос и&nbsp;тест на&nbsp;свой грейд, попадаете в&nbsp;категорию, и&nbsp;компании пишут вам первыми. Контакты видят только те, чьё приглашение вы&nbsp;приняли.</p>
         </div>
-        <img src="./sign-master.svg" alt="" className="hero-sign" />
+        <img src="./sign-fed.svg" alt="" className="hero-sign" />
       </div>
       <div className="grid2">
         <div className="r-card">
@@ -93,14 +95,18 @@ function Quiz() {
   const m = state.cand.profile;
   const [f, setF] = useState({ spec: m.spec || 'backend', stack: m.stack?.length ? m.stack : ['Python', 'PostgreSQL'], work_format: m.work_format || 'гибрид', salary: m.salary || 250000, years: m.years || 3, claimed: m.claimed_grade ?? 2, name: m.name || '' });
   const [pdf, setPdf] = useState(null);
+  const [way, setWay] = useState(m.stack?.length ? 'hand' : null);
+  const [about, setAbout] = useState('');
   const [mode, setMode] = useState('full');
   const sp = spec(f.spec);
   const toggle = (s) => setF({ ...f, stack: f.stack.includes(s) ? f.stack.filter((x) => x !== s) : [...f.stack, s] });
-  const upload = (file) => act(async () => {
-    const fd = new FormData(); fd.append('file', file);
-    const r = await fetch('/api/candidate/resume', { method: 'POST', headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('razryad-tokens')).cand}` }, body: fd }).then((x) => x.json());
-    setPdf(r.parsed); if (r.parsed.stack?.length) setF((v) => ({ ...v, stack: r.parsed.stack, years: r.parsed.years || v.years }));
-  });
+  // Распознанное из резюме или рассказа заполняет только пустые поля и остаётся «со слов», пока не подтвердит тест.
+  const take = (r) => {
+    const p = r.parsed; setPdf(p); setWay('hand');
+    setF((v) => ({ ...v, name: v.name || p.name || '', spec: p.spec || v.spec, stack: p.stack?.length ? p.stack : v.stack, years: p.years || v.years, salary: p.salary || v.salary, work_format: p.work_format || v.work_format }));
+  };
+  const upload = (file) => { const fd = new FormData(); fd.append('file', file); act(() => req('cand', 'POST', '/candidate/resume', fd, { form: true })).then(take); };
+  const tell = () => act(() => post('cand', '/candidate/about', { text: about })).then(take);
   const start = () => act(async () => {
     await patch('cand', '/candidate/profile', { name: f.name, spec: f.spec, stack: f.stack, work_format: f.work_format, salary: +f.salary, years: +f.years, claimed_grade: f.claimed });
     await post('cand', '/test/start', { claimed: f.claimed, mode });
@@ -109,11 +115,22 @@ function Quiz() {
     <div className="page">
       <p className="r-micro">Кандидат · шаг 2 из 3</p>
       <h1 className="r-h1">Опрос: кто вы&nbsp;в&nbsp;ИТ</h1>
-      <div className="r-card r-card--flat stack">
-        <div className="pdf-row">
-          <label className="r-btn r-btn--sm">Заполнить из&nbsp;резюме…<input type="file" accept=".pdf,.txt,.md" hidden onChange={(e) => e.target.files[0] && upload(e.target.files[0])} /></label>
-          {pdf && <span className="r-small">Распознано: стек {pdf.stack.join(', ') || '—'}, стаж {pdf.years || '—'} — всё с&nbsp;меткой <Mark src="word" />, пока не&nbsp;подтвердит тест</span>}
+      {!way && (
+        <div className="ways">
+          <label className="r-card way"><span className="r-h3">Загрузить резюме</span><span className="r-small r-mute">PDF или DOCX, выгруженный из&nbsp;hh.ru, Хабр Карьеры или LinkedIn</span><input type="file" accept=".pdf,.docx,.txt,.md" hidden onChange={(e) => e.target.files[0] && upload(e.target.files[0])} /></label>
+          <button className="r-card way" onClick={() => setWay('tell')}><span className="r-h3">Рассказать о&nbsp;себе</span><span className="r-small r-mute">Пара фраз текстом или голосом: чем занимаетесь, стек, стаж, формат, ожидания</span></button>
+          <button className="r-card way" onClick={() => setWay('hand')}><span className="r-h3">Заполнить вручную</span><span className="r-small r-mute">Пять полей, около минуты</span></button>
         </div>
+      )}
+      {way === 'tell' && (
+        <div className="r-card r-card--flat stack-sm">
+          <div className="r-field wide"><label className="r-label" htmlFor="ab">О&nbsp;себе</label><Dictate value={about} onChange={setAbout}><textarea id="ab" className="r-area" rows={4} value={about} onChange={(e) => setAbout(e.target.value)} placeholder="Бэкенд на Python шесть лет, последние три — в банке, PostgreSQL и Kafka. Хочу гибрид, от 280 тысяч на руки." /></Dictate></div>
+          <div className="acts" style={{ marginTop: 0 }}><button className="r-btn r-btn--main" disabled={about.trim().length < 20} onClick={tell}>Разобрать</button><button className="r-btn r-btn--quiet" onClick={() => setWay('hand')}>Заполнить вручную</button></div>
+        </div>
+      )}
+      {way === 'hand' && (<>
+      <div className="r-card r-card--flat stack">
+        {pdf && <p className="r-small">Взяли {[pdf.name && 'имя', pdf.spec && 'специализацию', pdf.stack?.length && `стек (${pdf.stack.join(', ')})`, pdf.years && `стаж ${pdf.years}`, pdf.workplaces?.length && `места работы (${pdf.workplaces.join(', ')})`, pdf.salary && 'ожидания', pdf.work_format && 'формат'].filter(Boolean).join(', ') || 'немного'}. Всё с&nbsp;меткой <Mark src="word" />, пока не&nbsp;подтвердит тест.</p>}
         <div className="grid2 tight">
           <div className="r-field"><label className="r-label" htmlFor="nm">Имя</label><input id="nm" className="r-input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Видно только после вашего согласия" /></div>
           <div className="r-field"><label className="r-label" htmlFor="yr">Стаж, лет</label><input id="yr" className="r-input r-num" inputMode="numeric" value={f.years} onChange={(e) => setF({ ...f, years: e.target.value.replace(/\D/g, '') })} /></div>
@@ -122,7 +139,7 @@ function Quiz() {
         <div><p className="r-label">Специализация</p><div className="r-chips">{SPECS.map((s) => <button key={s.id} className="r-chip" aria-pressed={f.spec === s.id} onClick={() => setF({ ...f, spec: s.id, stack: s.stack.slice(0, 2) })}>{s.name}</button>)}</div></div>
         <div><p className="r-label">Стек</p><div className="r-chips">{sp.stack.map((s) => <button key={s} className="r-chip" aria-pressed={f.stack.includes(s)} onClick={() => toggle(s)}>{s}</button>)}</div></div>
         <div className="grid2 tight">
-          <div><p className="r-label">Формат</p><div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{x}</button>)}</div></div>
+          <div><p className="r-label">Формат</p><div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{cap(x)}</button>)}</div></div>
           <div className="r-field"><label className="r-label" htmlFor="sal">Ожидания, ₽ на&nbsp;руки</label><input id="sal" className="r-input r-num" inputMode="numeric" value={f.salary} onChange={(e) => setF({ ...f, salary: e.target.value.replace(/\D/g, '') })} /></div>
         </div>
       </div>
@@ -140,6 +157,7 @@ function Quiz() {
         <button className="r-btn r-btn--main r-btn--lg" onClick={start} disabled={!f.stack.length}>Начать тест · {mode === 'full' ? '20–30 минут' : '3–5 минут'}</button>
         <div className="seg" role="group" aria-label="Режим теста"><button aria-pressed={mode === 'full'} onClick={() => setMode('full')}>Полный</button><button aria-pressed={mode === 'express'} onClick={() => setMode('express')} title="Для показа жюри: 3–4 задания, погрешность выше">Экспресс</button></div>
       </div>
+      </>)}
     </div>
   );
 }
@@ -177,7 +195,7 @@ function TestRun() {
           <div className="task-head"><span className="r-micro">{cur.skill} · {cur.format}{cur.ai && <> · <span className="r-mark r-mark--code" title="Модель использовать можно: оценивается ваше решение, а не память">ИИ разрешён</span></>}</span><span className="r-micro">шаблон {cur.tpl}</span></div>
           <p className={cur.code ? 'task-q task-code' : 'task-q'}>{cur.q}</p>
           {cur.open ? (
-            <div className="r-field wide"><label className="r-label" htmlFor="ans">Ваш подход</label><textarea id="ans" className="r-area" rows={6} value={text} onPaste={() => setEvents((e) => [...e, { t: Date.now(), e: 'paste' }])} onChange={(e) => setText(e.target.value)} placeholder="Что храним, где, как считаем, что отвечаем клиенту…" /><span className="r-hint">Оценивается по&nbsp;рубрике; неуверенную оценку проверяет эксперт.</span></div>
+            <div className="r-field wide"><label className="r-label" htmlFor="ans">Ваш подход</label><Dictate value={text} onChange={setText} onStart={() => setEvents((e) => [...e, { t: Date.now(), e: 'voice' }])}><textarea id="ans" className="r-area" rows={6} value={text} onPaste={() => setEvents((e) => [...e, { t: Date.now(), e: 'paste' }])} onChange={(e) => setText(e.target.value)} placeholder="Что храним, где, как считаем, что отвечаем клиенту…" /></Dictate><span className="r-hint">Оценивается по&nbsp;рубрике; неуверенную оценку проверяет эксперт.</span></div>
           ) : (
             <div className="opts">{cur.opts.map((o) => <button key={o} className="r-chip opt" aria-pressed={pick === o} onClick={() => setPick(o)}>{o}</button>)}</div>
           )}
@@ -186,12 +204,12 @@ function TestRun() {
         {hood && (
           <aside className="hood r-card r-card--flat">
             <p className="r-micro">Оценка навыка θ</p>
-            <p className="hood-num r-num">{est.theta.toFixed(2)} <span className="r-mute">± {est.se.toFixed(2)}</span></p>
+            <p className="hood-num r-num">{num(est.theta, 2)} <span className="r-mute">± {num(est.se, 2)}</span></p>
             <Trace trace={s.trace} claimed={s.claimed} height={200} />
-            <p className="r-small"><b>Почему это задание.</b> Из&nbsp;неиспробованных шаблонов сервер взял три самых информативных при θ&nbsp;=&nbsp;{est.theta.toFixed(2)} и&nbsp;выбрал одно случайно — так ни&nbsp;один шаблон не&nbsp;достаётся всем:</p>
+            <p className="r-small"><b>Почему это задание.</b> Из&nbsp;неиспробованных шаблонов сервер взял три самых информативных при θ&nbsp;=&nbsp;{num(est.theta, 2)} и&nbsp;выбрал одно случайно — так ни&nbsp;один шаблон не&nbsp;достаётся всем:</p>
             <ul className="r-small hood-list">{s.why.map((w) => <li key={w.id} className={w.id === cur.tpl ? 'is-on' : ''}>{w.id} {w.title} — информация {w.info}</li>)}</ul>
             <p className="r-small">Цифры и&nbsp;сюжет в&nbsp;условии собраны из&nbsp;зерна {cur.seed} — у&nbsp;соседа будут другие. Эталон ответа остаётся на&nbsp;сервере.</p>
-            {last && <p className="r-small last">Прошлый ответ «{last.title}»: {last.score >= 0.5 ? 'верно' : 'неверно'}; θ {last.theta_before.toFixed(2)} → {last.theta_after.toFixed(2)}</p>}
+            {last && <p className="r-small last">Прошлый ответ «{last.title}»: {last.score >= 0.5 ? 'верно' : 'неверно'}; θ {num(last.theta_before, 2)} → {num(last.theta_after, 2)}</p>}
           </aside>
         )}
       </div>
@@ -205,6 +223,9 @@ function Cabinet() {
   const c = state.cand;
   const fresh = c.invites.filter((i) => i.status === 'отправлено').length;
   const tab = state.ui.candTab;
+  // Сразу после теста — экран «что дальше», один раз на тест.
+  const last = c.tests[0];
+  if (last && state.ui.seenTest !== last.id && Date.now() - new Date(last.date) < 6 * 3600e3) return <Done test={last} />;
   return (
     <div className="page">
       <Tabs value={tab} onChange={(t) => dispatch({ type: 'ui', patch: { candTab: t } })} items={[['invites', 'Приглашения', fresh], ['view', 'Как меня видят'], ['stats', 'Статистика'], ['tasks', 'Задания'], ['grade', 'Категория и грейд'], ['profile', 'Факты'], ['vac', 'Вакансии'], ['settings', 'Настройки']]} />
@@ -216,6 +237,58 @@ function Cabinet() {
       {tab === 'profile' && <ProfileTab />}
       {tab === 'vac' && <VacTab />}
       {tab === 'settings' && <SettingsTab />}
+    </div>
+  );
+}
+
+function Done({ test }) {
+  const { state, dispatch } = useStore();
+  const m = state.cand.profile, r = state.cand.rank;
+  const ok = test.verdict.kind === 'ok';
+  const go = (tab) => dispatch({ type: 'ui', patch: { seenTest: test.id, candTab: tab } });
+  return (
+    <div className="page">
+      <p className="r-micro">Кандидат · тест пройден</p>
+      <h1 className="r-h1">{ok ? 'Грейд подтверждён — дальше пишут вам' : 'Вы в категории, грейд пока не подтверждён'}</h1>
+      <div className="done">
+        <div className="stack">
+          <div className="r-card r-card--blue cat-card">
+            <p className="r-micro on-blue">Ваша категория</p>
+            <p className="cat-name">{spec(m.spec).name} · {GRADES[ok ? test.claimed : m.claimed_grade].name}</p>
+            {r && <p className="r-num">{r.pos} из&nbsp;{r.total} в&nbsp;категории{r.looking ? ` · ищут компаний: ${r.looking}` : ''}</p>}
+          </div>
+          <ol className="done-steps">
+            <li><b>Работодатели видят категорию.</b> Имя, места работы и&nbsp;подтверждённый грейд; почта и&nbsp;телефон закрыты.</li>
+            <li><b>Агенты сверяют условия.</b> Ваш агент отвечает только одобренными фактами и&nbsp;называет источник.</li>
+            <li><b>Приглашение приходит с&nbsp;вилкой.</b> Примете&nbsp;— компания увидит контакты; откажете&nbsp;— с&nbsp;причиной, она поправит подборку.</li>
+          </ol>
+          {!ok && <p className="r-small">Тест на&nbsp;ступень ниже доступен сразу во&nbsp;вкладке «Категория и&nbsp;грейд». Пока вы&nbsp;в&nbsp;выдаче с&nbsp;меткой <span className="r-mark r-mark--warn">грейд не&nbsp;подтверждён</span>.</p>}
+          <div className="acts">
+            <button className="r-btn r-btn--main" onClick={() => go('view')}>Посмотреть, как меня видят</button>
+            <button className="r-btn" onClick={() => go(ok ? 'invites' : 'grade')}>{ok ? 'К приглашениям' : 'К тесту на ступень ниже'}</button>
+          </div>
+        </div>
+        {doneArt && <div className="done-art" aria-hidden="true" dangerouslySetInnerHTML={{ __html: doneArt }} />}
+      </div>
+    </div>
+  );
+}
+
+// Значок грейда для README и подписи: картинка с подписанным адресом, ведёт на главную сервиса.
+function Badge() {
+  const [b, setB] = useState(null);
+  const [done, setDone] = useState(false);
+  useEffect(() => { get('cand', '/candidate/badge').then(setB).catch(() => {}); }, []);
+  if (!b) return null;
+  const md = `[![Разряд](${location.origin}${b.path})](${location.origin}/)`;
+  const copy = () => navigator.clipboard?.writeText(md).then(() => { setDone(true); setTimeout(() => setDone(false), 2000); });
+  return (
+    <div className="r-card r-card--flat stack-sm">
+      <h2 className="r-h3">Значок грейда</h2>
+      <p className="r-small r-mute">Поставьте в&nbsp;README на&nbsp;GitHub или в&nbsp;подпись: грейд подтверждён тестом, значок обновится сам.</p>
+      <img src={b.path} alt="Значок грейда" className="badge-img" />
+      <code className="badge-md">{md}</code>
+      <div className="acts" style={{ marginTop: 0 }}><button className="r-btn r-btn--sm" onClick={copy}>{done ? 'Скопировано' : 'Скопировать для README'}</button></div>
     </div>
   );
 }
@@ -234,11 +307,12 @@ function GradeTab() {
         <div className="r-card r-card--blue cat-card">
           <p className="r-micro on-blue">Ваша категория — её видит работодатель</p>
           <p className="cat-name">{spec(m.spec).name} · {GRADES[m.grade].name}</p>
-          <p className="r-num">θ = {m.theta.toFixed(2)} ± {m.se.toFixed(2)} · подтверждено {dateRu(m.grade_since)}</p>
+          <p className="r-num" title={`Оценка навыка θ = ${num(m.theta, 2)} ± ${num(m.se, 2)}`}>Подтверждено {dateRu(m.grade_since)}</p>
         </div>
       ) : (
         <div className="r-card r-card--sun"><p className="r-h3">{spec(m.spec).name} · {GRADES[m.claimed_grade].name} <span className="r-mark r-mark--warn">грейд не подтверждён</span></p><p>Вы в&nbsp;выдаче своей категории, но&nbsp;ниже всех, кто подтвердил грейд тестом. Пройдите тест на&nbsp;ступень ниже или&nbsp;повторите заявленный позже.</p></div>
       )}
+      {m.grade != null && <Badge />}
       {t && (
         <div className="r-card r-card--flat">
           <h2 className="r-h3">Последний тест · {dateRu(t.date)}{t.mode === 'express' ? ' · экспресс' : ''}</h2>
@@ -256,7 +330,7 @@ function GradeTab() {
       {state.cand.tests.length > 0 && (
         <div className="tablewrap scroll-x"><table className="r-table">
           <thead><tr><th>Дата</th><th>Заявлено</th><th>Итог</th><th>Оценка</th><th>Заданий</th></tr></thead>
-          <tbody>{state.cand.tests.map((x) => <tr key={x.id}><td>{new Date(x.date).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' })}</td><td>{GRADES[x.claimed].name}</td><td>{x.verdict.kind === 'ok' ? 'подтверждён' : 'не подтверждён'}</td><td className="r-num">{x.theta.toFixed(2)} ± {x.se.toFixed(2)}</td><td className="r-num">{x.n}</td></tr>)}</tbody>
+          <tbody>{state.cand.tests.map((x) => <tr key={x.id}><td>{new Date(x.date).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' })}</td><td>{GRADES[x.claimed].name}</td><td>{x.verdict.kind === 'ok' ? 'Подтверждён' : 'Не подтверждён'}</td><td className="r-num">{num(x.theta, 2)} ± {num(x.se, 2)}</td><td className="r-num">{x.n}</td></tr>)}</tbody>
         </table></div>
       )}
     </div>
@@ -272,7 +346,7 @@ function Skills({ rows }) {
       <p className="r-label">По навыкам</p>
       <div className="tablewrap scroll-x"><table className="r-table">
         <thead><tr><th>Навык</th><th>Оценка</th><th>Заданий</th></tr></thead>
-        <tbody>{sorted.map((r) => <tr key={r.name}><td>{r.name}</td><td className="r-num">{r.theta.toFixed(2)} ± {r.se.toFixed(2)}</td><td className="r-num">{r.items}</td></tr>)}</tbody>
+        <tbody>{sorted.map((r) => <tr key={r.name}><td>{r.name}</td><td className="r-num">{num(r.theta, 2)} ± {num(r.se, 2)}</td><td className="r-num">{r.items}</td></tr>)}</tbody>
       </table></div>
       <p className="doc-note">Тянет вниз: <b>{sorted[0].name.toLowerCase()}</b>. На пересдаче система снова даст задания этого навыка — других вариантов, той же трудности.</p>
     </div>
@@ -280,12 +354,12 @@ function Skills({ rows }) {
 }
 
 function InvitesTab() {
-  const { state, act } = useStore();
+  const { state, act, dispatch } = useStore();
   const list = state.cand.invites;
   const [open, setOpen] = useState(null);
   const inv = list.find((i) => i.id === open);
   const show = (i) => { setOpen(i.id); if (i.status === 'отправлено') act(() => post('cand', `/candidate/invites/${i.id}`, { status: 'просмотрено' }), 'cand'); };
-  if (!list.length) return <Empty img="./empty-invite.svg" title="Приглашений пока нет">{state.cand.profile.grade != null ? 'Работодатели видят вашу категорию. Первое приглашение придёт с вилкой зарплаты.' : 'Вы в выдаче с меткой «грейд не подтверждён»; подтвердите грейд тестом, чтобы подняться.'}</Empty>;
+  if (!list.length) return <Empty img="./empty-invite.svg" title="Приглашений пока нет">{state.cand.profile.grade != null ? 'Работодатели видят вашу категорию. Первое приглашение придёт с вилкой зарплаты.' : 'Вы в выдаче с меткой «грейд не подтверждён»; подтвердите грейд тестом, чтобы подняться.'}<div className="acts"><button className="r-btn" onClick={() => dispatch({ type: 'ui', patch: { candTab: 'view' } })}>Как меня видят работодатели</button></div></Empty>;
   return (
     <div className="stack">
       {list.map((i) => (
@@ -310,14 +384,14 @@ function InviteModal({ inv, onClose }) {
       <p className="r-micro">{inv.company}</p>
       <p className="r-vac__pay">{fmtRange(inv.salary_from, inv.salary_to)} <span className="r-small r-mute">на&nbsp;руки</span></p>
       <p>{inv.text}</p>
-      <p className="r-small"><b>Связь:</b> {inv.status === 'принято' ? inv.contact : 'откроется после вашего согласия'} · <b>формат:</b> {inv.work_format || '—'}</p>
+      <p className="r-small"><b>Связь:</b> {inv.status === 'принято' ? inv.contact : 'откроется после вашего согласия'} · <b>Формат:</b> {cap(inv.work_format) || '—'}</p>
       {inv.status === 'принято' && <p className="r-toast">Вы приняли приглашение — компания видит ваши контакты</p>}
       {inv.status === 'отклонено' && <p className="r-small">Отклонено: {inv.reason}</p>}
       <div className="acts"><button className="r-btn r-btn--sm" onClick={() => setMode('company')}>Профиль компании…</button>{inv.talk && <button className="r-btn r-btn--sm" onClick={() => setMode('nego')}>Протокол переговоров агентов…</button>}</div>
       {mode === 'company' && emp && <EmployerProfileDoc e={emp} offer={{ from: inv.salary_from, to: inv.salary_to }} />}
       {mode === 'nego' && <Negotiation talk={inv.talk} company={inv.company} who="Вы" side="cand" instant />}
       {mode === 'no' && (
-        <div className="stack-sm"><p className="r-label">Причина — компания её увидит и&nbsp;поправит подборку</p><div className="r-chips">{REASONS.map((r) => <button key={r} className="r-chip" onClick={() => decide('отклонено', r)}>{r}</button>)}</div></div>
+        <div className="stack-sm"><p className="r-label">Причина — компания её увидит и&nbsp;поправит подборку</p><div className="r-chips">{REASONS.map((r) => <button key={r} className="r-chip" onClick={() => decide('отклонено', r)}>{cap(r)}</button>)}</div></div>
       )}
       {['отправлено', 'просмотрено'].includes(inv.status) && (
         <div className="acts">
@@ -355,7 +429,7 @@ function ProfileTab() {
       <div className="r-card r-card--flat stack-sm">
         <p className="r-micro">Вопрос рекрутера · ответ станет фактом «со слов»</p>
         <div className="r-chips">{['Почему ищет', 'Роль в команде', 'Английский', 'Переезд'].map((k) => <button key={k} className="r-chip" aria-pressed={q.k === k} onClick={() => setQ({ ...q, k })}>{k}</button>)}</div>
-        <div className="r-field wide"><input className="r-input" value={q.v} onChange={(e) => setQ({ ...q, v: e.target.value })} placeholder="Коротко, как сказали бы рекрутеру" aria-label="Ответ" /></div>
+        <div className="r-field wide"><Dictate value={q.v} onChange={(v) => setQ({ ...q, v })}><input className="r-input" value={q.v} onChange={(e) => setQ({ ...q, v: e.target.value })} placeholder="Коротко, как сказали бы рекрутеру" aria-label="Ответ" /></Dictate></div>
         <button className="r-btn r-btn--sm" disabled={q.v.trim().length < 3} onClick={addFact}>Сохранить факт</button>
       </div>
       <h2 className="r-h3">Соревнования ФСП</h2>
@@ -377,7 +451,7 @@ function VacTab() {
         const r = resp.find((x) => x.vacancy_id === v.id);
         return (
           <div key={v.id} className="r-card r-card--flat inv-row">
-            <div><p className="r-micro">{v.company} · {spec(v.spec).name} · {GRADES[v.grade].name}</p><p className="r-h3">{v.title}</p><p className="r-small">{v.stack.join(', ')} · {v.work_format}</p></div>
+            <div><p className="r-micro">{v.company} · {spec(v.spec).name} · {GRADES[v.grade].name}</p><p className="r-h3">{v.title}</p><p className="r-small">{v.stack.join(', ')} · {cap(v.work_format)}</p></div>
             <div className="inv-side"><span className="r-vac__pay">{fmtRange(v.salary_from, v.salary_to)}</span>{r ? <Status s={r.status} /> : <button className="r-btn r-btn--sm" onClick={() => act(() => post('cand', `/candidate/vacancies/${v.id}/respond`), 'cand')}>Откликнуться</button>}</div>
           </div>
         );

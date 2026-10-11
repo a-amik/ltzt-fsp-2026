@@ -2,7 +2,7 @@
    профиль работодателя глазами кандидата, протокол переговоров агентов
    и статистика сторон. Все числа приходят с сервера. */
 import { useEffect, useState } from 'react';
-import { GRADES, spec, fmt, fmtRange, gradeName } from './const.js';
+import { GRADES, spec, fmt, fmtRange, gradeName, cap, num } from './const.js';
 import { Mark } from './ui.jsx';
 
 const pct = (v) => `${Math.round(v * 100)} %`;
@@ -43,7 +43,7 @@ export function CandidateProfileDoc({ card, profile, tests, rank, need, score })
           {c.contacts && <p className="r-small">{c.contacts.email}{c.contacts.phone ? ` · ${c.contacts.phone}` : ''}</p>}
         </div>
         <div className="doc-kpis">
-          {c.confirmed ? <div><b className="r-num">{c.theta.toFixed(2)}</b><span>оценка ± {c.se.toFixed(2)}</span></div> : <div><b className="r-num">—</b><span>тест не пройден</span></div>}
+          {c.confirmed ? <div><b className="r-num">{num(c.theta, 2)}</b><span>оценка ± {num(c.se, 2)}</span></div> : <div><b className="r-num">—</b><span>тест не пройден</span></div>}
           {rank && <div><b className="r-num">{rank.pos} из {rank.total}</b><span>в выдаче категории</span></div>}
           {c.years != null && <div><b className="r-num">{c.years} лет</b><span>стажа <Mark src="word" /></span></div>}
         </div>
@@ -80,7 +80,7 @@ export function CandidateProfileDoc({ card, profile, tests, rank, need, score })
           <h3 className="r-h3">Условия</h3>
           <dl className="dl">
             <dt>Ожидания</dt><dd className="r-num">{c.salary ? fmt(c.salary) : 'скрыты'}</dd>
-            <dt>Формат</dt><dd>{c.work_format}</dd>
+            <dt>Формат</dt><dd>{cap(c.work_format)}</dd>
             {c.city && <><dt>Город</dt><dd>{c.city}</dd></>}
             <dt>Задания работодателей</dt><dd>{c.fresh_tasks ?? 0} за 90 дней</dd>
             {c.conduct && <><dt>Протокол теста</dt><dd className="r-small">{c.conduct.items} заданий{c.conduct.mode === 'express' ? ' (экспресс)' : ''}, с открытым ИИ {c.conduct.ai_items}, вставок {c.conduct.paste}, уходов со вкладки {c.conduct.blur}</dd></>}
@@ -127,7 +127,7 @@ export function EmployerProfileDoc({ e, offer }) {
 }
 
 // ── 3. Переговоры агентов: ход и протокол ────────────────────────────
-const CRIT_LABEL = { ok: 'совпадает', part: 'с оговоркой', no: 'расхождение', nodata: 'нет данных' };
+const CRIT_LABEL = { ok: 'Совпадает', part: 'С оговоркой', no: 'Расхождение', nodata: 'Нет данных' };
 export function Negotiation({ talk: n, company, who, side, instant }) {
   const [k, setK] = useState(instant ? 999 : 0);
   const [auto, setAuto] = useState(!instant);

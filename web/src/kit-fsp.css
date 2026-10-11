@@ -1,0 +1,356 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Кит «Разряд · ФСП» — основной вид приложения с 9 октября 2026.
+
+   Откуда стиль. Таблицы стилей главной fsp-russia.ru, сняты 09.10.2026:
+   #EDEDED — 69 вхождений, #402FFF — 67, #2D2E37 — 37, #1B1C21 — 28;
+   Inter — 40 правил, JetBrains Mono — заголовки; скругление 6 px — 46
+   раз, 12 px — 15, 100 px — метки; теней нет. Разбор и план —
+   лист «Кит ФСП: план» (collaboration/fsp-2026/qp7msvo1bevx7rc0).
+
+   Как устроен. Узлы r-* и разметка приложения общие с китом «Разряд»
+   (kit.css, форма Gumroad). Этот файл переопределяет токены и те правила,
+   где форма Gumroad зашита в сам узел. Включается атрибутом
+   data-skin="fsp" у .kit, тёмная тема — data-kit="night".
+
+   Четыре вещи, которые нельзя ломать:
+   1. Палитра и роли — два слоя. Узел берёт только роль (--r-ink,
+      --r-blue-ink, --r-alarm); палитра --fsp-* живёт в токенах. Тема
+      меняет роли, палитру не трогает.
+   2. Синий ФСП на тёмном — только заливка: текстом он даёт 2,5 : 1.
+      Текстом на тёмном идёт --fsp-blue-400 (#9D94FF, 6,6 : 1).
+   3. Белый на фирменном красном #EC1D35 — 4,4 : 1, ниже нормы.
+      Под белым текстом красный — #C8102A (--r-alarm); #EC1D35 остаётся
+      знаком: обводка поля с ошибкой, точка «нет».
+   4. Метка происхождения — плотность одной краски: ФСП — заливка синим,
+      тест — светлый синий, слова кандидата — пустая с линией. «Грейд
+      не подтверждён» — серая: это состояние, а не ошибка.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Палитра ─────────────────────────────────────────────────────────── */
+.kit[data-skin="fsp"] {
+  --fsp-blue-50:  #F1F0FF;
+  --fsp-blue-100: #E3E0FF;
+  --fsp-blue-200: #DAD6FF;
+  --fsp-blue-300: #B4ADFF;
+  --fsp-blue-400: #9D94FF;
+  --fsp-blue-500: #6B5FFF;
+  --fsp-blue-600: #402FFF;   /* фирменный */
+  --fsp-blue-700: #3424E0;
+  --fsp-blue-800: #2A1DB5;
+  --fsp-blue-900: #1E1580;
+
+  --fsp-white:    #FFFFFF;
+  --fsp-gray-50:  #F6F6F7;
+  --fsp-gray-100: #EDEDED;   /* фирменный светлый */
+  --fsp-gray-200: #D9D9D9;
+  --fsp-gray-400: #9B9C9E;
+  --fsp-gray-600: #5F5F66;
+  --fsp-gray-700: #3D3E42;
+  --fsp-gray-800: #2D2E37;   /* фирменный, карточки тёмной темы */
+  --fsp-gray-900: #1B1C21;   /* фирменный тёмный */
+
+  --fsp-red:      #EC1D35;   /* фирменный, только знак */
+  --fsp-red-deep: #C8102A;   /* под белым текстом, 5,9 : 1 */
+  --fsp-green:    #1F8A5B;
+
+/* ── Роли: светлая тема ─────────────────────────────────────────────── */
+  --r-paper:   var(--fsp-white);
+  --r-back:    var(--fsp-gray-100);
+  --r-raise:   var(--fsp-gray-50);       /* наведение на строку, подложка кода */
+  --r-ink:     var(--fsp-gray-900);
+  --r-mute:    var(--fsp-gray-600);      /* 5,4 : 1 на #EDEDED */
+  --r-hair:    rgba(27, 28, 33, .14);
+  --r-line:    rgba(27, 28, 33, .24);    /* рамка поля: видна, но не кричит */
+
+  --r-blue:     var(--fsp-blue-600);  --r-on-blue: var(--fsp-white);
+  --r-blue-hov: var(--fsp-blue-700);
+  --r-blue-ink: var(--fsp-blue-600);     /* 6,8 : 1 на белом */
+  --r-blue-soft:var(--fsp-blue-50);
+  --r-sun:      var(--fsp-blue-200);  --r-on-sun:  var(--fsp-gray-900);
+  --r-alarm:    var(--fsp-red-deep);  --r-on-alarm:var(--fsp-white);
+  --r-alarm-ink:var(--fsp-red-deep);
+  --r-green-ink:var(--fsp-green);
+  --r-neutral:  var(--fsp-gray-100);  --r-on-neutral: var(--fsp-gray-900);
+  --r-focus:    var(--fsp-blue-600);
+
+/* ── Форма ───────────────────────────────────────────────────────────── */
+  --r-edge:     1px;
+  --r-drop:     0px;
+  --r-shadow:   none;
+  --r-radius:   6px;      /* поле, кнопка, метка */
+  --r-rad-m:    12px;     /* карточка, таблица, панель */
+  --r-rad-l:    16px;     /* документ, окно */
+  --r-pill:     100px;    /* фильтр, статус, переключатель */
+  --r-fast:     120ms;
+
+  --r-display: 'JetBrains Mono', ui-monospace, monospace;
+  --r-font:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  font: 400 16px/1.5 var(--r-font);
+}
+
+/* ── Роли: тёмная тема ───────────────────────────────────────────────── */
+.kit[data-skin="fsp"][data-kit="night"] {
+  --r-paper:   var(--fsp-gray-800);
+  --r-back:    var(--fsp-gray-900);
+  --r-raise:   #34353F;
+  --r-ink:     var(--fsp-gray-100);
+  --r-mute:    var(--fsp-gray-400);      /* 4,9 : 1 на #2D2E37 */
+  --r-hair:    rgba(237, 237, 237, .12);
+  --r-line:    var(--fsp-gray-700);
+
+  --r-blue-hov: #5A4BFF;
+  --r-blue-ink: var(--fsp-blue-400);     /* 6,6 : 1 на #1B1C21 */
+  --r-blue-soft:rgba(64, 47, 255, .18);
+  --r-sun:      #3D3570;  --r-on-sun: var(--fsp-gray-100);
+  --r-alarm-ink:#FF6B7C;
+  --r-green-ink:#3CC98A;
+  --r-neutral:  var(--fsp-gray-700);  --r-on-neutral: var(--fsp-gray-100);
+  --r-focus:    var(--fsp-blue-400);
+}
+
+/* ── Набор: шкала 12 · 14 · 16 · 20 · 28 · 40 · 62 ───────────────────
+   Заголовки — JetBrains Mono среднего веса, как на сайте федерации;
+   текст, поля и кнопки — Inter. Числа моноширинные везде. */
+.kit[data-skin="fsp"] .r-hero { font: 500 clamp(36px, 6vw, 62px)/1.05 var(--r-display); letter-spacing: -.04em; }
+.kit[data-skin="fsp"] .r-h1   { font: 500 clamp(28px, 3.4vw, 40px)/1.15 var(--r-display); letter-spacing: -.03em; }
+.kit[data-skin="fsp"] .r-h2   { font: 500 clamp(20px, 2.2vw, 28px)/1.2 var(--r-display); letter-spacing: -.02em; }
+.kit[data-skin="fsp"] .r-h3   { font: 500 20px/1.3 var(--r-display); letter-spacing: -.01em; }
+.kit[data-skin="fsp"] .r-small { font-size: 14px; }
+.kit[data-skin="fsp"] .r-micro { font: 500 12px/1.2 var(--r-mono); letter-spacing: .06em; }
+.kit[data-skin="fsp"] .r-word { font: 700 30px/1 var(--r-display); letter-spacing: -.05em; }
+.kit[data-skin="fsp"] a { text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.kit[data-skin="fsp"] a:hover { text-decoration-color: currentColor; }
+
+/* ── Кнопка ──────────────────────────────────────────────────────────
+   Состояния: покой, наведение, нажатие, фокус, недоступна, загрузка.
+   Нажатие — заливка темнее и сдвиг на 1 px, без тени. */
+.kit[data-skin="fsp"] .r-btn {
+  min-height: 44px; padding: 10px 18px; font: 500 15px/1 var(--r-font);
+  color: var(--r-ink); background: var(--r-paper);
+  border: 1px solid var(--r-line); border-radius: var(--r-radius); box-shadow: none;
+  transition: background var(--r-fast), border-color var(--r-fast), color var(--r-fast);
+}
+.kit[data-skin="fsp"] .r-btn:hover  { transform: none; box-shadow: none; border-color: var(--r-ink); }
+.kit[data-skin="fsp"] .r-btn:active { transform: translateY(1px); box-shadow: none; background: var(--r-raise); }
+.kit[data-skin="fsp"] .r-btn:focus-visible { outline: 2px solid var(--r-focus); outline-offset: 2px; }
+.kit[data-skin="fsp"] .r-btn--main { background: var(--r-blue); color: var(--r-on-blue); border-color: var(--r-blue); }
+.kit[data-skin="fsp"] .r-btn--main:hover  { background: var(--r-blue-hov); border-color: var(--r-blue-hov); }
+.kit[data-skin="fsp"] .r-btn--main:active { background: var(--fsp-blue-800); border-color: var(--fsp-blue-800); }
+.kit[data-skin="fsp"] .r-btn--main:focus-visible { outline-color: var(--r-focus); }
+.kit[data-skin="fsp"] .r-btn--sun  { background: var(--r-sun); color: var(--r-on-sun); border-color: transparent; }
+.kit[data-skin="fsp"] .r-btn--danger { background: var(--r-alarm); color: var(--r-on-alarm); border-color: var(--r-alarm); }
+.kit[data-skin="fsp"] .r-btn--danger:hover { background: #A80D23; border-color: #A80D23; }
+.kit[data-skin="fsp"] .r-btn--sm { min-height: 34px; padding: 6px 12px; font-size: 14px; }
+.kit[data-skin="fsp"] .r-btn--lg { min-height: 52px; padding: 14px 24px; font-size: 17px; }
+.kit[data-skin="fsp"] .r-btn--quiet { border-color: transparent; background: none; text-decoration: none; padding-inline: 8px; color: var(--r-blue-ink); }
+.kit[data-skin="fsp"] .r-btn--quiet:hover { background: var(--r-blue-soft); border-color: transparent; }
+.kit[data-skin="fsp"] .r-btn[disabled],
+.kit[data-skin="fsp"] .r-btn[aria-disabled="true"] {
+  color: var(--r-mute); background: var(--r-raise); border-color: var(--r-hair); transform: none; cursor: not-allowed;
+}
+.kit[data-skin="fsp"] .r-btn--quiet[disabled] { background: none; }
+.kit[data-skin="fsp"] .r-btn[aria-busy="true"] { position: relative; color: transparent; pointer-events: none; }
+.kit[data-skin="fsp"] .r-btn[aria-busy="true"]::after {
+  content: ""; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  color: var(--r-ink); animation: fsp-spin .7s linear infinite;
+}
+.kit[data-skin="fsp"] .r-btn--main[aria-busy="true"]::after { color: var(--r-on-blue); }
+@keyframes fsp-spin { to { transform: rotate(360deg); } }
+
+/* ── Поле, список, область текста ──────────────────────────────────── */
+.kit[data-skin="fsp"] .r-label { font: 500 14px/1.2 var(--r-font); }
+.kit[data-skin="fsp"] .r-input,
+.kit[data-skin="fsp"] .r-area,
+.kit[data-skin="fsp"] .r-select {
+  min-height: 44px; font-size: 15px; background-color: var(--r-paper);
+  border: 1px solid var(--r-line); border-radius: var(--r-radius);
+  transition: border-color var(--r-fast);
+}
+.kit[data-skin="fsp"] .r-input:hover,
+.kit[data-skin="fsp"] .r-area:hover,
+.kit[data-skin="fsp"] .r-select:hover { border-color: var(--r-mute); }
+.kit[data-skin="fsp"] .r-input:focus-visible,
+.kit[data-skin="fsp"] .r-area:focus-visible,
+.kit[data-skin="fsp"] .r-select:focus-visible { border-color: var(--r-focus); outline: 2px solid var(--r-focus); outline-offset: -1px; }
+.kit[data-skin="fsp"] .r-input:disabled,
+.kit[data-skin="fsp"] .r-area:disabled,
+.kit[data-skin="fsp"] .r-select:disabled { background-color: var(--r-raise); color: var(--r-mute); cursor: not-allowed; }
+.kit[data-skin="fsp"] .r-field[data-state="bad"] .r-input,
+.kit[data-skin="fsp"] .r-field[data-state="bad"] .r-area { border-color: var(--fsp-red); box-shadow: none; }
+.kit[data-skin="fsp"] .r-field[data-state="bad"] .r-hint { color: var(--r-alarm-ink); font-weight: 500; }
+.kit[data-skin="fsp"] .r-field[data-state="ok"] .r-hint { color: var(--r-green-ink); }
+
+/* ── Фильтр-метка ──────────────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-chip { border: 1px solid var(--r-line); border-radius: var(--r-pill); padding-inline: 14px; font-weight: 500; transition: background var(--r-fast), border-color var(--r-fast); }
+.kit[data-skin="fsp"] .r-chip:hover { background: var(--r-raise); border-color: var(--r-mute); }
+.kit[data-skin="fsp"] .r-chip[aria-pressed="true"] { background: var(--r-blue); border-color: var(--r-blue); color: var(--r-on-blue); }
+.kit[data-skin="fsp"] .r-chip:focus-visible { outline: 2px solid var(--r-focus); outline-offset: 2px; }
+.kit[data-skin="fsp"] .r-chip[disabled] { color: var(--r-mute); border-color: var(--r-hair); background: none; cursor: not-allowed; }
+
+/* ── Метка происхождения ───────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-mark { border-radius: var(--r-radius); border: 1px solid transparent; letter-spacing: .03em; font-weight: 500; }
+.kit[data-skin="fsp"] .r-mark--fsp  { background: var(--r-blue); color: var(--r-on-blue); }
+.kit[data-skin="fsp"] .r-mark--code { background: var(--r-sun); color: var(--r-on-sun); }
+.kit[data-skin="fsp"] .r-mark--word { background: none; color: var(--r-mute); border-color: var(--r-line); }
+.kit[data-skin="fsp"] .r-mark--warn { background: var(--r-neutral); color: var(--r-on-neutral); }
+
+/* ── Карточки и поверхности ────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-card { border: 1px solid var(--r-hair); border-radius: var(--r-rad-m); box-shadow: none; }
+.kit[data-skin="fsp"] .r-card--blue { background: var(--r-blue); color: var(--r-on-blue); border-color: var(--r-blue); }
+.kit[data-skin="fsp"] .r-card--sun  { background: var(--r-blue-soft); color: var(--r-ink); border-color: transparent; }
+.kit[data-skin="fsp"] button.r-card { transition: border-color var(--r-fast), background var(--r-fast); }
+.kit[data-skin="fsp"] button.r-card:hover { border-color: var(--r-mute); }
+.kit[data-skin="fsp"] button.r-card:focus-visible { outline: 2px solid var(--r-focus); outline-offset: 2px; }
+.kit[data-skin="fsp"] .r-empty,
+.kit[data-skin="fsp"] .r-nodata,
+.kit[data-skin="fsp"] .r-slot { border: 1px dashed var(--r-line); border-radius: var(--r-rad-m); }
+.kit[data-skin="fsp"] .r-nodata { font-weight: 500; color: var(--r-mute); }
+
+/* Пустой экран: знак Lucide 32 px, строка, следующее действие.
+   Рисунки кита «Разряд» здесь не показываются. */
+.r-empty__icon { display: none; }
+.kit[data-skin="fsp"] .r-empty { padding: 40px 24px; display: grid; justify-items: center; gap: 4px; }
+.kit[data-skin="fsp"] .r-empty .empty-img { display: none; }
+.kit[data-skin="fsp"] .r-empty__icon {
+  display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 8px;
+  border-radius: 50%; background: var(--r-blue-soft); color: var(--r-blue-ink);
+}
+.kit[data-skin="fsp"] .r-empty__icon svg { width: 28px; height: 28px; }
+.kit[data-skin="fsp"] .r-empty .r-h3 { margin: 0; }
+.kit[data-skin="fsp"] .r-empty .r-mute { max-width: 52ch; }
+
+/* ── Кандидат, достижение, балл ────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-avatar { border: 0; background: var(--r-sun); color: var(--r-on-sun); font-weight: 500; }
+.kit[data-skin="fsp"] .r-cand__name { font: 600 19px/1.25 var(--r-font); }
+.kit[data-skin="fsp"] .r-rank { border: 0; border-radius: var(--r-rad-m); box-shadow: none; }
+.kit[data-skin="fsp"] .r-score__bar { border: 0; border-radius: 4px; overflow: hidden; background: var(--r-raise); background-image: none; }
+.kit[data-skin="fsp"] .r-score__bar i { border-radius: 4px 4px 0 0; }
+.kit[data-skin="fsp"] .r-score__bar[data-gap="true"] i { background: var(--fsp-blue-300); }
+.kit[data-skin="fsp"] .r-vac__pay { font-weight: 500; }
+
+/* ── Таблица ───────────────────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-table { border: 1px solid var(--r-hair); border-radius: var(--r-rad-m); border-collapse: separate; border-spacing: 0; overflow: hidden; }
+.kit[data-skin="fsp"] .r-table thead th { background: var(--r-raise); color: var(--r-mute); font-weight: 500; border-bottom: 1px solid var(--r-hair); }
+.kit[data-skin="fsp"] .r-table tbody tr:hover { background: var(--r-raise); }
+.kit[data-skin="fsp"] .r-table td { font-size: 14px; }
+
+/* ── Разговор агентов ──────────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-turn__body { border: 1px solid var(--r-hair); border-radius: var(--r-rad-m); }
+.kit[data-skin="fsp"] .r-turn--emp .r-turn__body { border-top-left-radius: 4px; }
+.kit[data-skin="fsp"] .r-turn--cand .r-turn__body { background: var(--r-blue-soft); border-color: transparent; border-top-right-radius: 4px; }
+
+/* ── Переключатель ─────────────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-switch i { border: 0; border-radius: var(--r-pill); background: var(--r-line); transition: background var(--r-fast); }
+.kit[data-skin="fsp"] .r-switch i::after { border-radius: 50%; background: var(--fsp-white); inset: 3px auto 3px 3px; width: 20px; }
+.kit[data-skin="fsp"] .r-switch input:checked + i { background: var(--r-blue); }
+.kit[data-skin="fsp"] .r-switch input:checked + i::after { transform: translateX(20px); background: var(--fsp-white); }
+.kit[data-skin="fsp"] .r-switch input:focus-visible + i { outline: 2px solid var(--r-focus); outline-offset: 2px; }
+.kit[data-skin="fsp"] .r-switch input:disabled + i { opacity: .5; }
+
+/* ── Сообщения ─────────────────────────────────────────────────────── */
+.kit[data-skin="fsp"] .r-toast { border: 0; border-radius: var(--r-rad-m); box-shadow: 0 8px 24px rgba(27, 28, 33, .18); background: var(--fsp-gray-900); color: var(--fsp-gray-100); font-weight: 500; }
+.kit[data-skin="fsp"][data-kit="night"] .r-toast { background: var(--fsp-gray-100); color: var(--fsp-gray-900); }
+.kit[data-skin="fsp"] .r-toast--err,
+.kit[data-skin="fsp"][data-kit="night"] .r-toast--err { background: var(--r-alarm); color: var(--r-on-alarm); border: 0; }
+
+/* Заглушка загрузки: полоса цвета подложки, мягкое мерцание. */
+.kit[data-skin="fsp"] .r-skel { display: block; height: 14px; border-radius: 4px; background: var(--r-raise); animation: fsp-pulse 1.2s ease-in-out infinite; }
+@keyframes fsp-pulse { 50% { opacity: .5; } }
+
+/* ═══ Узлы приложения: шапка, вкладки, документы, графики ════════════ */
+.app[data-skin="fsp"] .bar { border-bottom: 0; background: transparent; padding: 10px 16px 0; }
+.app[data-skin="fsp"] .bar-in { background: var(--r-paper); border-radius: var(--r-rad-m); border: 1px solid var(--r-hair); }
+.app[data-skin="fsp"] .role { border-radius: 8px; font-weight: 500; border: 0; }
+.app[data-skin="fsp"] .role:hover { background: var(--r-raise); }
+.app[data-skin="fsp"] .role[aria-current="page"] { background: var(--r-blue); color: var(--r-on-blue); }
+.app[data-skin="fsp"] .role:focus-visible,
+.app[data-skin="fsp"] .tab:focus-visible,
+.app[data-skin="fsp"] .seg button:focus-visible,
+.app[data-skin="fsp"] .theme-btn:focus-visible,
+.app[data-skin="fsp"] .linkish:focus-visible { outline: 2px solid var(--r-focus); outline-offset: 2px; }
+.app[data-skin="fsp"] .seg { border: 1px solid var(--r-line); border-radius: var(--r-pill); overflow: hidden; }
+.app[data-skin="fsp"] .seg button { font-weight: 500; }
+.app[data-skin="fsp"] .seg button + button { border-left: 1px solid var(--r-line); }
+.app[data-skin="fsp"] .seg button[aria-pressed="true"] { background: var(--r-blue); color: var(--r-on-blue); }
+.app[data-skin="fsp"] .theme-btn { border: 1px solid var(--r-line); border-radius: var(--r-pill); }
+.app[data-skin="fsp"] .theme-btn:hover { background: var(--r-raise); }
+.app[data-skin="fsp"] .tabs { border-bottom: 1px solid var(--r-hair); }
+.app[data-skin="fsp"] .tab { font-weight: 500; border-bottom-width: 2px; margin-bottom: -1px; }
+.app[data-skin="fsp"] .tab:hover { color: var(--r-ink); }
+.app[data-skin="fsp"] .tab[aria-current="page"] { border-bottom-color: var(--r-blue); }
+.app[data-skin="fsp"] .tab-badge { border-radius: var(--r-pill); }
+.app[data-skin="fsp"] .linkish { color: var(--r-blue-ink); font-weight: 500; }
+
+.app[data-skin="fsp"] .doc { border: 1px solid var(--r-hair); border-radius: var(--r-rad-l); }
+.app[data-skin="fsp"] .modal .doc { border: 0; }
+.app[data-skin="fsp"] .modal { border-radius: var(--r-rad-l); }
+.app[data-skin="fsp"] .modal-back { background: rgba(27, 28, 33, .6); }
+.app[data-skin="fsp"] .doc-head { border-bottom: 1px solid var(--r-hair); }
+.app[data-skin="fsp"] .doc-cat { font-weight: 500; }
+.app[data-skin="fsp"] .doc-kpis > div { border: 1px solid var(--r-hair); border-radius: 10px; }
+.app[data-skin="fsp"] .doc-note,
+.app[data-skin="fsp"] .quote { border-radius: 0 10px 10px 0; border-left-width: 3px; }
+.app[data-skin="fsp"] .quote { border-left-color: var(--fsp-blue-300); }
+.app[data-skin="fsp"] .status { border-radius: var(--r-pill); border: 1px solid var(--r-line); font-weight: 500; }
+.app[data-skin="fsp"] .st-seen { border-color: transparent; }
+.app[data-skin="fsp"] .st-ok { border-color: var(--r-blue); }
+.app[data-skin="fsp"] .st-no { background: var(--r-neutral); color: var(--r-on-neutral); border-color: transparent; }
+.app[data-skin="fsp"] .verdict { border-radius: 10px; border-color: transparent; font-weight: 600; }
+.app[data-skin="fsp"] .v-part { background: var(--r-blue-soft); }
+.app[data-skin="fsp"] .grade-card,
+.app[data-skin="fsp"] .cat { transition: border-color var(--r-fast), background var(--r-fast); }
+.app[data-skin="fsp"] .grade-card.is-on,
+.app[data-skin="fsp"] .cat.is-on { border-color: var(--r-blue); }
+.app[data-skin="fsp"] .cat-name { font: 500 clamp(24px, 3.4vw, 36px)/1.1 var(--r-display); letter-spacing: -.03em; }
+.app[data-skin="fsp"] .task-code { border: 1px solid var(--r-hair); border-radius: 10px; background: var(--r-raise); }
+.app[data-skin="fsp"] .opt { font-family: var(--r-mono); }
+.app[data-skin="fsp"] .task-item.is-on,
+.app[data-skin="fsp"] .mass-k[aria-pressed="true"] { outline: 2px solid var(--r-blue); outline-offset: -2px; }
+.app[data-skin="fsp"] .steps > div { border-left-width: 2px; }
+.app[data-skin="fsp"] .scroll,
+.app[data-skin="fsp"] .scroll-x { scrollbar-color: var(--r-line) transparent; }
+.app[data-skin="fsp"] .scroll::-webkit-scrollbar-thumb,
+.app[data-skin="fsp"] .scroll-x::-webkit-scrollbar-thumb { background: var(--r-line); border-radius: 3px; }
+
+/* Графики: доля — синий, остальное — серый; концы скруглены на 4 px. */
+.app[data-skin="fsp"] .sk-track { border: 0; border-radius: var(--r-pill); background: var(--r-raise); }
+.app[data-skin="fsp"] .sk-dot { border-radius: 50%; border-color: var(--r-paper); }
+.app[data-skin="fsp"] .sk-need { background: var(--fsp-red); }
+.app[data-skin="fsp"] .bar-row i,
+.app[data-skin="fsp"] .fn-row i,
+.app[data-skin="fsp"] .weeks i,
+.app[data-skin="fsp"] .hist-bars i { border-radius: 4px; }
+.app[data-skin="fsp"] .bar-row i,
+.app[data-skin="fsp"] .hist-bars i { background: var(--fsp-gray-400); opacity: 1; }
+.app[data-skin="fsp"] .pa,
+.app[data-skin="fsp"] .weeks,
+.app[data-skin="fsp"] .dots,
+.app[data-skin="fsp"] .hist-bars { border-bottom: 1px solid var(--r-line); }
+.app[data-skin="fsp"] .pa-range { border-radius: 6px; }
+.app[data-skin="fsp"] .pa-mine { border: 0; background: var(--fsp-blue-300); }
+.app[data-skin="fsp"] .dots i { border-width: 1.5px; }
+.app[data-skin="fsp"] .trace-dot.bad,
+.app[data-skin="fsp"] .cd-no { fill: var(--fsp-red); background: var(--fsp-red); border-color: var(--fsp-red); }
+.app[data-skin="fsp"] .mass-k { border: 1px solid var(--r-hair); border-radius: var(--r-rad-m); }
+.app[data-skin="fsp"] .mass-bar,
+.app[data-skin="fsp"] .mass-bar i { border-radius: var(--r-pill); }
+.app[data-skin="fsp"] .cdot { border-radius: 50%; border-width: 1.5px; }
+.app[data-skin="fsp"] .mass-chk i { border-radius: 6px; border: 1px solid var(--r-line); }
+.app[data-skin="fsp"] .mass-t tr.is-sel td { background: var(--r-blue-soft); }
+
+@media (max-width: 640px) {
+  .app[data-skin="fsp"] .modal { border-radius: var(--r-rad-l) var(--r-rad-l) 0 0; }
+  .app[data-skin="fsp"] .bar { padding: 6px 8px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kit[data-skin="fsp"] .r-btn[aria-busy="true"]::after,
+  .kit[data-skin="fsp"] .r-skel { animation: none; }
+}
+
+/* Варианты ответа в тесте — кнопки, а не фильтры: скругление поля,
+   выбранный — синяя рамка и бледная заливка, а не сплошной синий. */
+.app[data-skin="fsp"] .opt { border-radius: var(--r-radius); min-height: 48px; padding-inline: 16px; }
+.app[data-skin="fsp"] .opt[aria-pressed="true"] { background: var(--r-blue-soft); color: var(--r-ink); border-color: var(--r-blue); box-shadow: inset 0 0 0 1px var(--r-blue); }

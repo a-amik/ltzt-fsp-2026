@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useStore } from './store.jsx';
 import { post } from './api.js';
 import { GRADES, SPECS, spec, gradeName, dateRu } from './const.js';
-import { Empty, Modal } from './ui.jsx';
+import { Empty, Modal, Dictate } from './ui.jsx';
 
 const SCORE = [['Слабо', 0], ['Годно', 0.5], ['Сильно', 1]];
 
@@ -58,7 +58,7 @@ function NewTask({ onClose }) {
   return (
     <Modal title="Новое задание категории" onClose={onClose}>
       <div className="r-field wide"><label className="r-label" htmlFor="tt">Задача</label><input id="tt" className="r-input" value={f.title} placeholder="Например: очередь уведомлений без дублей" onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
-      <div className="r-field wide"><label className="r-label" htmlFor="tx">Условие</label><textarea id="tx" className="r-area" value={f.text} placeholder="Что дано, что нужно, в каком виде ответ" onChange={(e) => setF({ ...f, text: e.target.value })} /></div>
+      <div className="r-field wide"><label className="r-label" htmlFor="tx">Условие</label><Dictate value={f.text} onChange={(v) => setF({ ...f, text: v })}><textarea id="tx" className="r-area" value={f.text} placeholder="Что дано, что нужно, в каком виде ответ" onChange={(e) => setF({ ...f, text: e.target.value })} /></Dictate></div>
       <p className="r-label">Кому</p>
       <div className="r-chips scroll-x nowrap">{SPECS.map((s) => <button key={s.id} className="r-chip" aria-pressed={f.spec === s.id} onClick={() => setF({ ...f, spec: s.id })}>{s.name}</button>)}</div>
       <div className="r-chips scroll-x nowrap mt-s">{GRADES.map((g) => <button key={g.id} className="r-chip" aria-pressed={f.grade === g.id} onClick={() => setF({ ...f, grade: g.id })}>{g.name}</button>)}</div>
@@ -69,10 +69,10 @@ function NewTask({ onClose }) {
 }
 
 export function CandidateTasks() {
-  const { state, act } = useStore();
+  const { state, act, dispatch } = useStore();
   const mine = state.cand.tasks || [];
   const [text, setText] = useState({});
-  if (!mine.length) return <Empty title="Заданий пока нет">Работодатели присылают короткие задачи вашей категории.</Empty>;
+  if (!mine.length) return <Empty title="Заданий пока нет">Работодатели присылают короткие задачи вашей категории. Решённое и&nbsp;оценённое задание поднимает вас в&nbsp;выдаче.<div className="acts"><button className="r-btn" onClick={() => dispatch({ type: 'ui', patch: { candTab: 'grade' } })}>Моя категория и&nbsp;грейд</button></div></Empty>;
   return (
     <div className="stack">
       {mine.map((t) => {
@@ -84,7 +84,7 @@ export function CandidateTasks() {
             <p className="r-h3">{t.title}</p>
             <p>{t.text}</p>
             {!a ? (<>
-              <textarea className="r-area" rows={4} value={text[t.id] || ''} onChange={(e) => setText({ ...text, [t.id]: e.target.value })} placeholder="Ваш подход в 3–5 предложениях" aria-label="Ваш подход" />
+              <Dictate value={text[t.id] || ''} onChange={(v) => setText((x) => ({ ...x, [t.id]: v }))}><textarea className="r-area" rows={4} value={text[t.id] || ''} onChange={(e) => setText({ ...text, [t.id]: e.target.value })} placeholder="Ваш подход в 3–5 предложениях" aria-label="Ваш подход" /></Dictate>
               <button className="r-btn r-btn--main r-btn--sm" disabled={(text[t.id] || '').trim().length < 30} onClick={() => act(() => post('cand', `/candidate/tasks/${t.id}/answer`, { text: text[t.id] }), 'cand')}>Отправить без имени</button>
             </>) : (
               <p className="r-small">{label ? <>Работодатель оценил: <b>{label}</b>. Сигнал добавлен в профиль.</> : 'Отправлено. Ждёт оценки работодателя — компания видит ответ без имени.'}</p>

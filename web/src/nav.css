@@ -1,0 +1,70 @@
+/* Шапка, меню «…» и раздел входа. Узлы под префиксами nv- и lg-. */
+.nv-in { gap: 20px; }
+.nv .logo { flex: none; }
+.nv .logo .nv-sign { width: 21px; height: 25px; flex: none; }
+.nv-links { display: flex; gap: 2px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nv-links::-webkit-scrollbar { display: none; }
+.nv-link { flex: none; padding: 8px 12px; border-radius: 100px; font: 600 14px/1 var(--r-font); color: var(--r-mute); text-decoration: none; white-space: nowrap; transition: color var(--r-fast, .12s), background var(--r-fast, .12s); }
+.nv-link:hover { color: var(--r-ink); background: var(--r-raise, var(--r-hair)); }
+.nv-link[aria-current="true"] { color: var(--r-blue-ink, var(--r-blue)); background: var(--r-blue-soft, var(--r-hair)); }
+.nv-link:focus-visible, .nv-icon:focus-visible, .nv-cab button:focus-visible { outline: 3px solid var(--r-focus, var(--r-blue)); outline-offset: 2px; }
+.nv-spacer { flex: 1; }
+.nv-cab { display: inline-flex; gap: 4px; padding: 4px; margin-right: auto; border: 1px solid var(--r-line, var(--r-hair)); border-radius: 100px; }
+.nv-cab button { padding: 8px 14px; border: 0; border-radius: 100px; background: none; color: var(--r-ink); font: 600 14px/1 var(--r-font); cursor: pointer; white-space: nowrap; }
+.nv-cab button:hover { background: var(--r-raise, var(--r-hair)); }
+.nv-cab button[aria-current="page"] { background: var(--r-blue); color: var(--r-on-blue); }
+.nv-ctl { display: flex; gap: 8px; align-items: center; flex: none; }
+.nv-login { min-height: 36px; }
+
+.nv-more { position: relative; }
+.nv-icon { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 1px solid var(--r-line, var(--r-hair)); border-radius: 50%; background: none; color: var(--r-ink); cursor: pointer; }
+.nv-icon:hover, .nv-icon[aria-expanded="true"] { background: var(--r-raise, var(--r-hair)); }
+.nv-menu { position: absolute; right: 0; top: calc(100% + 10px); z-index: 60; width: 300px; max-width: calc(100vw - 32px); display: grid; gap: 2px; padding: 8px; background: var(--r-paper); color: var(--r-ink); border: 1px solid var(--r-hair); border-radius: 14px; box-shadow: 0 16px 48px rgba(17, 17, 20, .18); animation: nv-in .16s ease both; }
+@keyframes nv-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.nv-item { display: grid; gap: 2px; width: 100%; padding: 10px 12px; border: 0; border-radius: 8px; background: none; color: var(--r-ink); text-align: left; font: 600 15px/1.25 var(--r-font); cursor: pointer; }
+.nv-item span { font: 400 13px/1.3 var(--r-font); color: var(--r-mute); }
+.nv-item:hover, .nv-item:focus-visible { background: var(--r-raise, var(--r-hair)); outline: none; }
+.nv-item[aria-current="page"] { color: var(--r-blue-ink, var(--r-blue)); }
+.nv-item--out { border-top: 1px solid var(--r-hair); border-radius: 0 0 8px 8px; margin-top: 4px; padding-top: 12px; }
+.nv-group { display: grid; gap: 6px; padding: 8px 12px; }
+.nv-cap { margin: 0; font: 500 12px/1.2 var(--r-mono); color: var(--r-mute); }
+.nv-seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 3px; border-radius: 10px; background: var(--r-back); }
+.nv-seg button { padding: 8px 6px; border: 0; border-radius: 7px; background: none; color: var(--r-ink); font: 600 13px/1 var(--r-font); cursor: pointer; white-space: nowrap; }
+.nv-seg button[aria-pressed="true"] { background: var(--r-paper); color: var(--r-blue-ink, var(--r-blue)); box-shadow: 0 1px 3px rgba(17, 17, 20, .14); }
+
+/* Логотип один для обеих версий: слово «Разряд» — Tektur 700 (утверждён
+   участником 11.10.2026), меню и кнопки — JetBrains Mono, как на сайте ФСП. */
+.kit .nv .logo.r-word { font: 700 23px/1 'Tektur', 'JetBrains Mono', sans-serif; letter-spacing: 0; gap: 9px; }
+.nv, .lg { --r-font: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
+.nv-link, .nv-cab button { font-weight: 500; letter-spacing: -.01em; }
+
+/* Вид «Разряд»: мягких ролей в его ките нет. */
+.kit[data-skin="razryad"] .nv, .kit[data-skin="razryad"] .lg { --r-blue-soft: rgba(64, 47, 255, .10); --r-raise: #F4F4F6; --r-line: rgba(17, 17, 20, .28); --r-blue-ink: #402FFF; }
+.kit[data-skin="razryad"][data-kit="night"] .nv, .kit[data-skin="razryad"][data-kit="night"] .lg { --r-blue-soft: rgba(64, 47, 255, .30); --r-raise: #2F3038; --r-line: rgba(242, 242, 244, .3); --r-blue-ink: #9D94FF; }
+
+/* ── Вход ─────────────────────────────────────────────────────────── */
+.lg { display: grid; gap: 32px; padding: 24px 0 32px; }
+.lg-head { display: grid; gap: 10px; }
+.lg-head .r-h1, .lg-head p { margin: 0; }
+.lg-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.lg-side { display: grid; padding: 0; overflow: hidden; text-align: left; font: inherit; color: var(--r-ink); background: var(--r-paper); border: 1px solid var(--r-hair); border-radius: 16px; cursor: pointer; transition: border-color .15s, transform .15s; }
+.lg-side:hover { border-color: var(--r-blue); transform: translateY(-2px); }
+.lg-side:focus-visible { outline: 3px solid var(--r-focus, var(--r-blue)); outline-offset: 3px; }
+.lg-side img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; }
+.lg-side__body { display: grid; gap: 10px; justify-items: start; padding: 24px 28px 28px; }
+.lg-side__body .r-h2 { margin: 0; }
+.lg-side__body .r-btn { margin-top: 8px; pointer-events: none; }
+
+@media (max-width: 860px) {
+  .nv-links { order: 3; flex-basis: 100%; margin: 0 -24px; padding: 0 24px; }
+  .nv-in { flex-wrap: wrap; row-gap: 8px; }
+  .nv .nv-ctl { margin-left: auto; }
+}
+@media (max-width: 640px) {
+  .nv-links { margin: 0 -16px; padding: 0 16px; }
+  .nv-cab button { padding: 7px 10px; font-size: 13px; }
+  .nv-in { gap: 10px; }
+  .lg-sides { grid-template-columns: minmax(0, 1fr); }
+  .lg-side__body { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .nv-menu { animation: none; } .lg-side { transition: none; } .lg-side:hover { transform: none; } }

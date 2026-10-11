@@ -1,10 +1,11 @@
 /* Кабинет работодателя: вход, компания, потребность и подборка, приглашения,
    вакансии с откликами, задания, статистика. Ранжирование и протоколы — с сервера. */
 import { useEffect, useState } from 'react';
+import SignLoader from './SignLoader.jsx';
 import { useStore } from './store.jsx';
-import { get, post, patch, qs, setToken } from './api.js';
-import { GRADES, SPECS, FORMATS, spec, gradeName, fmt, fmtRange } from './const.js';
-import { Mark, Modal, Score, Empty, Tabs, Status } from './ui.jsx';
+import { get, post, patch, qs, req, setToken } from './api.js';
+import { GRADES, SPECS, FORMATS, spec, gradeName, fmt, fmtRange, cap, num } from './const.js';
+import { Mark, Modal, Score, Empty, Tabs, Status, Dictate } from './ui.jsx';
 import { CandidateProfileDoc, Negotiation, EmployerProfileDoc, EmpStatsDoc } from './Artifacts.jsx';
 import Mass from './Mass.jsx';
 import { EmployerTasks } from './Tasks.jsx';
@@ -13,19 +14,24 @@ export default function Employer() {
   const { state, dispatch } = useStore();
   const e = state.emp;
   if (!e.authed) return <EmpStart />;
-  if (!e.company) return <p className="page r-mute">Загружаем…</p>;
-  if (!e.company.name) return <CompanyForm first />;
+  if (!e.company) return <SignLoader />;
+  // Первый вход: сразу «Кого ищете», без анкеты компании. Её название спросит окно первого приглашения.
+  const intro = !e.company.name;
+  const tab = intro ? 'search' : state.ui.empTab;
   const waiting = e.invites.filter((i) => ['отправлено', 'просмотрено'].includes(i.status)).length;
   return (
     <div className="page">
-      <Tabs value={state.ui.empTab} onChange={(t) => dispatch({ type: 'ui', patch: { empTab: t } })} items={[['search', 'Подбор'], ['bank', 'Банк'], ['tasks', 'Задания'], ['invites', 'Приглашения', waiting], ['stats', 'Статистика'], ['company', 'Компания'], ['vac', 'Вакансии']]} />
-      {state.ui.empTab === 'search' && <Search />}
-      {state.ui.empTab === 'bank' && <Bank />}
-      {state.ui.empTab === 'tasks' && <EmployerTasks />}
-      {state.ui.empTab === 'invites' && <Sent />}
-      {state.ui.empTab === 'vac' && <Vacs />}
-      {state.ui.empTab === 'company' && <CompanyForm />}
-      {state.ui.empTab === 'stats' && <EmpStatsDoc company={e.company} stats={e.stats} />}
+      {intro ? (
+        <div className="intro"><p className="r-micro">Работодатель · шаг {e.selection ? 3 : 2} из&nbsp;3</p><h1 className="r-h1">{e.selection ? 'Пригласите первым' : 'Кого ищете?'}</h1>
+          <p className="r-mute">{e.selection ? 'Выберите кандидата и нажмите «Пригласить»: в том же окне назовёте компанию. Профиль компании дозаполните потом.' : 'Опишите своими словами или вставьте текст вакансии — выдача появится сразу.'}</p></div>
+      ) : <Tabs value={tab} onChange={(t) => dispatch({ type: 'ui', patch: { empTab: t } })} items={[['search', 'Подбор'], ['bank', 'Банк'], ['tasks', 'Задания'], ['invites', 'Приглашения', waiting], ['stats', 'Статистика'], ['company', 'Компания'], ['vac', 'Вакансии']]} />}
+      {tab === 'search' && <Search />}
+      {tab === 'bank' && <Bank />}
+      {tab === 'tasks' && <EmployerTasks />}
+      {tab === 'invites' && <Sent />}
+      {tab === 'vac' && <Vacs />}
+      {tab === 'company' && <CompanyForm />}
+      {tab === 'stats' && <EmpStatsDoc company={e.company} stats={e.stats} />}
     </div>
   );
 }
@@ -40,7 +46,7 @@ function EmpStart() {
   const demo = () => act(async () => { setToken('emp', 'demo-employer-token'); }, 'emp');
   return (
     <div className="page">
-      <p className="r-micro">Работодатель</p>
+      <p className="r-micro">Работодатель · шаг 1 из&nbsp;3</p>
       <h1 className="r-h1">Вы находите кандидата сами — и&nbsp;пишете первым, с&nbsp;вилкой</h1>
       <p className="r-mute">Опишите, кто нужен, получите категории с&nbsp;числом людей и&nbsp;ранжированный список с&nbsp;объяснением. Контакты откроются, когда кандидат примет приглашение.</p>
       <div className="grid2">
@@ -76,7 +82,7 @@ function CompanyForm({ first }) {
           <div className="r-field"><label className="r-label" htmlFor="cn">Название</label><input id="cn" className="r-input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="r-field"><label className="r-label" htmlFor="cf">Направление</label><input id="cf" className="r-input" value={f.field} onChange={(e) => setF({ ...f, field: e.target.value })} /></div>
         </div>
-        <div className="r-field wide"><label className="r-label" htmlFor="ca">О компании и команде</label><textarea id="ca" className="r-area" value={f.about} onChange={(e) => setF({ ...f, about: e.target.value })} /></div>
+        <div className="r-field wide"><label className="r-label" htmlFor="ca">О компании и команде</label><Dictate value={f.about} onChange={(v) => setF({ ...f, about: v })}><textarea id="ca" className="r-area" value={f.about} onChange={(e) => setF({ ...f, about: e.target.value })} /></Dictate></div>
         <div className="grid2 tight">
           <div className="r-field"><label className="r-label" htmlFor="cc">Контакт для кандидатов</label><input id="cc" className="r-input" value={f.contact} onChange={(e) => setF({ ...f, contact: e.target.value })} /></div>
           <div className="r-field"><label className="r-label" htmlFor="ci">ИНН</label><input id="ci" className="r-input r-num" value={f.inn} onChange={(e) => setF({ ...f, inn: e.target.value.replace(/\D/g, '') })} /><span className="r-hint">ИНН и корпоративная почта дают метку доверия <Mark src="fsp">проверена</Mark>; без неё всё работает.</span></div>
@@ -118,7 +124,7 @@ function Search() {
     <div className="stack">
       <div className="r-card r-card--flat">
         <div className="r-field wide"><label className="r-label" htmlFor="need">Кого ищете — своими словами</label>
-          <textarea id="need" className="r-area" rows={3} value={text} onChange={(ev) => setText(ev.target.value)} />
+          <Dictate value={text} onChange={setText}><textarea id="need" className="r-area" rows={3} value={text} onChange={(ev) => setText(ev.target.value)} /></Dictate>
           <span className="r-hint">Специализацию, грейд, стек и&nbsp;вилку разберёт ассистент; поправить можно ниже.</span></div>
         <button className="r-btn r-btn--main" onClick={parse}>Подобрать</button>
       </div>
@@ -142,7 +148,7 @@ function Search() {
           <button className="r-chip" aria-pressed={f.fsp_only} onClick={() => changeF({ fsp_only: !f.fsp_only })}>Только с&nbsp;ФСП</button>
           <button className="r-chip" aria-pressed={f.confirmed_only} onClick={() => changeF({ confirmed_only: !f.confirmed_only })}>Только подтверждённые</button>
           <button className="r-chip" aria-pressed={f.must_stack} onClick={() => changeF({ must_stack: !f.must_stack })}>Весь стек обязателен</button>
-          {FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => changeF({ work_format: f.work_format === x ? null : x })}>{x}</button>)}
+          {FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => changeF({ work_format: f.work_format === x ? null : x })}>{cap(x)}</button>)}
         </div>
         {shortlist.length > 0 && (
           <div className="r-card r-card--sun short">
@@ -157,14 +163,14 @@ function Search() {
         {ui.view === 'mass' && items.length > 0 && <Mass items={items} company={e.company.name} salaryTo={need.salary_to} onInvite={(cs) => setInv(cs)} />}
         {ui.view === 'list' && <>
           <p className="r-small r-mute">{sel.total} кандидатов. Порядок: <span title="Тест 60 %, стек 20 %, ФСП 10 %, свежесть 10 %; неподтверждённые — после подтверждённых" className="tip">ⓘ из&nbsp;чего складывается</span></p>
-          {!items.length && <Empty title="В категории никого">Снимите фильтр или добавьте соседние грейды — подборка не&nbsp;потеряется.</Empty>}
+          {!items.length && <Empty title="В категории никого">Снимите фильтр или добавьте соседние грейды — подборка не&nbsp;потеряется.<div className="acts"><button className="r-btn" onClick={() => changeF({ near: true, fsp_only: false, work_format: null, must_stack: false })}>Соседние грейды, без фильтров</button></div></Empty>}
           {items.slice(0, show).map((c, k) => (
             <article key={c.id} className="r-card cand">
               <div className="r-cand">
                 <div className="r-avatar">{k + 1}</div>
                 <div>
                   <p className="r-cand__name">{c.display} {!c.confirmed && <span className="r-mark r-mark--warn">грейд не подтверждён</span>}</p>
-                  <p className="r-cand__role">{spec(c.spec).name} · {gradeName(c.grade)} · {c.work_format}{c.salary ? ` · ожидает ${fmt(c.salary)}` : ''}</p>
+                  <p className="r-cand__role">{spec(c.spec).name} · {gradeName(c.grade)} · {cap(c.work_format)}{c.salary ? ` · ожидает ${fmt(c.salary)}` : ''}</p>
                   <ul className="why">{c.score.why.map((w, i) => <li key={i}><Mark src={w.src}>{w.src === 'warn' ? '!' : undefined}</Mark> {w.text}</li>)}</ul>
                 </div>
                 <div className="r-cand__act">
@@ -192,7 +198,7 @@ function ProfileModal({ c, need, onClose, onInvite, onTalk }) {
   useEffect(() => { get('emp', `/employer/candidates/${c.id}`).then(setCard).catch(() => setCard(c)); }, [c.id]); // eslint-disable-line
   return (
     <Modal title="Профиль кандидата" wide onClose={onClose}>
-      {card ? <CandidateProfileDoc card={card} need={need?.grade} score={c.score} /> : <p className="r-mute">Загружаем…</p>}
+      {card ? <CandidateProfileDoc card={card} need={need?.grade} score={c.score} /> : <SignLoader small />}
       <div className="acts"><button className="r-btn r-btn--main" onClick={onInvite}>Пригласить…</button>{c.talk && <button className="r-btn" onClick={onTalk}>Переговоры агентов…</button>}</div>
     </Modal>
   );
@@ -211,11 +217,11 @@ function Bank() {
       <div className="r-chips scroll-x nowrap">{GRADES.map((g) => <button key={g.id} className="r-chip" aria-pressed={f.grade === g.id} onClick={() => setF({ ...f, grade: f.grade === g.id ? null : g.id })}>{g.name}</button>)}
         <button className="r-chip" aria-pressed={f.fsp_only} onClick={() => setF({ ...f, fsp_only: !f.fsp_only })}>Только с&nbsp;ФСП</button>
         <button className="r-chip" aria-pressed={f.confirmed_only} onClick={() => setF({ ...f, confirmed_only: !f.confirmed_only })}>Только подтверждённые</button>
-        {FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: f.work_format === x ? null : x })}>{x}</button>)}</div>
+        {FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: f.work_format === x ? null : x })}>{cap(x)}</button>)}</div>
       {res && <p className="r-small r-mute">{res.total} кандидатов. Порядок: подтверждённые по оценке теста, затем неподтверждённые.</p>}
       <div className="tablewrap scroll-x"><table className="r-table">
         <thead><tr><th>Кандидат</th><th>Грейд</th><th>Оценка</th><th>Стек</th><th>Формат</th><th>ФСП</th><th>Ожидания</th></tr></thead>
-        <tbody>{(res?.items || []).map((c) => <tr key={c.id}><td><button className="linkish" onClick={() => setProf(c)}>{c.display}</button></td><td>{gradeName(c.grade)}{!c.confirmed && <> <span className="r-mark r-mark--warn">не подтв.</span></>}</td><td className="r-num">{c.confirmed ? `${c.theta.toFixed(2)} ± ${c.se.toFixed(2)}` : '—'}</td><td className="r-small">{c.stack.join(', ')}</td><td>{c.work_format}</td><td>{c.fsp.length ? <Mark src="fsp">{c.fsp.length}</Mark> : <span className="r-mute">—</span>}</td><td className="r-num">{c.salary ? fmt(c.salary) : 'скрыты'}</td></tr>)}</tbody>
+        <tbody>{(res?.items || []).map((c) => <tr key={c.id}><td><button className="linkish" onClick={() => setProf(c)}>{c.display}</button></td><td>{gradeName(c.grade)}{!c.confirmed && <> <span className="r-mark r-mark--warn">не подтв.</span></>}</td><td className="r-num">{c.confirmed ? `${num(c.theta, 2)} ± ${num(c.se, 2)}` : '—'}</td><td className="r-small">{c.stack.join(', ')}</td><td>{c.work_format}</td><td>{c.fsp.length ? <Mark src="fsp">{c.fsp.length}</Mark> : <span className="r-mute">—</span>}</td><td className="r-num">{c.salary ? fmt(c.salary) : 'скрыты'}</td></tr>)}</tbody>
       </table></div>
       {prof && <ProfileModal c={{ ...prof, score: null, talk: null }} onClose={() => setProf(null)} onInvite={() => setProf(null)} />}
     </div>
@@ -228,12 +234,15 @@ function InviteForm({ list, need, onClose }) {
   const own = state.emp.vacancies;
   const [f, setF] = useState({ vacancy_id: null, title: `${spec(c.spec).name}, ${gradeName(c.grade).toLowerCase()}`, text: 'Увидели ваш тест и стек. Хотим познакомиться: 30 минут с техлидом.', salary_from: need?.salary_from || '', salary_to: need?.salary_to || '', contact: state.emp.company.contact || 'Телеграм рекрутера', work_format: need?.work_format || 'гибрид' });
   const lowN = f.salary_to ? list.filter((x) => x.salary && +f.salary_to < x.salary).length : 0;
-  const ok = f.title && f.text && +f.salary_from > 0 && +f.salary_to >= +f.salary_from && f.contact;
+  const noName = !state.emp.company.name;
+  const [company, setCompany] = useState('');
+  const ok = f.title && f.text && +f.salary_from > 0 && +f.salary_to >= +f.salary_from && f.contact && (!noName || company.trim().length > 1);
   const [result, setResult] = useState(null);
   const send = () => act(async () => {
+    if (noName) await patch('emp', '/employer/company', { name: company.trim() });
     const out = [];
     for (const x of list) {
-      try { out.push(await post('emp', '/employer/invites', { ...f, candidate_id: x.id, salary_from: +f.salary_from, salary_to: +f.salary_to, need_id: need?.id })); } catch (err) { out.push({ error: err.message, anon: x.display }); }
+      try { out.push(await post('emp', '/employer/invites', { ...f, candidate_id: x.id, salary_from: +f.salary_from, salary_to: +f.salary_to, need_id: need?.id })); } catch (err) { out.push({ error: err.message, display: x.display }); }
     }
     setResult(out);
   }, 'emp');
@@ -243,19 +252,20 @@ function InviteForm({ list, need, onClose }) {
   }
   return (
     <Modal title={list.length > 1 ? `Приглашение · ${list.length} кандидатам` : `Приглашение · ${c.display}`} onClose={onClose}>
+      {noName && <div className="r-field wide"><label className="r-label" htmlFor="icn">Компания</label><input id="icn" className="r-input" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Как вас увидит кандидат" /><span className="r-hint">ИНН и описание добавите потом во вкладке «Компания».</span></div>}
       <div className="r-field wide"><label className="r-label">Вакансия (необязательно)</label>
         <div className="r-chips"><button className="r-chip" aria-pressed={!f.vacancy_id} onClick={() => setF({ ...f, vacancy_id: null })}>Без вакансии</button>{own.map((v) => <button key={v.id} className="r-chip" aria-pressed={f.vacancy_id === v.id} onClick={() => setF({ ...f, vacancy_id: v.id, title: v.title, salary_from: v.salary_from, salary_to: v.salary_to, work_format: v.work_format })}>{v.title}</button>)}</div></div>
       <div className="r-field wide"><label className="r-label" htmlFor="it">Что предлагаете</label><input id="it" className="r-input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
-      <div className="r-field wide"><label className="r-label" htmlFor="ix">Сообщение</label><textarea id="ix" className="r-area" value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} /></div>
+      <div className="r-field wide"><label className="r-label" htmlFor="ix">Сообщение</label><Dictate value={f.text} onChange={(v) => setF({ ...f, text: v })}><textarea id="ix" className="r-area" value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} /></Dictate></div>
       <div className="grid2 tight">
         <div className="r-field" data-state={lowN ? 'bad' : undefined}><label className="r-label" htmlFor="if">Зарплата от, ₽</label><input id="if" className="r-input r-num" inputMode="numeric" value={f.salary_from} onChange={(e) => setF({ ...f, salary_from: e.target.value.replace(/\D/g, '') })} /></div>
         <div className="r-field" data-state={lowN ? 'bad' : undefined}><label className="r-label" htmlFor="io">до, ₽</label><input id="io" className="r-input r-num" inputMode="numeric" value={f.salary_to} onChange={(e) => setF({ ...f, salary_to: e.target.value.replace(/\D/g, '') })} />{lowN > 0 && <span className="r-hint">{list.length > 1 ? `Ниже ожиданий у ${lowN} из ${list.length} — вероятны отказы` : `Ниже ожиданий кандидата (${fmt(c.salary)}) — вероятен отказ`}</span>}</div>
       </div>
       <div className="grid2 tight">
         <div className="r-field"><label className="r-label" htmlFor="ic">Способ связи</label><input id="ic" className="r-input" value={f.contact} onChange={(e) => setF({ ...f, contact: e.target.value })} /></div>
-        <div><p className="r-label">Формат</p><div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{x}</button>)}</div></div>
+        <div><p className="r-label">Формат</p><div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{cap(x)}</button>)}</div></div>
       </div>
-      <p className="r-small r-mute">Кандидат увидит компанию, предложение и&nbsp;вилку. Его имя и&nbsp;контакты откроются, когда он примет приглашение.</p>
+      <p className="r-small r-mute">Кандидат увидит компанию, предложение и&nbsp;вилку. Почта и&nbsp;телефон кандидата откроются, когда он примет приглашение.</p>
       <div className="acts"><button className="r-btn r-btn--main" disabled={!ok} onClick={send}>Отправить приглашение</button></div>
     </Modal>
   );
@@ -297,16 +307,17 @@ function Vacs() {
   const setStatus = (v, r, status) => act(() => post('emp', `/employer/responses/${r.id}?status=${encodeURIComponent(status)}`)).then(() => loadResp(v.id));
   return (
     <div className="stack">
+      {!state.emp.vacancies.length && <Empty title="Вакансий пока нет">Перенесите свою: вставьте текст или загрузите файл — поля заполнятся сами.</Empty>}
+      <div className="acts" style={{ marginTop: 0 }}><button className="r-btn r-btn--main" onClick={() => setForm(true)}>Перенести свою вакансию…</button></div>
       {state.emp.vacancies.map((v) => (
         <div key={v.id} className="r-card r-card--flat">
-          <p className="r-micro">{spec(v.spec).name} · {gradeName(v.grade)} · {v.work_format}</p>
+          <p className="r-micro">{spec(v.spec).name} · {gradeName(v.grade)} · {cap(v.work_format)}</p>
           <p className="r-h3">{v.title}</p>
           <p className="r-vac__pay">{fmtRange(v.salary_from, v.salary_to)}</p>
           <p className="r-small">{v.team}</p>
           <p className="r-label mt-s">Отклики · {(resp[v.id] || []).length}</p>
           {(resp[v.id] || []).length ? resp[v.id].map((r) => <div key={r.id} className="resp"><span>{r.contacts ? `${r.contacts.name} · ${r.contacts.email}` : r.candidate?.display}{r.candidate ? ` · ${gradeName(r.candidate.grade)}` : ''}</span><Status s={r.status} />{['отправлено', 'просмотрено'].includes(r.status) && <><button className="r-btn r-btn--sm" onClick={() => setStatus(v, r, 'принято')}>Пригласить на&nbsp;встречу</button><button className="r-btn r-btn--sm r-btn--quiet" onClick={() => setStatus(v, r, 'отклонено')}>Отказать</button></>}</div>) : <p className="r-small r-mute">Пока нет. Откликнуться можно из&nbsp;кабинета кандидата.</p>}
         </div>))}
-      <button className="r-btn" onClick={() => setForm(true)}>Новая вакансия…</button>
       {form && <VacancyForm onClose={() => setForm(false)} />}
     </div>
   );
@@ -315,10 +326,34 @@ function Vacs() {
 function VacancyForm({ onClose }) {
   const { act } = useStore();
   const [f, setF] = useState({ title: '', spec: 'backend', grade: 2, stack: ['Python'], salary_from: '', salary_to: '', work_format: 'гибрид', team: '', tasks: '' });
+  // Переезд: сначала текст или файл своей вакансии, потом проверка полей. Чужие вакансии не импортируем.
+  const [step, setStep] = useState('import');
+  const [src, setSrc] = useState('');
+  const [miss, setMiss] = useState([]);
+  const fill = (p) => {
+    setF((v) => ({ ...v, title: p.title || v.title, spec: p.spec, grade: p.grade, stack: p.stack?.length ? p.stack : v.stack, work_format: p.work_format || v.work_format,
+      salary_from: p.salary_from ? String(p.salary_from) : '', salary_to: p.salary_to ? String(p.salary_to) : '', team: p.team || '', tasks: (p.tasks || []).join('\n') }));
+    setMiss([!p.title && 'название', !p.spec_found && 'специализацию', !p.grade_found && 'грейд', !p.salary_from && !p.salary_to && 'вилку'].filter(Boolean));
+    setStep('form');
+  };
+  const parseText = () => act(() => post('emp', '/employer/vacancies/parse', { text: src })).then(fill);
+  const parseFile = (file) => { const fd = new FormData(); fd.append('file', file); act(() => req('emp', 'POST', '/employer/vacancies/parse-file', fd, { form: true })).then((p) => { setSrc(p.text || ''); fill(p); }); };
+  if (step === 'import') return (
+    <Modal title="Перенести свою вакансию" onClose={onClose}>
+      <p className="r-mute">Вставьте текст вакансии, как он лежит у вас на сайте или в ATS, или загрузите файл. Поля заполнятся сами, вы их проверите.</p>
+      <div className="r-field wide"><label className="r-label" htmlFor="vsrc">Текст вакансии</label><Dictate value={src} onChange={setSrc}><textarea id="vsrc" className="r-area" rows={7} value={src} onChange={(e) => setSrc(e.target.value)} placeholder={'Бэкенд-разработчик, middle\nЗадачи:\n- …\nУсловия: гибрид, 220–300 тыс. ₽'} /></Dictate></div>
+      <div className="acts">
+        <button className="r-btn r-btn--main" disabled={src.trim().length < 20} onClick={parseText}>Разобрать текст</button>
+        <label className="r-btn">Загрузить файл…<input type="file" accept=".pdf,.docx,.txt,.md" hidden onChange={(e) => e.target.files[0] && parseFile(e.target.files[0])} /></label>
+        <button className="r-btn r-btn--quiet" onClick={() => setStep('form')}>Заполнить вручную</button>
+      </div>
+    </Modal>
+  );
   const ok = f.title && +f.salary_from > 0 && +f.salary_to >= +f.salary_from;
   const save = () => act(() => post('emp', '/employer/vacancies', { ...f, salary_from: +f.salary_from, salary_to: +f.salary_to, tasks: f.tasks.split('\n').map((s) => s.trim()).filter(Boolean) }), 'emp').then(onClose);
   return (
     <Modal title="Новая вакансия" onClose={onClose}>
+      {src && <p className="r-small">{miss.length ? <>Заполнили из&nbsp;текста. Не&nbsp;нашли {miss.join(', ')}&nbsp;— укажите ниже.</> : 'Заполнили из текста — проверьте поля и опубликуйте.'}</p>}
       <div className="r-field wide"><label className="r-label" htmlFor="vt">Название</label><input id="vt" className="r-input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
       <div className="r-chips scroll-x nowrap">{SPECS.map((s) => <button key={s.id} className="r-chip" aria-pressed={f.spec === s.id} onClick={() => setF({ ...f, spec: s.id, stack: s.stack.slice(0, 2) })}>{s.name}</button>)}</div>
       <div className="r-chips scroll-x nowrap mt-s">{GRADES.map((g) => <button key={g.id} className="r-chip" aria-pressed={f.grade === g.id} onClick={() => setF({ ...f, grade: g.id })}>{g.name}</button>)}</div>
@@ -327,9 +362,9 @@ function VacancyForm({ onClose }) {
         <div className="r-field"><label className="r-label" htmlFor="vf">Зарплата от, ₽</label><input id="vf" className="r-input r-num" inputMode="numeric" value={f.salary_from} onChange={(e) => setF({ ...f, salary_from: e.target.value.replace(/\D/g, '') })} /></div>
         <div className="r-field"><label className="r-label" htmlFor="vo">до, ₽</label><input id="vo" className="r-input r-num" inputMode="numeric" value={f.salary_to} onChange={(e) => setF({ ...f, salary_to: e.target.value.replace(/\D/g, '') })} /><span className="r-hint">Без вилки вакансия не сохранится.</span></div>
       </div>
-      <div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{x}</button>)}</div>
-      <div className="r-field wide"><label className="r-label" htmlFor="vm">Команда</label><textarea id="vm" className="r-area" rows={2} value={f.team} onChange={(e) => setF({ ...f, team: e.target.value })} /></div>
-      <div className="r-field wide"><label className="r-label" htmlFor="vk">Задачи на первые месяцы, по строке</label><textarea id="vk" className="r-area" rows={3} value={f.tasks} onChange={(e) => setF({ ...f, tasks: e.target.value })} /></div>
+      <div className="r-chips">{FORMATS.map((x) => <button key={x} className="r-chip" aria-pressed={f.work_format === x} onClick={() => setF({ ...f, work_format: x })}>{cap(x)}</button>)}</div>
+      <div className="r-field wide"><label className="r-label" htmlFor="vm">Команда</label><Dictate value={f.team} onChange={(v) => setF({ ...f, team: v })}><textarea id="vm" className="r-area" rows={2} value={f.team} onChange={(e) => setF({ ...f, team: e.target.value })} /></Dictate></div>
+      <div className="r-field wide"><label className="r-label" htmlFor="vk">Задачи на первые месяцы, по строке</label><Dictate value={f.tasks} onChange={(v) => setF({ ...f, tasks: v })}><textarea id="vk" className="r-area" rows={3} value={f.tasks} onChange={(e) => setF({ ...f, tasks: e.target.value })} /></Dictate></div>
       <div className="acts"><button className="r-btn r-btn--main" disabled={!ok} onClick={save}>Опубликовать</button></div>
     </Modal>
   );

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <style>
+    .es-a { animation-duration: 7.2s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .es-first { transform: translate(0px, 0px); animation-name: es-down; }
+    .es-second { transform: translate(0px, 0px); animation-name: es-up; }
+    .es-button { opacity: 0; animation-name: es-offer; }
+    .es-invitation { transform: translateX(0px); animation-name: es-send; }
+    @keyframes es-down {
+      0%, 8%, 98%, 100% { transform: translate(0px, 0px); }
+      14%, 92% { transform: translate(-12px, 0px); }
+      26%, 80% { transform: translate(-12px, 40px); }
+      32%, 74% { transform: translate(0px, 40px); }
+    }
+    @keyframes es-up {
+      0%, 8%, 98%, 100% { transform: translate(0px, 0px); }
+      14%, 92% { transform: translate(12px, 0px); }
+      26%, 80% { transform: translate(12px, -40px); }
+      32%, 74% { transform: translate(0px, -40px); }
+    }
+    @keyframes es-offer {
+      0%, 34%, 72%, 100% { opacity: 0; }
+      44%, 64% { opacity: 1; }
+    }
+    @keyframes es-send {
+      0%, 46%, 74%, 100% { transform: translateX(0px); }
+      62%, 64% { transform: translateX(32px); }
+    }
+    @media (prefers-reduced-motion: reduce) { .es-a { animation: none; } }
+  </style>
+
+  <g class="es-categories">
+    <rect x="56" y="40" width="108" height="52" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="72" y="56" width="62" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="72" y="72" width="40" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+
+    <rect x="178" y="40" width="108" height="52" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="194" y="56" width="66" height="8" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="194" y="72" width="42" height="6" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+
+    <rect x="300" y="40" width="108" height="52" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="316" y="56" width="56" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="316" y="72" width="70" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+
+    <rect x="56" y="106" width="108" height="52" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="72" y="122" width="68" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="72" y="138" width="50" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+
+    <rect x="178" y="106" width="108" height="52" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="194" y="122" width="52" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="194" y="138" width="66" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+
+    <rect x="300" y="106" width="108" height="52" rx="6" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="316" y="122" width="70" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="316" y="138" width="44" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <path d="M232 168V186M224 178L232 186L240 178" stroke="var(--r-blue, #402FFF)"/>
+  <path d="M394 215H422M414 207L422 215L414 223" stroke="var(--r-blue, #402FFF)"/>
+
+  <g class="es-a es-first">
+    <rect x="56" y="198" width="352" height="34" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="68" y="208" width="14" height="14" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="98" y="206" width="104" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="98" y="219" width="66" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="230" y="208" width="48" height="14" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+
+  <g class="es-a es-second">
+    <rect x="56" y="238" width="352" height="34" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="var(--r-blue, #402FFF)"/>
+    <rect x="68" y="248" width="14" height="14" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="98" y="246" width="86" height="6" rx="3" fill="var(--r-ink, #1B1C21)" stroke="none"/>
+    <rect x="98" y="259" width="116" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="230" y="248" width="48" height="14" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <g class="es-a es-button">
+      <rect x="306" y="246" width="82" height="18" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    </g>
+  </g>
+
+  <g class="es-row-third">
+    <rect x="56" y="278" width="352" height="34" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="68" y="288" width="14" height="14" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="98" y="286" width="112" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="98" y="299" width="80" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="230" y="288" width="48" height="14" rx="6" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+  </g>
+
+  <g class="es-row-fourth">
+    <rect x="56" y="318" width="352" height="34" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="68" y="328" width="14" height="14" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="98" y="326" width="96" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="98" y="339" width="60" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="230" y="328" width="48" height="14" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+
+  <g class="es-a es-invitation">
+    <rect x="424" y="178" width="140" height="104" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="442" y="196" width="80" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="442" y="214" width="56" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <path d="M442 250H546" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="458" y="245" width="64" height="10" rx="6" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M458 238V264M522 238V264" stroke="var(--r-blue, #402FFF)"/>
+  </g>
+</svg>

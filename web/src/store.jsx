@@ -5,8 +5,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer 
 import { get, patch, post, tokens } from './api.js';
 
 const UI_KEY = 'razryad-ui-v2';
-const initialUi = { role: 'cand', skin: 'razryad', theme: 'auto', candTab: 'invites', empTab: 'search', needId: null, filters: { near: false, fsp_only: false, work_format: null, must_stack: false }, view: 'mass', shortlist: [], error: null };
-const loadUi = () => { try { return { ...initialUi, ...(JSON.parse(localStorage.getItem(UI_KEY)) || {}), error: null }; } catch { return initialUi; } };
+const initialUi = { role: 'home', lside: 'emp', skin: 'auto', theme: 'auto', candTab: 'invites', empTab: 'search', needId: null, filters: { near: false, fsp_only: false, work_format: null, must_stack: false }, view: 'mass', shortlist: [], error: null };
+// Адрес #business или #candidates открывает главную нужной стороны.
+// Вид, сохранённый до подачи по стороне, выбором человека не был: без метки skinPicked он снова «по стороне».
+const loadUi = () => { try { const saved = JSON.parse(localStorage.getItem(UI_KEY)) || {}; if (!saved.skinPicked) saved.skin = 'auto'; const h = { '#business': 'emp', '#candidates': 'cand' }[location.hash]; if (h) { saved.role = 'home'; saved.lside = h; } return { ...initialUi, ...saved, error: null }; } catch { return initialUi; } };
 
 function reducer(s, a) {
   switch (a.type) {
@@ -23,6 +25,12 @@ const Ctx = createContext(null);
 export function Store({ children }) {
   const [state, dispatch] = useReducer(reducer, null, () => ({ ui: loadUi(), cand: { authed: !!tokens.cand, profile: null }, emp: { authed: !!tokens.emp, company: null } }));
   useEffect(() => { try { const { error, ...rest } = state.ui; localStorage.setItem(UI_KEY, JSON.stringify(rest)); } catch { /* приватное окно */ } }, [state.ui]);
+
+  // Ссылка #business / #candidates в уже открытой вкладке тоже ведёт на главную нужной стороны.
+  useEffect(() => {
+    const on = () => { const h = { '#business': 'emp', '#candidates': 'cand' }[location.hash]; if (h) { dispatch({ type: 'ui', patch: { role: 'home', lside: h } }); window.scrollTo(0, 0); } };
+    window.addEventListener('hashchange', on); return () => window.removeEventListener('hashchange', on);
+  }, []);
 
   const fail = useCallback((e) => { dispatch({ type: 'error', text: e.message }); setTimeout(() => dispatch({ type: 'error', text: null }), 4000); }, []);
 

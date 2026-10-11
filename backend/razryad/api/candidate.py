@@ -6,9 +6,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..core.catalog import DECLINE_REASONS, GRADES, SPEC_IDS, WORK_FORMATS
+from ..core.docs import extract_text
 from ..core.llm import provider
 from ..db import get_db
-from ..models import Candidate, Employer, FspAchievement, Invite, Response, TestSession, Vacancy
+from ..models import Candidate, Employer, FspAchievement, Invite, Need, Response, TestSession, Vacancy
 from ..core.scoring import rank as rank_cands
 from .deps import current_candidate
 
@@ -103,23 +104,35 @@ def toggle_fact(k: str, approved: bool, c: Candidate = Depends(current_candidate
 
 @router.post("/resume", summary="Загрузить резюме (PDF или текст): поля распознаются и получают метку «со слов»")
 async def upload_resume(file: UploadFile, c: Candidate = Depends(current_candidate), db: Session = Depends(get_db)):
-    raw = await file.read()
-    text = raw.decode("utf-8", "ignore")
-    if file.filename and file.filename.lower().endswith(".pdf"):
-        try:
-            from pypdf import PdfReader  # необязательная зависимость
-            import io
-            text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(raw)).pages)
-        except Exception:
-            text = ""
+    text = extract_text(file.filename, await file.read())
+    if not text.strip():
+        raise HTTPException(422, "Не получилось прочитать файл: пришлите PDF, DOCX или текст")
+    return _apply_resume(db, c, text)
+
+
+class AboutIn(BaseModel):
+    text: str
+
+
+@router.post("/about", summary="Рассказать о себе своими словами или голосом: разбор тот же, что у резюме")
+def about(body: AboutIn, c: Candidate = Depends(current_candidate), db: Session = Depends(get_db)):
+    if len(body.text.strip()) < 20:
+        raise HTTPException(422, "Расскажите хотя бы пару предложений")
+    return _apply_resume(db, c, body.text)
+
+
+def _apply_resume(db: Session, c: Candidate, text: str) -> dict:
+    """До опроса распознанное заменяет значения по умолчанию, после — заполняет только пустые поля.
+    Всё встаёт фактами «со слов»."""
     parsed = provider.parse_resume(text)
     c.resume_text = text[:20000]
-    if parsed["stack"] and not c.stack:
-        c.stack = parsed["stack"]
-    if parsed["years"] and not c.years:
-        c.years = parsed["years"]
-    if parsed["phone"] and not c.phone:
-        c.phone = parsed["phone"]
+    fresh = c.claimed_grade is None
+    for field in ("name", "spec", "stack", "years", "salary", "work_format", "phone"):
+        if parsed.get(field) and (fresh or not getattr(c, field)):
+            setattr(c, field, parsed[field])
+    if parsed["workplaces"]:
+        c.facts = [f for f in c.facts if f.get("k") != "Места работы"] + [
+            {"k": "Места работы", "v": ", ".join(parsed["workplaces"]), "src": "word", "approved": True}]
     _sync_facts(c)
     db.commit()
     return {"parsed": parsed, "profile": profile_out(db, c)}
@@ -261,7 +274,10 @@ def my_rank(c: Candidate = Depends(current_candidate), db: Session = Depends(get
         moves.append({"text": "Пересдать тест и поднять оценку на 0,3", "pos": what({"theta": min(2.6, c.theta + 0.3)})})
     else:
         moves.append({"text": "Подтвердить грейд тестом", "pos": what({"grade": need["grade"], "theta": 0.0, "se": 0.4})})
-    return {"pos": pos, "total": len(res), "need": need, "parts": mine, "above_by": by, "moves": moves, "confirmed": c.grade is not None}
+    # Сколько компаний ищут в категории: вакансии и запросы подбора той же специализации, грейд ±1.
+    looking = len({x.employer_id for M in (Vacancy, Need)
+                   for x in db.query(M).filter(M.spec == c.spec, M.grade.between(need["grade"] - 1, need["grade"] + 1))})
+    return {"pos": pos, "total": len(res), "need": need, "parts": mine, "above_by": by, "moves": moves, "confirmed": c.grade is not None, "looking": looking}
 
 
 @router.get("/stats", summary="Моя статистика: место в категории, приглашения и их вилки против ожиданий")

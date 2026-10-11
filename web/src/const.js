@@ -24,4 +24,8 @@ export const spec = (id) => SPECS.find((s) => s.id === id) || SPECS[0];
 export const gradeName = (g) => (g == null ? '—' : GRADES[g].name);
 export const fmt = (v) => (v == null ? '—' : v.toLocaleString('ru-RU').replace(/,/g, ' ') + ' ₽');
 export const fmtRange = (a, b) => `${(a / 1000).toFixed(0)}–${(b / 1000).toFixed(0)} тыс. ₽`;
+// Значение для экрана: с заглавной (данные в API остаются как есть).
+export const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+// Дробное число по-русски: запятая и настоящий минус.
+export const num = (x, d = 2) => x.toFixed(d).replace('.', ',').replace('-', '−');
 export const dateRu = (s) => (s ? new Date(s).toLocaleDateString('ru-RU') : '—');

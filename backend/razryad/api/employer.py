@@ -1,12 +1,13 @@
 """Кабинет работодателя: профиль компании, потребность и подборка, банк кандидатов, приглашения, вакансии, задания."""
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..core.agents import negotiate
 from ..core.catalog import GRADES, SPEC_IDS
+from ..core.docs import extract_text
 from ..core.llm import provider
 from ..core.scoring import rank
 from ..db import get_db
@@ -302,6 +303,25 @@ class VacancyIn(BaseModel):
     team: str = ""
     tasks: list[str] = []
     published: bool = True
+
+
+class VacancyTextIn(BaseModel):
+    text: str
+
+
+@router.post("/vacancies/parse", summary="Переезд: текст своей вакансии — в поля формы (чужие вакансии не импортируем)")
+def parse_vacancy(body: VacancyTextIn, e: Employer = Depends(current_employer)):
+    if len(body.text.strip()) < 20:
+        raise HTTPException(422, "Вставьте текст вакансии целиком")
+    return provider.parse_vacancy(body.text)
+
+
+@router.post("/vacancies/parse-file", summary="Переезд: файл своей вакансии (PDF, DOCX, TXT) — в поля формы")
+async def parse_vacancy_file(file: UploadFile, e: Employer = Depends(current_employer)):
+    text = extract_text(file.filename, await file.read())
+    if len(text.strip()) < 20:
+        raise HTTPException(422, "Не получилось прочитать файл: пришлите PDF, DOCX или текст")
+    return {**provider.parse_vacancy(text), "text": text[:6000]}
 
 
 @router.post("/vacancies", summary="Опубликовать вакансию (без вилки не сохраняется)")

@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none" stroke="var(--r-ink, #1B1C21)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <style>
+    .mc-a { animation-duration: 7.2s; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .mc-packet { opacity: 0; transform: translateX(0px); }
+    .mc-packet-resume { animation-name: mc-send-resume; }
+    .mc-packet-resume-two { animation-name: mc-send-resume-two; }
+    .mc-packet-fsp { animation-name: mc-send-fsp; }
+    .mc-packet-fsp-two { animation-name: mc-send-fsp-two; }
+    .mc-packet-repository { animation-name: mc-send-repository; }
+    .mc-packet-repository-two { animation-name: mc-send-repository-two; }
+    .mc-row { opacity: 1; transform: translateX(0px); }
+    .mc-row-resume { animation-name: mc-receive-resume; }
+    .mc-row-fsp { animation-name: mc-receive-fsp; }
+    .mc-row-repository { animation-name: mc-receive-repository; }
+    @keyframes mc-send-resume {
+      0%, 6%, 100% { opacity: 0; transform: translateX(0px); }
+      8% { opacity: 1; transform: translateX(0px); }
+      14% { opacity: 1; transform: translateX(40px); }
+      16%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-send-resume-two {
+      0%, 14%, 100% { opacity: 0; transform: translateX(0px); }
+      16% { opacity: 1; transform: translateX(0px); }
+      22% { opacity: 1; transform: translateX(40px); }
+      24%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-send-fsp {
+      0%, 34%, 100% { opacity: 0; transform: translateX(0px); }
+      36% { opacity: 1; transform: translateX(0px); }
+      42% { opacity: 1; transform: translateX(40px); }
+      44%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-send-fsp-two {
+      0%, 42%, 100% { opacity: 0; transform: translateX(0px); }
+      44% { opacity: 1; transform: translateX(0px); }
+      50% { opacity: 1; transform: translateX(40px); }
+      52%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-send-repository {
+      0%, 62%, 100% { opacity: 0; transform: translateX(0px); }
+      64% { opacity: 1; transform: translateX(0px); }
+      70% { opacity: 1; transform: translateX(40px); }
+      72%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-send-repository-two {
+      0%, 70%, 100% { opacity: 0; transform: translateX(0px); }
+      72% { opacity: 1; transform: translateX(0px); }
+      78% { opacity: 1; transform: translateX(40px); }
+      80%, 96% { opacity: 0; transform: translateX(40px); }
+    }
+    @keyframes mc-receive-resume {
+      0%, 22%, 100% { opacity: 0; transform: translateX(-8px); }
+      24% { opacity: 1; transform: translateX(-8px); }
+      28%, 90% { opacity: 1; transform: translateX(0px); }
+      96% { opacity: 0; transform: translateX(0px); }
+    }
+    @keyframes mc-receive-fsp {
+      0%, 50%, 100% { opacity: 0; transform: translateX(-8px); }
+      52% { opacity: 1; transform: translateX(-8px); }
+      56%, 90% { opacity: 1; transform: translateX(0px); }
+      96% { opacity: 0; transform: translateX(0px); }
+    }
+    @keyframes mc-receive-repository {
+      0%, 78%, 100% { opacity: 0; transform: translateX(-8px); }
+      80% { opacity: 1; transform: translateX(-8px); }
+      84%, 90% { opacity: 1; transform: translateX(0px); }
+      96% { opacity: 0; transform: translateX(0px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mc-a { animation: none; }
+      .mc-row { opacity: 1; transform: none; }
+      .mc-packet { opacity: 0; transform: none; }
+    }
+  </style>
+
+  <g class="mc-profile">
+    <rect x="318" y="44" width="278" height="312" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="342" y="68" width="32" height="32" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="352" y="78" width="12" height="12" rx="6" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="390" y="72" width="130" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="390" y="90" width="84" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <path d="M342 110H572" stroke="var(--r-hair, rgba(27,28,33,.14))"/>
+    <rect x="342" y="128" width="156" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="342" y="172" width="124" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="342" y="216" width="144" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="342" y="260" width="136" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="342" y="304" width="156" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="mc-source-resume">
+    <rect x="44" y="80" width="254" height="80" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <path d="M68 98H91L104 111V142H68Z" fill="var(--r-paper, #FFFFFF)"/>
+    <path d="M91 98V111H104" stroke="var(--r-blue, #402FFF)"/>
+    <rect x="76" y="120" width="20" height="6" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="76" y="131" width="14" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="128" y="100" width="112" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="128" y="118" width="88" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="254" y="128" width="40" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="mc-source-fsp">
+    <rect x="44" y="168" width="254" height="80" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <path d="M72 186H100V198Q100 211 86 215Q72 211 72 198Z" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <path d="M72 190H66V196Q66 204 75 204M100 190H106V196Q106 204 97 204M86 215V225M76 227H96" stroke="var(--r-blue, #402FFF)"/>
+    <rect x="128" y="188" width="100" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="128" y="206" width="72" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="254" y="216" width="40" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="mc-source-repository">
+    <rect x="44" y="256" width="254" height="80" rx="12" fill="var(--r-paper, #FFFFFF)"/>
+    <rect x="66" y="276" width="40" height="40" rx="6" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <path d="M80 286L72 296L80 306M92 286L100 296L92 306" stroke="var(--r-blue, #402FFF)"/>
+    <rect x="128" y="276" width="108" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="128" y="294" width="80" height="6" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+    <rect x="254" y="304" width="40" height="8" rx="3" fill="var(--r-hair, rgba(27,28,33,.14))" stroke="none"/>
+  </g>
+
+  <g class="mc-a mc-packet mc-packet-resume">
+    <rect x="254" y="128" width="40" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-packet mc-packet-resume-two">
+    <rect x="294" y="128" width="40" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-packet mc-packet-fsp">
+    <rect x="254" y="216" width="40" height="8" rx="3" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-packet mc-packet-fsp-two">
+    <rect x="294" y="216" width="40" height="8" rx="3" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-packet mc-packet-repository">
+    <rect x="254" y="304" width="40" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-packet mc-packet-repository-two">
+    <rect x="294" y="304" width="40" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+  </g>
+
+  <g class="mc-a mc-row mc-row-resume">
+    <rect x="342" y="128" width="156" height="8" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="342" y="128" width="100" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="516" y="120" width="56" height="24" rx="12" fill="none"/>
+  </g>
+  <g class="mc-a mc-row mc-row-fsp">
+    <rect x="342" y="216" width="144" height="8" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="342" y="216" width="88" height="8" rx="3" fill="var(--r-blue, #402FFF)" stroke="none"/>
+    <rect x="516" y="208" width="56" height="24" rx="12" fill="var(--r-blue, #402FFF)" stroke="none"/>
+  </g>
+  <g class="mc-a mc-row mc-row-repository">
+    <rect x="342" y="304" width="156" height="8" rx="3" fill="var(--r-paper, #FFFFFF)" stroke="none"/>
+    <rect x="342" y="304" width="112" height="8" rx="3" fill="var(--r-sun, #DAD6FF)" stroke="none"/>
+    <rect x="516" y="296" width="56" height="24" rx="12" fill="none"/>
+  </g>
+</svg>

@@ -8,7 +8,7 @@ import { Negotiation } from './Artifacts.jsx';
 
 const ORDER = { ok: 0, part: 1, no: 2 };
 const CELLS = [['Стек', 'Стек'], ['Грейд', 'Грейд'], ['Деньги', 'Деньги'], ['Формат', 'Формат'], ['Мотивация', 'Мотив']];
-const WORD = { ok: 'совпадает', part: 'с оговоркой', no: 'расхождение', nodata: 'нет данных' };
+const WORD = { ok: 'Совпадает', part: 'С оговоркой', no: 'Расхождение', nodata: 'Нет данных' };
 
 export default function Mass({ items, company, salaryTo, onInvite }) {
   const rows = useMemo(() => items.map((c, i) => ({ c, pos: i + 1, n: c.talk })), [items]);
@@ -59,13 +59,13 @@ export default function Mass({ items, company, salaryTo, onInvite }) {
                 <td className="r-num">{r.pos}</td>
                 <td><button className="linkish" onClick={() => setOpen(r)}>{r.c.display}</button><span className="r-small r-mute"> · {gradeName(r.c.grade)}{r.c.confirmed ? '' : ' · не подтверждён'}</span></td>
                 {CELLS.map(([k]) => { const x = by[k]; return <td key={k}>{x ? <i className={`cdot cd-${x.state}`} title={`${WORD[x.state]}: ${x.note}`} /> : <span className="r-mute">—</span>}</td>; })}
-                <td className={`mass-v v2-${r.n.verdict.kind}`}>{{ ok: 'совпало', part: 'оговорки', no: 'нет' }[r.n.verdict.kind]}</td>
+                <td className={`mass-v v2-${r.n.verdict.kind}`}>{{ ok: 'Совпало', part: 'Оговорки', no: 'Нет' }[r.n.verdict.kind]}</td>
               </tr>
             );
           })}</tbody>
         </table>
       </div>
-      <p className="r-small r-mute legend"><i className="cdot cd-ok" /> совпадает <i className="cdot cd-part" /> с оговоркой <i className="cdot cd-no" /> расхождение <i className="cdot cd-nodata" /> нет данных · строка открывает протокол</p>
+      <p className="r-small r-mute legend"><i className="cdot cd-ok" /> Совпадает <i className="cdot cd-part" /> С оговоркой <i className="cdot cd-no" /> Расхождение <i className="cdot cd-nodata" /> Нет данных · строка открывает протокол</p>
       <div className="mass-act">
         <button className="r-btn r-btn--sm" disabled={!finished} onClick={() => setSel(sorted.filter((r) => r.n.verdict.kind === 'ok').map((r) => r.c.id))}>Выбрать всех «совпало»</button>
         <button className="r-btn r-btn--main" disabled={!sel.length} onClick={() => onInvite(rows.filter((r) => sel.includes(r.c.id)).map((r) => r.c))}>Пригласить выбранных · {sel.length}…</button>

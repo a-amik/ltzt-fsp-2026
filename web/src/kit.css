@@ -298,3 +298,7 @@
 }
 
 /* Графика «Разряда»: искра между профилем и вакансией. */
+
+/* На заливке --r-sun текст и значки — только --r-on-sun. В «Разряде» --r-sun
+   жёлтый, и светлое перо тёмной темы на нём не читается (участник, 11.10.2026). */
+.r-turn--cand .r-turn__body, .pa-mine, .c-part td:nth-child(2), .v-part, .cd-part, .r-card--sun, .st-seen { color: var(--r-on-sun); --r-ink: var(--r-on-sun); --r-mute: var(--r-on-sun); --r-hair: var(--r-on-sun); }
