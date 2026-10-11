@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..config import settings
-from ..core import bank
+from ..core import bank, sandbox
 from ..core.irt import estimate, pick_next, prior_for, should_stop, verdict
 from ..core.llm import provider
 from ..db import get_db
@@ -107,7 +107,10 @@ def answer(body: AnswerIn, c: Candidate = Depends(current_candidate), db: Sessio
     if cur.get("open"):
         if not body.text or len(body.text.strip()) < 20:
             raise HTTPException(422, "Опишите подход хотя бы в двух предложениях")
-        g = provider.grade_open(body.text, cur["rubric"], cur["keys"])
+        if cur.get("sandbox"):  # задание с кодом: решение запускается в песочнице на скрытых тестах
+            g = sandbox.run(body.text, cur["sandbox"]["fn"], [tuple(t) for t in cur["sandbox"]["tests"]])
+        else:
+            g = provider.grade_open(body.text, cur["rubric"], cur["keys"])
         score, detail = g["score"], g
     else:
         if body.pick is None:

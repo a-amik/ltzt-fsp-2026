@@ -1297,6 +1297,8 @@ def _(r):
                fmt(ok), code=True)
 
 
+from . import bank_code, bank_x1, bank_x2, bank_x3  # noqa: E402,F401 — дополнительные шаблоны регистрируются в T при импорте
+
 TEMPLATES = sorted(T, key=lambda t: t.id)
 BY_ID = {t.id: t for t in TEMPLATES}
 
@@ -1332,7 +1334,7 @@ def instance(t: Template, seed: int) -> dict:
 
 def public(inst: dict) -> dict:
     """Клиенту без эталона, ключей рубрики и зерна: по зерну и открытому банку экземпляр собирается вместе с ответом."""
-    return {k: v for k, v in inst.items() if k not in ("ok", "keys", "seed")}
+    return {k: v for k, v in inst.items() if k not in ("ok", "keys", "seed", "sandbox")}  # sandbox — скрытые тесты задания с кодом
 
 
 def grade_open(text: str, inst: dict) -> dict:
